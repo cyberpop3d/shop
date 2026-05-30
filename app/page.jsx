@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const products = [
   {
@@ -87,7 +87,8 @@ const products = [
     rarity: "Rare",
     rarityClass: "rare",
     category: "STL Bundle",
-    status: "Portfolio sample",
+    status: "Live GLB preview",
+    modelSrc: "/models/sonya-blade.glb",
     digitalPrice: 5,
     sizePrices: { 15: 34, 30: 62, 40: 96 },
     creditValue: 230,
@@ -157,12 +158,102 @@ const products = [
 
 const modeLabels = ["Lobby", "Profile", "3D Studio", "Loot", "Mini Game", "Rewards"];
 
-const rewardTiers = [
-  { level: 1, title: "Starter Collector", unlocks: ["Profile trophy", "Site points", "Wallpaper pack"] },
-  { level: 2, title: "Print Club", unlocks: ["GIF reward", "Artwork drop", "1 wheel spin"] },
-  { level: 3, title: "Vault Regular", unlocks: ["Sticker sheet", "Bonus site credit", "Profile badge"] },
-  { level: 4, title: "Rare Hunter", unlocks: ["Extra wheel spins", "Early access slot", "Vault artwork"] },
-  { level: 5, title: "Character Unlock", unlocks: ["Mystery character silhouette", "Founder trophy", "Special animation"] }
+const collectionFilters = [
+  { id: "all", label: "View All", note: "Full lobby shelf", ids: products.map((item) => item.id) },
+  { id: "90s-arcade", label: "90s Arcade", note: "Fighting game nostalgia", ids: ["sagat-corporate", "cammy-sf6", "johnny-cage", "sonya-blade", "raiden-vault"] },
+  { id: "street-fighters", label: "Street Fighters", note: "Tournament shelf", ids: ["sagat-corporate", "cammy-sf6"] },
+  { id: "mk-arena", label: "MK Arena", note: "Arcade combat icons", ids: ["johnny-cage", "sonya-blade", "raiden-vault"] },
+  { id: "beach-theme", label: "Beach Theme", note: "Summer body drops", ids: ["cammy-sf6", "sonya-blade"] },
+  { id: "vault-rares", label: "Vault Rares", note: "High value unlocks", ids: ["raiden-vault", "shadow-founder"] }
+];
+
+const productRanks = {
+  "sagat-corporate": { popularity: 86, release: 4 },
+  "cammy-sf6": { popularity: 91, release: 5 },
+  "johnny-cage": { popularity: 82, release: 3 },
+  "sonya-blade": { popularity: 94, release: 6 },
+  "raiden-vault": { popularity: 98, release: 2 },
+  "shadow-founder": { popularity: 72, release: 1 }
+};
+
+const sortOptions = [
+  { id: "newest", label: "Newest" },
+  { id: "popular", label: "Most Popular" },
+  { id: "expensive", label: "Highest Price" }
+];
+
+const rewardMilestones = [
+  {
+    id: "wallpaper-sagat",
+    xp: 8,
+    type: "Wallpaper",
+    title: "Sagat Corporate Wallpaper",
+    description: "A clean cover-image style wallpaper reward for the collector profile library.",
+    characterId: "sagat-corporate",
+    icon: "▣",
+    glow: "#4fc9ff"
+  },
+  {
+    id: "sonya-gif",
+    xp: 22,
+    type: "GIF",
+    title: "Sonya Blade GIF",
+    description: "A short animated profile reward connected to the Sonya collectible slot.",
+    characterId: "sonya-blade",
+    icon: "◈",
+    glow: "#7df05a"
+  },
+  {
+    id: "silent-sticker",
+    xp: 38,
+    type: "Sticker",
+    title: "Johnny Cage Silent Sticker",
+    description: "A profile sticker reward with a clean comic-card preview style.",
+    characterId: "johnny-cage",
+    icon: "✦",
+    glow: "#40d9ff"
+  },
+  {
+    id: "wheel-spin",
+    xp: 54,
+    type: "Wheel Spin",
+    title: "Bonus Wheel Spin",
+    description: "One extra reward spin added to the account reward pool.",
+    characterId: "cammy-sf6",
+    icon: "✺",
+    glow: "#6df0ce"
+  },
+  {
+    id: "vault-artwork",
+    xp: 70,
+    type: "Artwork",
+    title: "Raiden Vault Artwork",
+    description: "A premium artwork card for the vault-themed profile gallery.",
+    characterId: "raiden-vault",
+    icon: "◆",
+    glow: "#81efff"
+  },
+  {
+    id: "profile-trophy",
+    xp: 84,
+    type: "Trophy",
+    title: "Rare Hunter Trophy",
+    description: "A profile trophy that marks a higher collector loyalty tier.",
+    characterId: "shadow-founder",
+    icon: "★",
+    glow: "#ffd56d"
+  },
+  {
+    id: "character-unlock",
+    xp: 96,
+    type: "Character Unlock",
+    title: "Founder Shadow Character",
+    description: "A future character unlock slot. The silhouette stays locked until the required loyalty stage.",
+    characterId: "shadow-founder",
+    icon: "?",
+    glow: "#ffcc63",
+    mystery: true
+  }
 ];
 
 function cx(...items) {
@@ -177,7 +268,68 @@ function Button({ children, onClick, variant = "dark", className = "", disabled 
   );
 }
 
+function hexToRgba(hex) {
+  const value = hex.replace("#", "");
+  const full = value.length === 3 ? value.split("").map((char) => char + char).join("") : value;
+  const int = parseInt(full, 16);
+  return [((int >> 16) & 255) / 255, ((int >> 8) & 255) / 255, (int & 255) / 255, 1];
+}
+
+function GLBFigure({ product, big = false, studioColors }) {
+  const viewerRef = useRef(null);
+
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer || !studioColors || studioColors.length === 0) return;
+
+    const applyStudioColors = () => {
+      const materials = viewer.model?.materials || [];
+      materials.forEach((material, index) => {
+        const color = studioColors[index % studioColors.length];
+        material.pbrMetallicRoughness?.setBaseColorFactor(hexToRgba(color));
+      });
+    };
+
+    viewer.addEventListener("load", applyStudioColors);
+    const timer = window.setTimeout(applyStudioColors, 300);
+    return () => {
+      viewer.removeEventListener("load", applyStudioColors);
+      window.clearTimeout(timer);
+    };
+  }, [studioColors, product.id]);
+
+  return (
+    <div className={cx("figureWrap glbFigureWrap", big && "figureBig")} style={{ "--glow": product.glow }}>
+      <div className="orbit orbitOne" />
+      <div className="orbit orbitTwo" />
+      <div className="shadowBlob" />
+      <model-viewer
+        ref={viewerRef}
+        class={cx("glbViewer", big && "glbViewerBig")}
+        src={product.modelSrc}
+        alt={`${product.name} 3D preview`}
+        camera-controls
+        auto-rotate
+        rotation-per-second="22deg"
+        interaction-prompt="none"
+        shadow-intensity="0.75"
+        exposure="1"
+        environment-image="neutral"
+        camera-orbit="0deg 72deg 2.8m"
+        field-of-view="30deg"
+      >
+        <div className="modelFallback">Loading 3D preview...</div>
+      </model-viewer>
+      <div className="liveModelBadge">Live GLB</div>
+    </div>
+  );
+}
+
 function ProductFigure({ product, big = false, studioColors }) {
+  if (product.modelSrc) {
+    return <GLBFigure product={product} big={big} studioColors={studioColors} />;
+  }
+
   const colors = studioColors || product.parts.map((part) => part.color);
   return (
     <div className={cx("figureWrap", big && "figureBig")} style={{ "--glow": product.glow }}>
@@ -197,6 +349,40 @@ function ProductFigure({ product, big = false, studioColors }) {
         <div className="arm armRight" style={{ background: colors[2] || colors[1] }} />
         <div className="leg legLeft" style={{ background: colors[3] || colors[2] || colors[1] }} />
         <div className="leg legRight" style={{ background: colors[3] || colors[2] || colors[1] }} />
+      </div>
+    </div>
+  );
+}
+
+
+function CategoryControls({ activeCollection, setActiveCollection, sortMode, setSortMode, selectedSize }) {
+  return (
+    <div className="collectionControls">
+      <div className="collectionTabs" aria-label="Character collections">
+        {collectionFilters.map((collection) => {
+          const count = collection.ids.length;
+          return (
+            <button
+              key={collection.id}
+              className={activeCollection === collection.id ? "active" : ""}
+              onClick={() => setActiveCollection(collection.id)}
+            >
+              <b>{collection.label}</b>
+              <span>{collection.note}</span>
+              <small>{count} models</small>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="sortBox">
+        <span>Sort lobby</span>
+        <select value={sortMode} onChange={(event) => setSortMode(event.target.value)} aria-label="Sort characters">
+          {sortOptions.map((option) => (
+            <option key={option.id} value={option.id}>{option.label}</option>
+          ))}
+        </select>
+        <small>Physical price uses {selectedSize} cm.</small>
       </div>
     </div>
   );
@@ -279,6 +465,25 @@ function PurchasePanel({ selected, selectedSize, setSelectedSize, loyaltyXp, onP
 }
 
 function Lobby({ selected, setSelected, selectedSize, setSelectedSize, loyaltyXp, onPurchasePreview, onOpenStudio }) {
+  const [activeCollection, setActiveCollection] = useState("all");
+  const [sortMode, setSortMode] = useState("newest");
+
+  const visibleProducts = useMemo(() => {
+    const collection = collectionFilters.find((item) => item.id === activeCollection) || collectionFilters[0];
+    const filtered = products.filter((item) => collection.ids.includes(item.id));
+    return [...filtered].sort((a, b) => {
+      if (sortMode === "popular") return (productRanks[b.id]?.popularity || 0) - (productRanks[a.id]?.popularity || 0);
+      if (sortMode === "expensive") return (b.sizePrices[selectedSize] || 0) - (a.sizePrices[selectedSize] || 0);
+      return (productRanks[b.id]?.release || 0) - (productRanks[a.id]?.release || 0);
+    });
+  }, [activeCollection, sortMode, selectedSize]);
+
+  useEffect(() => {
+    if (visibleProducts.length && !visibleProducts.some((item) => item.id === selected.id)) {
+      setSelected(visibleProducts[0]);
+    }
+  }, [visibleProducts, selected.id, setSelected]);
+
   return (
     <section className="lobbyLayout">
       <div className="posterWord" aria-hidden="true">{selected.poster}</div>
@@ -305,7 +510,14 @@ function Lobby({ selected, setSelected, selectedSize, setSelectedSize, loyaltyXp
           <strong>{selected.name}</strong>
           <span>{selected.printNote}</span>
         </div>
-        <ProductRail products={products} selected={selected} onSelect={setSelected} />
+        <CategoryControls
+          activeCollection={activeCollection}
+          setActiveCollection={setActiveCollection}
+          sortMode={sortMode}
+          setSortMode={setSortMode}
+          selectedSize={selectedSize}
+        />
+        <ProductRail products={visibleProducts} selected={selected} onSelect={setSelected} />
       </main>
 
       <PurchasePanel
@@ -412,7 +624,7 @@ function Studio({ selected }) {
             </div>
           ))}
         </div>
-        <div className="studioNote">Parser is a UI prototype for now. The real version will read object names, sublayers, plates, and filament assignments from the uploaded/prepared 3MF package.</div>
+        <div className="studioNote">Parser is a UI prototype for now. The real version will read object names, sublayers, plates, and filament assignments from the uploaded/prepared 3MF package. Sonya currently uses the supplied low-size colored GLB as the live preview; studio color changes are applied to detected GLB materials as a rough prototype.</div>
       </div>
     </section>
   );
@@ -505,25 +717,89 @@ function MiniGame() {
   );
 }
 
-function Rewards({ loyaltyXp }) {
+function RewardPreviewCard({ reward, unlocked }) {
+  const product = products.find((item) => item.id === reward.characterId) || products[0];
   return (
-    <section className="pagePanel rewardsPanel">
-      <div className="rewardIntro panelGlass">
+    <div className={cx("rewardPreviewCard", unlocked ? "unlocked" : "locked")} style={{ "--cardGlow": reward.glow }}>
+      <div className="rewardPosterWord">{reward.mystery && !unlocked ? "LOCKED" : product.poster}</div>
+      <div className="rewardCardShine" />
+      <div className="rewardCardTop">
+        <span>{reward.type}</span>
+        <b>{unlocked ? "Unlocked" : `${reward.xp} XP`}</b>
+      </div>
+      <div className={cx("rewardFigureSlot", reward.mystery && !unlocked && "mysteryFigureSlot")}>
+        <ProductFigure product={product} big />
+      </div>
+      <div className="rewardCardText">
+        <h2>{reward.title}</h2>
+        <p>{reward.description}</p>
+      </div>
+    </div>
+  );
+}
+
+function Rewards({ loyaltyXp }) {
+  const [activeReward, setActiveReward] = useState(rewardMilestones[1]);
+
+  return (
+    <section className="pagePanel rewardsPanel rewardTrackPanel">
+      <div className="rewardHeader panelGlass">
         <div className="eyebrow">Loyalty path</div>
-        <h2>Rewards should keep the profile alive between drops.</h2>
-        <p>Wallpapers, GIFs, artwork, stickers, profile trophies, site points, wheel spins, and future character unlocks can all live here.</p>
-        <div className="progress big"><span style={{ width: `${loyaltyXp}%` }} /></div>
-      </div>
-      <div className="tierGrid">
-        {rewardTiers.map((tier) => (
-          <div className={cx("tierCard", tier.level === 5 && "mysteryTier", "panelGlass")} key={tier.level}>
-            {tier.level === 5 && <div className="mysterySilhouette"><ProductFigure product={products[5]} big /></div>}
-            <span>Level {tier.level}</span>
-            <h3>{tier.title}</h3>
-            <ul>{tier.unlocks.map((item) => <li key={item}>{item}</li>)}</ul>
+        <div className="rewardHeaderRow">
+          <div>
+            <h2>Collector reward track</h2>
+            <p>Rewards are placed on the loyalty bar as unlockable drops. Hover a reward to enlarge it; click any reward to preview the card.</p>
           </div>
-        ))}
+          <div className="loyaltyScore"><b>{loyaltyXp}</b><span>XP</span></div>
+        </div>
       </div>
+
+      <div className="rewardStage panelGlass">
+        <div className="rewardProgressLane">
+          <div className="rewardProgressBase" />
+          <div className="rewardProgressFill" style={{ width: `${loyaltyXp}%` }} />
+          {rewardMilestones.map((reward) => {
+            const unlocked = loyaltyXp >= reward.xp;
+            const product = products.find((item) => item.id === reward.characterId) || products[0];
+            return (
+              <button
+                key={reward.id}
+                className={cx("rewardNode", unlocked ? "unlocked" : "locked", activeReward.id === reward.id && "active", reward.mystery && "mystery")}
+                style={{ left: `${reward.xp}%`, "--nodeGlow": reward.glow }}
+                onMouseEnter={() => setActiveReward(reward)}
+                onClick={() => setActiveReward(reward)}
+                aria-label={reward.title}
+              >
+                <span className="nodePulse" />
+                <span className="nodeIcon">{reward.icon}</span>
+                <span className="nodeMiniFigure"><ProductFigure product={product} /></span>
+                <small>{reward.type}</small>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="rewardCardsRow">
+          {rewardMilestones.map((reward) => {
+            const unlocked = loyaltyXp >= reward.xp;
+            return (
+              <button
+                key={reward.id}
+                className={cx("miniRewardCard", unlocked ? "unlocked" : "locked", activeReward.id === reward.id && "active")}
+                style={{ "--nodeGlow": reward.glow }}
+                onMouseEnter={() => setActiveReward(reward)}
+                onClick={() => setActiveReward(reward)}
+              >
+                <span>{reward.type}</span>
+                <b>{reward.title}</b>
+                <small>{unlocked ? "Unlocked" : `${reward.xp} XP`}</small>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <RewardPreviewCard reward={activeReward} unlocked={loyaltyXp >= activeReward.xp} />
     </section>
   );
 }
@@ -532,12 +808,16 @@ function RareUnlock({ item, onClose }) {
   if (!item) return null;
   return (
     <div className="rareOverlay" onClick={onClose}>
-      <div className="rarePortal">
-        <div className="burstRing ringA" />
-        <div className="burstRing ringB" />
-        <div className="burstRing ringC" />
-        <ProductFigure product={item} big />
-        <div className="rareLabel"><span className={cx("rarity", item.rarityClass)}>{item.rarity}</span><b>{item.name}</b></div>
+      <div className="legendaryCard" style={{ "--legendGlow": item.glow }}>
+        <div className="legendaryPoster">{item.poster}</div>
+        <div className="legendaryFoil" />
+        <div className="legendaryScanlines" />
+        <div className="legendaryTop"><span>{item.rarity}</span><b>{item.code}</b></div>
+        <div className="legendaryFigure"><ProductFigure product={item} big /></div>
+        <div className="legendaryBottom">
+          <small>Character unlocked</small>
+          <h2>{item.name}</h2>
+        </div>
       </div>
     </div>
   );
@@ -545,11 +825,11 @@ function RareUnlock({ item, onClose }) {
 
 export default function CyberPopShop() {
   const [mode, setMode] = useState("Lobby");
-  const [selected, setSelected] = useState(products[0]);
+  const [selected, setSelected] = useState(products.find((item) => item.id === "sonya-blade") || products[0]);
   const [selectedSize, setSelectedSize] = useState(30);
   const [siteCredit, setSiteCredit] = useState(260);
   const [loyaltyXp, setLoyaltyXp] = useState(42);
-  const [ownedIds, setOwnedIds] = useState(["sagat-corporate", "cammy-sf6"]);
+  const [ownedIds, setOwnedIds] = useState(["sagat-corporate", "cammy-sf6", "sonya-blade"]);
   const [rareItem, setRareItem] = useState(null);
   const [profile, setProfile] = useState({ name: "", printer: "", filament: "" });
 

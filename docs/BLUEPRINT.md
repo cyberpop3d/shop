@@ -24,3 +24,10 @@ This version focuses on a character-first game shop interface.
 - Connect products to backend/CMS.
 - Connect purchases to Stripe/Shopify/Gumroad/Patreon logic.
 - Store inventory, site credit, loyalty, and unlock history server-side.
+
+
+## v8 Sonya GLB test
+
+- Sonya Blade now uses `public/models/sonya-blade.glb` as the first live 3D preview instead of a CSS placeholder.
+- The same live preview appears in lobby, inventory, loot preview, character card, rare unlock overlay, and 3D Studio.
+- The 3D Studio color controls attempt rough material recoloring on the GLB preview. Real 3MF sublayer/object parsing still needs a proper implementation later.
