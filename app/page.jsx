@@ -89,6 +89,7 @@ const products = [
     category: "STL Bundle",
     status: "Live GLB preview",
     modelSrc: "/models/sonya-blade.glb",
+    previewSrc: "/images/sonya-preview.png",
     digitalPrice: 5,
     sizePrices: { 15: 34, 30: 62, 40: 96 },
     creditValue: 230,
@@ -303,9 +304,10 @@ function GLBFigure({ product, big = false, studioColors }) {
       <div className="orbit orbitOne" />
       <div className="orbit orbitTwo" />
       <div className="shadowBlob" />
+      {product.previewSrc && <img className="glbStaticPreview" src={product.previewSrc} alt="" aria-hidden="true" />}
       <model-viewer
         ref={viewerRef}
-        class={cx("glbViewer", big && "glbViewerBig")}
+        className={cx("glbViewer", big && "glbViewerBig")}
         src={product.modelSrc}
         alt={`${product.name} 3D preview`}
         camera-controls
@@ -632,71 +634,112 @@ function Studio({ selected }) {
 
 function Loot({ siteCredit, setSiteCredit, setSelected, ownedIds, setOwnedIds, triggerRare }) {
   const [spinning, setSpinning] = useState(false);
-  const [spinIndex, setSpinIndex] = useState(0);
+  const [spinIndex, setSpinIndex] = useState(3);
   const [result, setResult] = useState(null);
+  const [burst, setBurst] = useState(false);
   const cost = 50;
 
   function runSpin() {
     if (spinning || siteCredit < cost) return;
     setSpinning(true);
     setResult(null);
+    setBurst(false);
     setSiteCredit((value) => value - cost);
+
     const finalIndex = Math.floor(Math.random() * products.length);
     let step = 0;
-    const totalSteps = 26 + finalIndex;
+    const totalSteps = 36 + finalIndex;
 
     function tick() {
       const next = step % products.length;
       setSpinIndex(next);
       step += 1;
+
       if (step <= totalSteps) {
-        const delay = 40 + step * 13;
+        const delay = 28 + Math.pow(step, 1.35) * 3.1;
         window.setTimeout(tick, delay);
       } else {
         const won = products[finalIndex];
         setSpinIndex(finalIndex);
-        setResult(won);
         setSelected(won);
         setOwnedIds((ids) => ids.includes(won.id) ? ids : [...ids, won.id]);
-        setSpinning(false);
-        if (["Legendary", "Founder"].includes(won.rarity)) {
-          triggerRare(won);
-        }
+        setBurst(true);
+        window.setTimeout(() => {
+          setResult(won);
+          setSpinning(false);
+          if (["Legendary", "Founder"].includes(won.rarity)) triggerRare(won);
+        }, 560);
       }
     }
+
     tick();
   }
 
-  const current = result || products[spinIndex];
+  const activeItem = result || products[spinIndex];
+  const orbitRotation = spinIndex * -60;
 
   return (
-    <section className="lootLayout pagePanel">
-      <div className="lootMachine panelGlass">
-        <div className="eyebrow">Loot crystal</div>
-        <h2>Spend site credit (units)</h2>
-        <p>Use earned site credit to run the crystal. It previews characters, slows down, and lands on one collectible unlock.</p>
-
-        <div className={cx("crystalStage", spinning && "spinning")}>
-          <div className="crystalAura" />
-          <div className="glowCrystal" />
-          <div className="crystalBeam" />
+    <section className="pagePanel lootV2Panel">
+      <div className="lootHeaderPanel panelGlass">
+        <div>
+          <div className="eyebrow">Crystal drop</div>
+          <h2>Spend site credit (units)</h2>
+          <p>Spin the crystal to reveal one character. The crystal and character preview ring move as one machine, then the winner appears as a poster-card unlock.</p>
         </div>
-
-        <div className="spinControls">
-          <div><b>{siteCredit}</b><span>available units</span></div>
-          <Button variant="gold" onClick={runSpin} disabled={spinning || siteCredit < cost}>{spinning ? "Rolling..." : `Spend ${cost} units`}</Button>
-        </div>
+        <div className="creditBox"><b>{siteCredit}</b><span>available units</span></div>
       </div>
 
-      <div className="previewPanel panelGlass">
-        <div className="sectionHead"><div><div className="eyebrow">Character preview</div><h2>{current.name}</h2></div><span className={cx("rarity", current.rarityClass)}>{current.rarity}</span></div>
-        <div className="previewWinner"><ProductFigure product={current} big /></div>
-        <div className="lootRail">
+      <div className={cx("crystalRoulette panelGlass", spinning && "spinning", burst && "burst", result && "revealed")} style={{ "--orbitRotation": `${orbitRotation}deg`, "--resultGlow": activeItem.glow }}>
+        <div className="rouletteBackdrop">CRYSTAL</div>
+        <div className="rouletteFloor" />
+        <div className="rouletteOrbit" style={{ "--orbitRotation": `${orbitRotation}deg` }}>
           {products.map((item, index) => (
-            <div key={item.id} className={cx("lootThumb", index === spinIndex && "active")}> <ProductFigure product={item} /> <span>{item.short}</span></div>
+            <button
+              key={item.id}
+              className={cx("orbitPreview", index === spinIndex && "active")}
+              style={{ "--slotAngle": `${index * 60}deg`, "--slotGlow": item.glow }}
+              onClick={() => {
+                if (spinning) return;
+                setSpinIndex(index);
+                setResult(null);
+                setSelected(item);
+              }}
+            >
+              <ProductFigure product={item} />
+              <span>{item.short}</span>
+            </button>
           ))}
         </div>
-        {result && <div className="resultStrip"><b>{result.name}</b><span>added to symbolic inventory</span></div>}
+
+        <div className="crystalCoreWrap">
+          <div className="crystalHalo" />
+          <div className="crystal3D">
+            <span className="facet facetA" />
+            <span className="facet facetB" />
+            <span className="facet facetC" />
+          </div>
+          <div className="crystalShadow" />
+        </div>
+
+        {burst && <div className="lootBurst"><span /><span /><span /><span /><span /></div>}
+
+        {result && (
+          <div className="lootPosterReveal" style={{ "--posterGlow": result.glow }}>
+            <div className="posterBackText">{result.poster}</div>
+            <div className="posterFoil" />
+            <div className="posterRarity"><span>{result.rarity}</span><b>{result.code}</b></div>
+            <div className="posterFigure"><ProductFigure product={result} big /></div>
+            <div className="posterCopy"><small>Character unlocked</small><h3>{result.name}</h3><p>Added to symbolic inventory</p></div>
+          </div>
+        )}
+      </div>
+
+      <div className="spinBar panelGlass">
+        <div>
+          <b>{activeItem.name}</b>
+          <span className={cx("rarity", activeItem.rarityClass)}>{activeItem.rarity}</span>
+        </div>
+        <Button variant="gold" onClick={runSpin} disabled={spinning || siteCredit < cost}>{spinning ? "Crystal spinning..." : `Spend ${cost} units`}</Button>
       </div>
     </section>
   );
@@ -748,7 +791,7 @@ function Rewards({ loyaltyXp }) {
         <div className="rewardHeaderRow">
           <div>
             <h2>Collector reward track</h2>
-            <p>Rewards are placed on the loyalty bar as unlockable drops. Hover a reward to enlarge it; click any reward to preview the card.</p>
+            <p>Unlock profile extras across the track: GIFs, stickers, wallpapers, artwork, trophies, wheel spins, and future character unlocks.</p>
           </div>
           <div className="loyaltyScore"><b>{loyaltyXp}</b><span>XP</span></div>
         </div>
