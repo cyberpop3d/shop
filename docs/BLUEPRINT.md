@@ -1,26 +1,58 @@
-# CyberPop Shop v4 Blueprint
+# CyberPop Shop V5 Blueprint
 
 ## Direction
 
-The home page should feel like a controlled game interface for a 3D printable toy universe, not a generic web shop. The first screen must sell the fantasy: collectible drops, big visual poster words, a central 3D product presence, and clear print/product cues.
+CyberPop Shop should feel like a playable collectible platform, not a generic e-commerce template. The home interface should use controlled game mechanisms: lobby modes, character posters, profile inventory, reward progression, mini-game tabs, and a simple studio workflow for print palette decisions.
 
-## Navigation rule
+## Main modules
 
-The top menu must not redirect to sections inside the same page. Users can scroll naturally. Header tabs are interface modes only, used to change small status panels and future app states.
+1. Lobby
+   - Large poster-style scroll sections
+   - Character placeholder presence in front of huge background typography
+   - 3D print specifications visible in each drop scene
 
-## Core mechanisms
+2. Profile
+   - Display name
+   - Collector title
+   - Favorite filament
+   - Printer setup
+   - Streak and PopBits summary
 
-1. Scroll-reactive character stage
-2. Poster typography behind the 3D collectible placeholder
-3. Drop/product scenes that change the active character
-4. Loot/reward foundation with transparent free daily reward framing
-5. Mini-game tab foundation
-6. Loyalty/PopBits foundation
-7. 3D-print identity through parts, scale, FDM/STL/physical language
+3. Symbolic Inventory
+   - Character tiles
+   - Rarity levels
+   - Character card modal
+   - Rare unlock animation for premium, never-sold, or event-only models
 
-## Later replacement points
+4. 3D Studio
+   - Simple multipart character preview
+   - Detected parts / sublayers
+   - Color picker per part
+   - Filament code input per part
+   - Bambu 3MF import placeholder
 
-- Replace CSS placeholder figure with real GLB/Three.js/R3F viewer.
-- Connect product data to CMS/Shopify/Stripe later.
-- Move rewards to server-side ledger before production.
-- Keep chance mechanics purchase-independent and transparent.
+5. Loot Foundation
+   - Earned crystals only for now
+   - No paid mystery box loop
+   - Transparent reward rules
+
+6. Mini Games
+   - Piñata Boss
+   - Print Runner
+   - Crystal Forge
+
+7. Rewards
+   - PopBits
+   - Collector level
+   - Daily streak
+   - Makes / contest hooks
+
+## Real implementation later
+
+- Account authentication
+- Real inventory backed by purchases and rewards
+- 3MF parser for Bambu Studio files
+- Model preview with Three.js / React Three Fiber
+- Secure library and downloads
+- Server-side PopBits ledger
+- Admin CMS for products, rarity, rewards, and contests
