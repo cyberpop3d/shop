@@ -2,136 +2,171 @@
 
 import { useMemo, useState } from "react";
 
-const characters = [
+const products = [
   {
-    id: "skyline-punch",
-    code: "CP-001",
-    name: "Skyline Punch Hero",
-    short: "Skyline",
+    id: "sagat-corporate",
+    code: "CP-010",
+    name: "Sagat Corporate",
+    short: "Sagat",
+    poster: "SAGAT",
     rarity: "Epic",
     rarityClass: "epic",
-    type: "Physical Print",
-    price: 69,
-    popbits: 260,
-    poster: "SKYLINE",
-    subtitle: "Street-scale hero figure",
-    description:
-      "A bold collectible figure prepared for multipart FDM planning, display shelves, and future physical order data.",
-    print: "30 cm display figure · multipart FDM layout · 4 color regions",
-    palette: ["#35b9ff", "#0b75b7", "#10151d", "#f4f8fb"],
-    glow: "blue",
+    category: "Physical + STL",
+    status: "Portfolio sample",
+    digitalPrice: 5,
+    sizePrices: { 15: 39, 30: 69, 40: 109 },
+    creditValue: 260,
+    loyaltyGain: 35,
+    palette: ["#f2c68d", "#1a2438", "#f7faff", "#111820"],
+    glow: "#48c7ff",
+    line: "Suit display figure with readable multipart zones.",
+    printNote: "Head / torso / arms / shoes prepared as color planning groups.",
     parts: [
-      { key: "Head", color: "#35b9ff", filament: "PLA-CYAN-01" },
-      { key: "Torso", color: "#0b75b7", filament: "PLA-BLUE-07" },
-      { key: "Legs", color: "#10151d", filament: "PLA-BLACK-02" },
-      { key: "Base", color: "#dfeaf1", filament: "PLA-WHITE-04" }
-    ],
-    inventoryNote: "Unlocked from Starter Drop",
-    sceneTags: ["Shelf Ready", "Color Blocks", "Physical Order"]
+      { name: "Head", sublayer: "OBJ_head_01", color: "#f2c68d", filament: "PLA-SKIN-02" },
+      { name: "Suit Torso", sublayer: "OBJ_torso_02", color: "#1a2438", filament: "PLA-NAVY-06" },
+      { name: "Gloves", sublayer: "OBJ_gloves_03", color: "#f7faff", filament: "PLA-WHITE-01" },
+      { name: "Shoes", sublayer: "OBJ_shoes_04", color: "#111820", filament: "PLA-BLACK-01" }
+    ]
   },
   {
-    id: "beach-rabbit",
-    code: "CP-017",
-    name: "Beach Power Rabbit",
-    short: "Beach",
-    rarity: "Legendary",
-    rarityClass: "legendary",
-    type: "Premium STL Bundle",
-    price: 78,
-    popbits: 520,
-    poster: "BEACH",
-    subtitle: "Sport collectible figure",
-    description:
-      "A summer-themed character drop with clean part separation, strong silhouette, and accessory-friendly studio planning.",
-    print: "STL + 3MF bundle · head/body/ears/base · printable color plan",
-    palette: ["#ff89c7", "#f7c7d9", "#fff1b4", "#6b49ff"],
-    glow: "pink",
-    parts: [
-      { key: "Head", color: "#f7c7d9", filament: "PLA-PINK-02" },
-      { key: "Ears", color: "#ff89c7", filament: "PLA-ROSE-08" },
-      { key: "Body", color: "#6b49ff", filament: "PLA-VIOLET-03" },
-      { key: "Stand", color: "#fff1b4", filament: "PLA-SAND-01" }
-    ],
-    inventoryNote: "Rare animation enabled",
-    sceneTags: ["Legendary", "Beach Drop", "Studio Ready"]
-  },
-  {
-    id: "storm-hat",
-    code: "CP-021",
-    name: "Storm Hat Warrior",
-    short: "Storm",
+    id: "cammy-sf6",
+    code: "CP-011",
+    name: "Cammy SF6",
+    short: "Cammy",
+    poster: "CAMMY",
     rarity: "Rare",
     rarityClass: "rare",
-    type: "Physical + STL",
-    price: 82,
-    popbits: 410,
-    poster: "STORM",
-    subtitle: "Arcade shelf warrior",
-    description:
-      "A dramatic display character built around large readable parts, bold color zones, and simple production notes.",
-    print: "28 cm figure · hat/head/body/base · low-detail FDM safe parts",
-    palette: ["#6df5ff", "#1c96d1", "#1b2536", "#f6f7ff"],
-    glow: "cyan",
+    category: "STL Bundle",
+    status: "Portfolio sample",
+    digitalPrice: 5,
+    sizePrices: { 15: 35, 30: 64, 40: 99 },
+    creditValue: 210,
+    loyaltyGain: 28,
+    palette: ["#ffc87b", "#5ce7c1", "#f8f4e8", "#182334"],
+    glow: "#6df0ce",
+    line: "Sporty collectible with clean studio color sections.",
+    printNote: "Hair / torso / legs / base detected as printable color groups.",
     parts: [
-      { key: "Hat", color: "#f6f7ff", filament: "PLA-WHITE-01" },
-      { key: "Head", color: "#6df5ff", filament: "PLA-AQUA-04" },
-      { key: "Body", color: "#1c96d1", filament: "PLA-CYAN-09" },
-      { key: "Base", color: "#1b2536", filament: "PLA-NAVY-05" }
-    ],
-    inventoryNote: "Vault reward compatible",
-    sceneTags: ["Rare", "Arcade", "Multipart"]
+      { name: "Hair", sublayer: "OBJ_hair_01", color: "#ffc87b", filament: "PLA-BLONDE-01" },
+      { name: "Body", sublayer: "OBJ_body_02", color: "#5ce7c1", filament: "PLA-MINT-04" },
+      { name: "Boots", sublayer: "OBJ_boots_03", color: "#182334", filament: "PLA-BLACK-02" },
+      { name: "Base", sublayer: "OBJ_base_04", color: "#f8f4e8", filament: "PLA-WARM-WHITE" }
+    ]
   },
   {
-    id: "shelf-titan",
-    code: "CP-044",
-    name: "Collector Shelf Titan",
-    short: "Titan",
+    id: "johnny-cage",
+    code: "CP-012",
+    name: "Johnny Cage",
+    short: "Johnny",
+    poster: "CAGE",
+    rarity: "Epic",
+    rarityClass: "epic",
+    category: "Physical Print",
+    status: "Portfolio sample",
+    digitalPrice: 5,
+    sizePrices: { 15: 39, 30: 72, 40: 118 },
+    creditValue: 300,
+    loyaltyGain: 36,
+    palette: ["#ffd7a1", "#151d2c", "#18d7c3", "#eaf7ff"],
+    glow: "#40d9ff",
+    line: "Shelf-ready action figure with strong display attitude.",
+    printNote: "Head / glasses / torso / lower body separated for palette planning.",
+    parts: [
+      { name: "Head", sublayer: "OBJ_head_01", color: "#ffd7a1", filament: "PLA-SKIN-03" },
+      { name: "Glasses", sublayer: "OBJ_glasses_02", color: "#151d2c", filament: "PLA-BLACK-01" },
+      { name: "Torso", sublayer: "OBJ_torso_03", color: "#18d7c3", filament: "PLA-TEAL-08" },
+      { name: "Pants", sublayer: "OBJ_legs_04", color: "#eaf7ff", filament: "PLA-ICE-WHITE" }
+    ]
+  },
+  {
+    id: "sonya-blade",
+    code: "CP-013",
+    name: "Sonya Blade",
+    short: "Sonya",
+    poster: "SONYA",
+    rarity: "Rare",
+    rarityClass: "rare",
+    category: "STL Bundle",
+    status: "Portfolio sample",
+    digitalPrice: 5,
+    sizePrices: { 15: 34, 30: 62, 40: 96 },
+    creditValue: 230,
+    loyaltyGain: 30,
+    palette: ["#f4c59b", "#73d45d", "#1d2b20", "#eef5e8"],
+    glow: "#7df05a",
+    line: "Compact heroic silhouette with multipart print clarity.",
+    printNote: "Hair / torso / lower body / boots are ready for color decisions.",
+    parts: [
+      { name: "Hair", sublayer: "OBJ_hair_01", color: "#f4c59b", filament: "PLA-SAND-02" },
+      { name: "Torso", sublayer: "OBJ_torso_02", color: "#73d45d", filament: "PLA-GREEN-05" },
+      { name: "Legs", sublayer: "OBJ_legs_03", color: "#1d2b20", filament: "PLA-DARK-GREEN" },
+      { name: "Boots", sublayer: "OBJ_boots_04", color: "#eef5e8", filament: "PLA-OFFWHITE" }
+    ]
+  },
+  {
+    id: "raiden-vault",
+    code: "CP-021",
+    name: "Raiden Vault Figure",
+    short: "Raiden",
+    poster: "RAIDEN",
+    rarity: "Legendary",
+    rarityClass: "legendary",
+    category: "Private Drop",
+    status: "Rare unlock enabled",
+    digitalPrice: 5,
+    sizePrices: { 15: 49, 30: 89, 40: 139 },
+    creditValue: 700,
+    loyaltyGain: 60,
+    palette: ["#f6f8ff", "#73ecff", "#29354f", "#d4bc70"],
+    glow: "#81efff",
+    line: "Premium vault figure reserved for special drops and loyalty moments.",
+    printNote: "Hat / head / torso / lower body / base listed from the 3MF preparation plan.",
+    parts: [
+      { name: "Hat", sublayer: "OBJ_hat_01", color: "#f6f8ff", filament: "PLA-WHITE-02" },
+      { name: "Head", sublayer: "OBJ_head_02", color: "#73ecff", filament: "PLA-AQUA-04" },
+      { name: "Body", sublayer: "OBJ_body_03", color: "#29354f", filament: "PLA-NAVY-04" },
+      { name: "Trim", sublayer: "OBJ_trim_04", color: "#d4bc70", filament: "PLA-GOLD-01" }
+    ]
+  },
+  {
+    id: "shadow-founder",
+    code: "CP-X01",
+    name: "Founder Shadow Model",
+    short: "Founder",
+    poster: "FOUNDER",
     rarity: "Founder",
     rarityClass: "founder",
-    type: "Private Collector Model",
-    price: 149,
-    popbits: 1200,
-    poster: "TITAN",
-    subtitle: "Private premium model",
-    description:
-      "A symbolic high-value inventory item for models that are not sold publicly and should feel special when obtained.",
-    print: "Private model · premium print preparation · collection badge reward",
-    palette: ["#ffbd43", "#f47b0b", "#5a3708", "#fff1d1"],
-    glow: "gold",
+    category: "Not publicly sold",
+    status: "Exclusive unlock",
+    digitalPrice: 5,
+    sizePrices: { 15: 69, 30: 149, 40: 229 },
+    creditValue: 1500,
+    loyaltyGain: 90,
+    palette: ["#1a1d24", "#2a3448", "#7bdcff", "#ffd97a"],
+    glow: "#ffd56d",
+    line: "Symbolic high-value character for rare collection moments.",
+    printNote: "The visual slot exists now; production data will be attached later.",
     parts: [
-      { key: "Head", color: "#ffbd43", filament: "PLA-GOLD-06" },
-      { key: "Torso", color: "#f47b0b", filament: "PLA-ORANGE-11" },
-      { key: "Legs", color: "#5a3708", filament: "PLA-BRONZE-02" },
-      { key: "Display Base", color: "#fff1d1", filament: "PLA-CREAM-01" }
-    ],
-    inventoryNote: "Founder rarity animation",
-    sceneTags: ["Founder", "Not Public", "Rare Unlock"]
+      { name: "Head", sublayer: "OBJ_head_01", color: "#1a1d24", filament: "PLA-MATTE-BLACK" },
+      { name: "Body", sublayer: "OBJ_body_02", color: "#2a3448", filament: "PLA-GRAPHITE" },
+      { name: "Energy Core", sublayer: "OBJ_core_03", color: "#7bdcff", filament: "PLA-CYAN-NEON" },
+      { name: "Base", sublayer: "OBJ_base_04", color: "#ffd97a", filament: "PLA-GOLD-02" }
+    ]
   }
 ];
 
-const gameTabs = [
-  {
-    id: "pinata",
-    title: "Piñata Boss",
-    status: "Reward Run",
-    text: "Break a simple shelf boss, earn PopBits, and unlock transparent shop rewards."
-  },
-  {
-    id: "runner",
-    title: "Print Runner",
-    status: "Prototype",
-    text: "Move through a stylized print lab route, collect shards, and reveal future drop teasers."
-  },
-  {
-    id: "forge",
-    title: "Crystal Forge",
-    status: "Collection Loop",
-    text: "Turn earned shards into badges, accessory coupons, or seasonal collection progress."
-  }
+const modeLabels = ["Lobby", "Profile", "3D Studio", "Loot", "Mini Game", "Rewards"];
+
+const rewardTiers = [
+  { level: 1, title: "Starter Collector", unlocks: ["Profile trophy", "Site points", "Wallpaper pack"] },
+  { level: 2, title: "Print Club", unlocks: ["GIF reward", "Artwork drop", "1 wheel spin"] },
+  { level: 3, title: "Vault Regular", unlocks: ["Sticker sheet", "Bonus site credit", "Profile badge"] },
+  { level: 4, title: "Rare Hunter", unlocks: ["Extra wheel spins", "Early access slot", "Vault artwork"] },
+  { level: 5, title: "Character Unlock", unlocks: ["Mystery character silhouette", "Founder trophy", "Special animation"] }
 ];
 
-function cx(...classes) {
-  return classes.filter(Boolean).join(" ");
+function cx(...items) {
+  return items.filter(Boolean).join(" ");
 }
 
 function Button({ children, onClick, variant = "dark", className = "", disabled = false }) {
@@ -142,76 +177,41 @@ function Button({ children, onClick, variant = "dark", className = "", disabled 
   );
 }
 
-function RarityBadge({ rarity, className = "" }) {
-  const rarityClass = rarity.toLowerCase();
-  return <span className={cx("rarity", rarityClass, className)}>{rarity}</span>;
-}
-
-function Header({ mode, setMode, popbits, cartCount }) {
-  const nav = ["Lobby", "Drops", "Profile", "Studio", "Loot", "Mini Game", "Rewards"];
+function ProductFigure({ product, big = false, studioColors }) {
+  const colors = studioColors || product.parts.map((part) => part.color);
   return (
-    <header className="topbar">
-      <div className="brandMark">CP</div>
-      <div className="brandText">
-        <strong>CyberPop</strong>
-        <span>Playable Print Shop</span>
-      </div>
-      <nav className="navModes" aria-label="Main interface modes">
-        {nav.map((item) => (
-          <button key={item} onClick={() => setMode(item)} className={mode === item ? "active" : ""}>
-            {item}
-          </button>
-        ))}
-      </nav>
-      <div className="topStats">
-        <span className="coin">✦ {popbits}</span>
-        <span className="cartPill">Cart {cartCount}</span>
-      </div>
-    </header>
-  );
-}
-
-function CharacterFigure({ character, large = false }) {
-  const [a, b, c, d] = character.palette;
-  const rabbit = character.id.includes("rabbit");
-  const hat = character.id.includes("storm");
-  const founder = character.rarity === "Founder";
-  return (
-    <div className={cx("figureWrap", large && "figureLarge", `glow-${character.glow}`)}>
+    <div className={cx("figureWrap", big && "figureBig")} style={{ "--glow": product.glow }}>
       <div className="orbit orbitOne" />
       <div className="orbit orbitTwo" />
-      <div className="figureShadow" />
-      <div className="figureModel" style={{ "--c1": a, "--c2": b, "--c3": c, "--c4": d }}>
-        {rabbit && <><i className="ear left" /><i className="ear right" /></>}
-        {hat && <i className="stormHat" />}
-        {founder && <i className="crown" />}
-        <div className="head"><span /><span /></div>
-        <div className="torso" />
-        <div className="arm left" />
-        <div className="arm right" />
-        <div className="leg left" />
-        <div className="leg right" />
+      <div className="shadowBlob" />
+      <div className="toyFigure">
+        <div className="earLeft" style={{ background: colors[0] }} />
+        <div className="earRight" style={{ background: colors[0] }} />
+        <div className="head" style={{ background: colors[0] }}>
+          <span className="eye eyeA" />
+          <span className="eye eyeB" />
+          <span className="smile" />
+        </div>
+        <div className="body" style={{ background: colors[1] || colors[0] }} />
+        <div className="arm armLeft" style={{ background: colors[2] || colors[1] }} />
+        <div className="arm armRight" style={{ background: colors[2] || colors[1] }} />
+        <div className="leg legLeft" style={{ background: colors[3] || colors[2] || colors[1] }} />
+        <div className="leg legRight" style={{ background: colors[3] || colors[2] || colors[1] }} />
       </div>
     </div>
   );
 }
 
-function CharacterRail({ selected, setSelected, setCardOpen }) {
+function ProductRail({ products, selected, onSelect }) {
   return (
-    <div className="characterRail">
-      {characters.map((char) => (
-        <button
-          key={char.id}
-          className={cx("railItem", selected.id === char.id && "selected")}
-          onClick={() => {
-            setSelected(char);
-            setCardOpen(true);
-          }}
-        >
-          <CharacterFigure character={char} />
-          <div>
-            <strong>{char.short}</strong>
-            <span>{char.rarity}</span>
+    <div className="productRail">
+      {products.map((item) => (
+        <button key={item.id} className={cx("railItem", selected.id === item.id && "active")} onClick={() => onSelect(item)}>
+          <ProductFigure product={item} />
+          <div className="railInfo">
+            <span className={cx("rarity", item.rarityClass)}>{item.rarity}</span>
+            <strong>{item.name}</strong>
+            <small>{item.category}</small>
           </div>
         </button>
       ))}
@@ -219,316 +219,325 @@ function CharacterRail({ selected, setSelected, setCardOpen }) {
   );
 }
 
-function CharacterCard({ character, onStudio, onAdd, onRare }) {
+function PurchasePanel({ selected, selectedSize, setSelectedSize, loyaltyXp, onPurchasePreview }) {
+  const physicalPrice = selected.sizePrices[selectedSize];
+  const nextXp = Math.min(100, loyaltyXp + selected.loyaltyGain);
+
   return (
-    <aside className="characterCard">
-      <div className="cardTopline">
-        <span>{character.code}</span>
-        <RarityBadge rarity={character.rarity} />
-      </div>
-      <h2>{character.name}</h2>
-      <p>{character.description}</p>
-      <div className="printSpec">{character.print}</div>
-      <div className="tagGrid">
-        {character.sceneTags.map((tag) => <span key={tag}>{tag}</span>)}
-      </div>
-      <div className="cardPrice">
-        <div>
-          <span>Starting at</span>
-          <strong>${character.price}</strong>
+    <aside className="purchasePanel panelGlass">
+      <div className="eyebrow">Selected collectible</div>
+      <h2>{selected.name}</h2>
+      <p>{selected.line}</p>
+
+      <div className="buySwitch">
+        <div className="buyOption">
+          <div>
+            <span>GET STL</span>
+            <strong>$5</strong>
+          </div>
+          <small>Digital product access. May be cheaper through subscription access or bulk bundle packs.</small>
+          <Button variant="dark" onClick={onPurchasePreview}>Choose STL</Button>
         </div>
-        <div>
-          <span>Reward value</span>
-          <strong>✦ {character.popbits}</strong>
+
+        <div className="buyOption physical">
+          <div>
+            <span>GET Physical product</span>
+            <strong>${physicalPrice}</strong>
+          </div>
+          <div className="sizeButtons" aria-label="Physical size options">
+            {[15, 30, 40].map((size) => (
+              <button key={size} className={selectedSize === size ? "active" : ""} onClick={() => setSelectedSize(size)}>
+                {size} cm
+              </button>
+            ))}
+          </div>
+          <small>Made-to-order physical print. Size changes price, packaging, and print preparation.</small>
+          <Button variant="gold" onClick={onPurchasePreview}>Choose physical</Button>
         </div>
       </div>
-      <div className="cardActions">
-        <Button onClick={() => onAdd(character)}>Add to Loadout</Button>
-        <Button variant="light" onClick={() => onStudio(character)}>Open 3D Studio</Button>
+
+      <div className="checkoutLoyalty">
+        <div className="loyaltyHead">
+          <span>Loyalty after this purchase</span>
+          <b>+{selected.loyaltyGain} XP</b>
+        </div>
+        <div className="progress"><span style={{ width: `${nextXp}%` }} /></div>
+        <div className="loyaltyUnlocks">
+          <span>Activates: profile trophy</span>
+          <span>site points</span>
+          <span>wheel progress</span>
+        </div>
       </div>
-      {(character.rarity === "Legendary" || character.rarity === "Founder") && (
-        <Button variant="gold" className="full" onClick={() => onRare(character)}>
-          Preview Rare Unlock
-        </Button>
-      )}
+
+      <div className="partSummary">
+        {selected.parts.map((part) => (
+          <span key={part.name}>{part.name}</span>
+        ))}
+      </div>
     </aside>
   );
 }
 
-function Lobby({ selected, setSelected, setMode, setCart, setRareAnimation, setCardOpen }) {
+function Lobby({ selected, setSelected, selectedSize, setSelectedSize, loyaltyXp, onPurchasePreview, onOpenStudio }) {
   return (
-    <section className="lobbyScene">
-      <div className="posterLayer">
-        <span>{selected.poster}</span>
-        <span>{selected.poster}</span>
-      </div>
-      <div className="leftPanel panelGlass">
-        <span className="eyebrow">Season 00</span>
-        <h1>Drop Lobby</h1>
-        <p>Pick a collectible, inspect its print plan, then send it to the studio or loadout.</p>
-        <div className="missionStack">
-          <div><b>Daily Check-in</b><span>+20 PopBits</span></div>
-          <div><b>Upload a Make</b><span>+80 PopBits</span></div>
-          <div><b>Complete a Set</b><span>Badge reward</span></div>
+    <section className="lobbyLayout">
+      <div className="posterWord" aria-hidden="true">{selected.poster}</div>
+
+      <div className="leftDeck panelGlass">
+        <div className="eyebrow">Season 00</div>
+        <h1>CyberPop Drop Room</h1>
+        <p>Pick a collectible, inspect the print plan, choose STL or physical, then move it into the studio for color planning.</p>
+        <div className="quickStats">
+          <div><b>{selected.rarity}</b><span>Rarity</span></div>
+          <div><b>{selected.creditValue}</b><span>Credit value</span></div>
+          <div><b>{selected.parts.length}</b><span>Parts</span></div>
         </div>
+        <Button variant="light" onClick={onOpenStudio}>Open in 3D Studio</Button>
       </div>
 
-      <div className="stage panelGlass">
-        <div className="stageHeader">
-          <span>{selected.type}</span>
-          <RarityBadge rarity={selected.rarity} />
+      <main className="centerStage panelGlass">
+        <div className="stageTopline">
+          <span>{selected.code}</span>
+          <b className={cx("rarity", selected.rarityClass)}>{selected.rarity}</b>
         </div>
-        <CharacterFigure character={selected} large />
-        <div className="stageFooter">
-          <div>
-            <span>{selected.subtitle}</span>
-            <strong>{selected.name}</strong>
-          </div>
-          <Button onClick={() => setMode("Studio")}>Studio</Button>
+        <ProductFigure product={selected} big />
+        <div className="stageCaption">
+          <strong>{selected.name}</strong>
+          <span>{selected.printNote}</span>
         </div>
-      </div>
+        <ProductRail products={products} selected={selected} onSelect={setSelected} />
+      </main>
 
-      <CharacterCard
-        character={selected}
-        onStudio={(character) => {
-          setSelected(character);
-          setMode("Studio");
-        }}
-        onAdd={(character) => setCart((prev) => [...prev, character])}
-        onRare={(character) => setRareAnimation(character)}
+      <PurchasePanel
+        selected={selected}
+        selectedSize={selectedSize}
+        setSelectedSize={setSelectedSize}
+        loyaltyXp={loyaltyXp}
+        onPurchasePreview={onPurchasePreview}
       />
-
-      <CharacterRail selected={selected} setSelected={setSelected} setCardOpen={setCardOpen} />
     </section>
   );
 }
 
-function Drops({ selected, setSelected, setCart, setMode }) {
+function Profile({ profile, setProfile, ownedIds, setOwnedIds, selected, setSelected, setMode }) {
+  const owned = products.filter((item) => ownedIds.includes(item.id));
+  const [card, setCard] = useState(selected);
+
   return (
-    <section className="modeShell">
-      <div className="modeIntro compact">
-        <span className="eyebrow">Drop Board</span>
-        <h1>Selectable character drops</h1>
-        <p>Every drop stays tied to the model preview, rarity, print format, and studio color planning.</p>
-      </div>
-      <div className="dropBoard">
-        <div className="dropStage panelGlass">
-          <div className="posterMini">{selected.poster}</div>
-          <CharacterFigure character={selected} large />
+    <section className="profileGrid pagePanel">
+      <div className="profileCreate panelGlass">
+        <div className="eyebrow">Profile setup</div>
+        <h2>Create collector profile</h2>
+        <label>Display name<input value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} placeholder="Your collector name" /></label>
+        <label>Printer setup<input value={profile.printer} onChange={(e) => setProfile({ ...profile, printer: e.target.value })} placeholder="Bambu A1 / P1S / X1C..." /></label>
+        <label>Favorite filament<input value={profile.filament} onChange={(e) => setProfile({ ...profile, filament: e.target.value })} placeholder="PLA Matte Black, PLA-CYAN-04..." /></label>
+        <div className="profileCardMini">
+          <div className="avatar">CP</div>
+          <div><b>{profile.name || "New Collector"}</b><span>{profile.printer || "Printer setup not set"}</span></div>
         </div>
-        <CharacterCard
-          character={selected}
-          onStudio={(character) => {
-            setSelected(character);
-            setMode("Studio");
-          }}
-          onAdd={(character) => setCart((prev) => [...prev, character])}
-          onRare={() => {}}
-        />
       </div>
-      <div className="dropGrid">
-        {characters.map((char) => (
-          <button key={char.id} className={cx("dropTile", selected.id === char.id && "selected")} onClick={() => setSelected(char)}>
-            <CharacterFigure character={char} />
-            <span>{char.code}</span>
-            <strong>{char.name}</strong>
-            <RarityBadge rarity={char.rarity} />
-          </button>
+
+      <div className="inventory panelGlass">
+        <div className="sectionHead">
+          <div><div className="eyebrow">Symbolic inventory</div><h2>Character shelf</h2></div>
+          <button className="textButton" onClick={() => setOwnedIds(products.map((p) => p.id))}>Demo unlock all</button>
+        </div>
+        <div className="inventoryGrid">
+          {products.map((item) => {
+            const owned = ownedIds.includes(item.id);
+            return (
+              <button key={item.id} className={cx("inventoryTile", owned ? "owned" : "locked")} onClick={() => { setCard(item); setSelected(item); }}>
+                <ProductFigure product={item} />
+                <span className={cx("rarity", item.rarityClass)}>{item.rarity}</span>
+                <strong>{item.name}</strong>
+                <small>{owned ? "Owned" : "Locked"}</small>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="characterCard panelGlass">
+        <div className="cardVisual"><ProductFigure product={card} big /></div>
+        <span className={cx("rarity", card.rarityClass)}>{card.rarity}</span>
+        <h2>{card.name}</h2>
+        <p>{card.line}</p>
+        <div className="partSummary">{card.parts.map((part) => <span key={part.name}>{part.name}</span>)}</div>
+        <Button variant="dark" onClick={() => { setSelected(card); setMode("3D Studio"); }}>Open in 3D Studio</Button>
+      </div>
+    </section>
+  );
+}
+
+function Studio({ selected }) {
+  const [partColors, setPartColors] = useState(selected.parts.map((part) => part.color));
+  const [filaments, setFilaments] = useState(selected.parts.map((part) => part.filament));
+
+  function setPartColor(index, value) {
+    const copy = [...partColors];
+    copy[index] = value;
+    setPartColors(copy);
+  }
+
+  function setFilament(index, value) {
+    const copy = [...filaments];
+    copy[index] = value;
+    setFilaments(copy);
+  }
+
+  return (
+    <section className="studioLayout pagePanel">
+      <div className="studioStage panelGlass">
+        <div className="eyebrow">3D Studio</div>
+        <h2>{selected.name}</h2>
+        <p>3MF package loaded. Edit the visible print palette and match every detected part with your own filament code.</p>
+        <ProductFigure product={selected} big studioColors={partColors} />
+      </div>
+
+      <div className="sublayerPanel panelGlass">
+        <div className="sectionHead">
+          <div><div className="eyebrow">Bambu 3MF readout</div><h2>Detected parts</h2></div>
+          <span className="loadedBadge">3MF loaded</span>
+        </div>
+        <div className="partsEditor">
+          {selected.parts.map((part, index) => (
+            <div className="partEditor" key={part.name}>
+              <div className="partColor" style={{ background: partColors[index] }} />
+              <div className="partMeta">
+                <b>{part.name}</b>
+                <span>{part.sublayer}</span>
+              </div>
+              <label>Color<input type="color" value={partColors[index]} onChange={(e) => setPartColor(index, e.target.value)} /></label>
+              <label>Enter your filament code<input value={filaments[index]} onChange={(e) => setFilament(index, e.target.value)} /></label>
+            </div>
+          ))}
+        </div>
+        <div className="studioNote">Parser is a UI prototype for now. The real version will read object names, sublayers, plates, and filament assignments from the uploaded/prepared 3MF package.</div>
+      </div>
+    </section>
+  );
+}
+
+function Loot({ siteCredit, setSiteCredit, setSelected, ownedIds, setOwnedIds, triggerRare }) {
+  const [spinning, setSpinning] = useState(false);
+  const [spinIndex, setSpinIndex] = useState(0);
+  const [result, setResult] = useState(null);
+  const cost = 50;
+
+  function runSpin() {
+    if (spinning || siteCredit < cost) return;
+    setSpinning(true);
+    setResult(null);
+    setSiteCredit((value) => value - cost);
+    const finalIndex = Math.floor(Math.random() * products.length);
+    let step = 0;
+    const totalSteps = 26 + finalIndex;
+
+    function tick() {
+      const next = step % products.length;
+      setSpinIndex(next);
+      step += 1;
+      if (step <= totalSteps) {
+        const delay = 40 + step * 13;
+        window.setTimeout(tick, delay);
+      } else {
+        const won = products[finalIndex];
+        setSpinIndex(finalIndex);
+        setResult(won);
+        setSelected(won);
+        setOwnedIds((ids) => ids.includes(won.id) ? ids : [...ids, won.id]);
+        setSpinning(false);
+        if (["Legendary", "Founder"].includes(won.rarity)) {
+          triggerRare(won);
+        }
+      }
+    }
+    tick();
+  }
+
+  const current = result || products[spinIndex];
+
+  return (
+    <section className="lootLayout pagePanel">
+      <div className="lootMachine panelGlass">
+        <div className="eyebrow">Loot crystal</div>
+        <h2>Spend site credit (units)</h2>
+        <p>Use earned site credit to run the crystal. It previews characters, slows down, and lands on one collectible unlock.</p>
+
+        <div className={cx("crystalStage", spinning && "spinning")}>
+          <div className="crystalAura" />
+          <div className="glowCrystal" />
+          <div className="crystalBeam" />
+        </div>
+
+        <div className="spinControls">
+          <div><b>{siteCredit}</b><span>available units</span></div>
+          <Button variant="gold" onClick={runSpin} disabled={spinning || siteCredit < cost}>{spinning ? "Rolling..." : `Spend ${cost} units`}</Button>
+        </div>
+      </div>
+
+      <div className="previewPanel panelGlass">
+        <div className="sectionHead"><div><div className="eyebrow">Character preview</div><h2>{current.name}</h2></div><span className={cx("rarity", current.rarityClass)}>{current.rarity}</span></div>
+        <div className="previewWinner"><ProductFigure product={current} big /></div>
+        <div className="lootRail">
+          {products.map((item, index) => (
+            <div key={item.id} className={cx("lootThumb", index === spinIndex && "active")}> <ProductFigure product={item} /> <span>{item.short}</span></div>
+          ))}
+        </div>
+        {result && <div className="resultStrip"><b>{result.name}</b><span>added to symbolic inventory</span></div>}
+      </div>
+    </section>
+  );
+}
+
+function MiniGame() {
+  return (
+    <section className="pagePanel gamesPanel">
+      {["Piñata Boss", "Print Runner", "Crystal Forge"].map((title, index) => (
+        <div className="gameCard panelGlass" key={title}>
+          <div className="gameIcon">{index === 0 ? "✦" : index === 1 ? "›" : "◆"}</div>
+          <h2>{title}</h2>
+          <p>{index === 0 ? "Break a shelf boss for site points and wheel progress." : index === 1 ? "A simple movement mini game for seasonal rewards." : "Craft reward shards into cosmetics, trophies, and bonus unlocks."}</p>
+          <Button variant="light">Prototype slot</Button>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function Rewards({ loyaltyXp }) {
+  return (
+    <section className="pagePanel rewardsPanel">
+      <div className="rewardIntro panelGlass">
+        <div className="eyebrow">Loyalty path</div>
+        <h2>Rewards should keep the profile alive between drops.</h2>
+        <p>Wallpapers, GIFs, artwork, stickers, profile trophies, site points, wheel spins, and future character unlocks can all live here.</p>
+        <div className="progress big"><span style={{ width: `${loyaltyXp}%` }} /></div>
+      </div>
+      <div className="tierGrid">
+        {rewardTiers.map((tier) => (
+          <div className={cx("tierCard", tier.level === 5 && "mysteryTier", "panelGlass")} key={tier.level}>
+            {tier.level === 5 && <div className="mysterySilhouette"><ProductFigure product={products[5]} big /></div>}
+            <span>Level {tier.level}</span>
+            <h3>{tier.title}</h3>
+            <ul>{tier.unlocks.map((item) => <li key={item}>{item}</li>)}</ul>
+          </div>
         ))}
       </div>
     </section>
   );
 }
 
-function Profile({ profile, setProfile, selected, setSelected, setMode, setRareAnimation, setCart }) {
-  return (
-    <section className="modeShell profileGrid">
-      <div className="profileCreate panelGlass">
-        <span className="eyebrow">Collector Profile</span>
-        <h1>Create your profile</h1>
-        <label>Display name<input value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} placeholder="Collector name" /></label>
-        <label>Collector title<input value={profile.title} onChange={(e) => setProfile({ ...profile, title: e.target.value })} placeholder="Shelf Architect" /></label>
-        <label>Printer setup<input value={profile.printer} onChange={(e) => setProfile({ ...profile, printer: e.target.value })} placeholder="Bambu Lab P1S, AMS, etc." /></label>
-        <label>Favorite filament<input value={profile.filament} onChange={(e) => setProfile({ ...profile, filament: e.target.value })} placeholder="PLA Matte Cyan" /></label>
-      </div>
-
-      <div className="inventory panelGlass">
-        <div className="inventoryHeader">
-          <div>
-            <span className="eyebrow">Symbolic Inventory</span>
-            <h2>{profile.name || "New Collector"}</h2>
-            <p>{profile.title || "Collector title not set"}</p>
-          </div>
-          <div className="profileBadge">{characters.length} Items</div>
-        </div>
-        <div className="inventoryGrid">
-          {characters.map((char) => (
-            <button key={char.id} className={cx("inventoryItem", selected.id === char.id && "selected")} onClick={() => setSelected(char)}>
-              <CharacterFigure character={char} />
-              <strong>{char.name}</strong>
-              <RarityBadge rarity={char.rarity} />
-              <span>{char.inventoryNote}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <CharacterCard
-        character={selected}
-        onStudio={(character) => {
-          setSelected(character);
-          setMode("Studio");
-        }}
-        onAdd={(character) => setCart((prev) => [...prev, character])}
-        onRare={(character) => setRareAnimation(character)}
-      />
-    </section>
-  );
-}
-
-function Studio({ selected, setSelected }) {
-  const [partState, setPartState] = useState(() => Object.fromEntries(characters.map((c) => [c.id, c.parts])));
-  const parts = partState[selected.id] || selected.parts;
-
-  function updatePart(index, patch) {
-    setPartState((prev) => {
-      const current = prev[selected.id] || selected.parts;
-      const next = current.map((part, i) => (i === index ? { ...part, ...patch } : part));
-      return { ...prev, [selected.id]: next };
-    });
-  }
-
-  return (
-    <section className="modeShell studioGrid">
-      <div className="studioStage panelGlass">
-        <span className="eyebrow">3D Studio Prototype</span>
-        <h1>{selected.name}</h1>
-        <p>Plan color regions for multipart FDM printing and match each part to a filament code before production.</p>
-        <div className="studioPreview">
-          <CharacterFigure character={{ ...selected, parts, palette: parts.map((p) => p.color).concat(selected.palette).slice(0, 4) }} large />
-        </div>
-      </div>
-
-      <div className="partEditor panelGlass">
-        <div className="editorHeader">
-          <div>
-            <span className="eyebrow">Part Color Mapping</span>
-            <h2>Printable palette</h2>
-          </div>
-          <select value={selected.id} onChange={(e) => setSelected(characters.find((c) => c.id === e.target.value))}>
-            {characters.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-        </div>
-        <div className="partList">
-          {parts.map((part, index) => (
-            <div className="partRow" key={`${part.key}-${index}`}>
-              <div className="colorSwatch" style={{ background: part.color }} />
-              <div>
-                <strong>{part.key}</strong>
-                <span>Detected layer placeholder</span>
-              </div>
-              <input type="color" value={part.color} onChange={(e) => updatePart(index, { color: e.target.value })} aria-label={`${part.key} color`} />
-              <input value={part.filament} onChange={(e) => updatePart(index, { filament: e.target.value })} placeholder="Enter your filament code" />
-            </div>
-          ))}
-        </div>
-        <div className="threeMfBox">
-          <strong>3MF sublayer parser placeholder</strong>
-          <p>Later this area should read Bambu Studio 3MF structure, detect object or sublayer names, and map them to editable color regions.</p>
-          <button>Drop .3mf file here</button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Loot({ popbits, setPopbits, setRareAnimation, selected }) {
-  const [opened, setOpened] = useState(false);
-  function openVault() {
-    setOpened(true);
-    setPopbits((v) => v + 75);
-    if (selected.rarity === "Legendary" || selected.rarity === "Founder") setRareAnimation(selected);
-  }
-  return (
-    <section className="modeShell lootGrid">
-      <div className="vault panelGlass">
-        <span className="eyebrow">Earned Loot System</span>
-        <h1>Crystal Vault</h1>
-        <p>Reward loops should be earned through activity, makes, collections, and events. The final rules can be tuned later.</p>
-        <div className={cx("crystal", opened && "opened")}>✦</div>
-        <Button variant="gold" onClick={openVault}>{opened ? "Open Again" : "Open Earned Crystal"}</Button>
-      </div>
-      <div className="lootRules panelGlass">
-        <h2>Foundation Rules</h2>
-        <div><b>No paid mystery pressure</b><span>Rewards are tied to loyalty and activity.</span></div>
-        <div><b>Rare animation moments</b><span>Founder and Legendary items can trigger special unlock sequences.</span></div>
-        <div><b>Inventory first</b><span>Unlocked items should appear in the profile inventory immediately.</span></div>
-        <div><b>Current balance</b><span>✦ {popbits} PopBits</span></div>
-      </div>
-    </section>
-  );
-}
-
-function MiniGame({ popbits, setPopbits }) {
-  const [active, setActive] = useState(gameTabs[0]);
-  const [hits, setHits] = useState(0);
-  return (
-    <section className="modeShell miniGameGrid">
-      <div className="gamePanel panelGlass">
-        <span className="eyebrow">Mini Game Module</span>
-        <h1>{active.title}</h1>
-        <p>{active.text}</p>
-        <div className="gameTabs">
-          {gameTabs.map((tab) => (
-            <button key={tab.id} onClick={() => setActive(tab)} className={active.id === tab.id ? "active" : ""}>
-              <strong>{tab.title}</strong><span>{tab.status}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="bossArena panelGlass">
-        <div className="bossPoster">{active.id === "pinata" ? "BOSS" : active.id === "runner" ? "RUN" : "FORGE"}</div>
-        <button className="bossButton" onClick={() => { setHits((h) => h + 1); setPopbits((v) => v + 10); }}>
-          <span>{active.id === "pinata" ? "🪅" : active.id === "runner" ? "🏃" : "💎"}</span>
-        </button>
-        <div className="arenaStats"><b>{hits}</b><span>actions completed · +10 PopBits each</span></div>
-      </div>
-    </section>
-  );
-}
-
-function Rewards({ popbits, profile }) {
-  const progress = Math.min(100, Math.round((popbits / 1200) * 100));
-  return (
-    <section className="modeShell rewardsGrid">
-      <div className="rewardHero panelGlass">
-        <span className="eyebrow">Loyalty System</span>
-        <h1>Collector Rewards</h1>
-        <p>Daily check-ins, makes gallery uploads, collection completion, and mini games can feed a transparent PopBits ledger.</p>
-        <div className="progressTrack"><span style={{ width: `${progress}%` }} /></div>
-        <strong>{progress}% toward Founder Track</strong>
-      </div>
-      <div className="rewardCards">
-        <div className="panelGlass"><b>Daily Login</b><span>+20 PopBits</span></div>
-        <div className="panelGlass"><b>Upload a Make</b><span>+80 PopBits</span></div>
-        <div className="panelGlass"><b>Complete a Drop</b><span>Badge + vault key</span></div>
-        <div className="panelGlass"><b>{profile.name || "Collector"}</b><span>Printer: {profile.printer || "Not set"}</span></div>
-      </div>
-    </section>
-  );
-}
-
-function RareAnimation({ character, onClose }) {
-  if (!character) return null;
+function RareUnlock({ item, onClose }) {
+  if (!item) return null;
   return (
     <div className="rareOverlay" onClick={onClose}>
-      <div className={cx("rareBox", character.rarityClass)} onClick={(e) => e.stopPropagation()}>
-        <div className="rareBurst">✦</div>
-        <span>{character.rarity} Unlock</span>
-        <h1>{character.name}</h1>
-        <p>{character.inventoryNote}</p>
-        <CharacterFigure character={character} />
-        <Button variant="light" onClick={onClose}>Continue</Button>
+      <div className="rarePortal">
+        <div className="burstRing ringA" />
+        <div className="burstRing ringB" />
+        <div className="burstRing ringC" />
+        <ProductFigure product={item} big />
+        <div className="rareLabel"><span className={cx("rarity", item.rarityClass)}>{item.rarity}</span><b>{item.name}</b></div>
       </div>
     </div>
   );
@@ -536,28 +545,42 @@ function RareAnimation({ character, onClose }) {
 
 export default function CyberPopShop() {
   const [mode, setMode] = useState("Lobby");
-  const [selected, setSelected] = useState(characters[0]);
-  const [cart, setCart] = useState([]);
-  const [popbits, setPopbits] = useState(260);
-  const [profile, setProfile] = useState({ name: "", title: "", printer: "", filament: "" });
-  const [rareAnimation, setRareAnimation] = useState(null);
-  const [, setCardOpen] = useState(true);
+  const [selected, setSelected] = useState(products[0]);
+  const [selectedSize, setSelectedSize] = useState(30);
+  const [siteCredit, setSiteCredit] = useState(260);
+  const [loyaltyXp, setLoyaltyXp] = useState(42);
+  const [ownedIds, setOwnedIds] = useState(["sagat-corporate", "cammy-sf6"]);
+  const [rareItem, setRareItem] = useState(null);
+  const [profile, setProfile] = useState({ name: "", printer: "", filament: "" });
 
-  const modeView = useMemo(() => {
-    if (mode === "Lobby") return <Lobby selected={selected} setSelected={setSelected} setMode={setMode} setCart={setCart} setRareAnimation={setRareAnimation} setCardOpen={setCardOpen} />;
-    if (mode === "Drops") return <Drops selected={selected} setSelected={setSelected} setCart={setCart} setMode={setMode} />;
-    if (mode === "Profile") return <Profile profile={profile} setProfile={setProfile} selected={selected} setSelected={setSelected} setMode={setMode} setRareAnimation={setRareAnimation} setCart={setCart} />;
-    if (mode === "Studio") return <Studio selected={selected} setSelected={setSelected} />;
-    if (mode === "Loot") return <Loot popbits={popbits} setPopbits={setPopbits} setRareAnimation={setRareAnimation} selected={selected} />;
-    if (mode === "Mini Game") return <MiniGame popbits={popbits} setPopbits={setPopbits} />;
-    return <Rewards popbits={popbits} profile={profile} />;
-  }, [mode, selected, profile, popbits]);
+  const cartCount = useMemo(() => ownedIds.length, [ownedIds]);
+
+  function purchasePreview() {
+    setLoyaltyXp((value) => Math.min(100, value + selected.loyaltyGain));
+    setSiteCredit((value) => value + 25);
+    setOwnedIds((ids) => ids.includes(selected.id) ? ids : [...ids, selected.id]);
+    if (["Legendary", "Founder"].includes(selected.rarity)) setRareItem(selected);
+  }
 
   return (
-    <main>
-      <Header mode={mode} setMode={setMode} popbits={popbits} cartCount={cart.length} />
-      {modeView}
-      <RareAnimation character={rareAnimation} onClose={() => setRareAnimation(null)} />
-    </main>
+    <div className="appShell">
+      <header className="topbar">
+        <div className="brandMark">CP</div>
+        <div className="brandText"><strong>CyberPop</strong><span>Playable Shop Alpha</span></div>
+        <nav className="navModes">
+          {modeLabels.map((label) => <button key={label} className={mode === label ? "active" : ""} onClick={() => setMode(label)}>{label}</button>)}
+        </nav>
+        <div className="topStats"><div className="coin">✦ {siteCredit}</div><div className="cartPill">Inventory {cartCount}</div></div>
+      </header>
+
+      {mode === "Lobby" && <Lobby selected={selected} setSelected={setSelected} selectedSize={selectedSize} setSelectedSize={setSelectedSize} loyaltyXp={loyaltyXp} onPurchasePreview={purchasePreview} onOpenStudio={() => setMode("3D Studio")} />}
+      {mode === "Profile" && <Profile profile={profile} setProfile={setProfile} ownedIds={ownedIds} setOwnedIds={setOwnedIds} selected={selected} setSelected={setSelected} setMode={setMode} />}
+      {mode === "3D Studio" && <Studio selected={selected} />}
+      {mode === "Loot" && <Loot siteCredit={siteCredit} setSiteCredit={setSiteCredit} setSelected={setSelected} ownedIds={ownedIds} setOwnedIds={setOwnedIds} triggerRare={setRareItem} />}
+      {mode === "Mini Game" && <MiniGame />}
+      {mode === "Rewards" && <Rewards loyaltyXp={loyaltyXp} />}
+
+      <RareUnlock item={rareItem} onClose={() => setRareItem(null)} />
+    </div>
   );
 }

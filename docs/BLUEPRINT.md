@@ -1,19 +1,26 @@
-# CyberPop Shop Interface Blueprint
+# CyberPop Shop MVP Notes
 
-## Current build goal
+This version focuses on a character-first game shop interface.
 
-The homepage should feel like a playable 3D collectible lobby. It should not look like a generic web shop template.
+## Current scope
 
-## Interface rules
+- Top menu modes do not scroll to page anchors.
+- Lobby centers the selected collectible and keeps the product rail directly attached to the stage.
+- Portfolio-style sample products are used as the working product set.
+- Purchase panel separates GET STL and GET Physical product.
+- STL price is shown as $5 with subscription/bulk bundle messaging.
+- Physical products include 15 cm, 30 cm, and 40 cm size options.
+- Profile creation and symbolic inventory are included.
+- Inventory characters open collectible cards.
+- Loot area includes Spend site credit (units), a spinning glowing crystal, character previews, and RNG slowdown.
+- Rare unlock is visual-first and character-first, not a text card.
+- 3D Studio assumes the 3MF package is already loaded and shows detected part/sublayer color planning UI.
+- Loyalty includes wallpapers, GIFs, artwork, stickers, profile trophies, site points, wheel spins, and future character unlock silhouette.
 
-1. Navigation buttons change modes inside the app. They should not redirect to anchors in the same page.
-2. The selected character must stay visually central.
-3. The character selection rail must stay close to the main character stage.
-4. User notes and internal critique must never be used as public website slogans.
-5. Product data should feel like character/drop data: rarity, print format, parts, palette, inventory state, and rewards.
-6. 3D printing must remain visible through printable parts, filament mapping, and 3MF/studio language.
-7. UI density should come from controlled mechanisms, not random cards.
+## Later real implementation
 
-## Planned next technical step
-
-The 3D Studio should eventually parse Bambu Studio 3MF files and detect object names, sublayer names, part regions, and assigned colors. In this prototype, that is represented only as an upload placeholder and editable part list.
+- Replace CSS placeholders with real optimized product renders / GLB previews from the portfolio pipeline.
+- Implement real Bambu/3MF parsing for sublayers, objects, plates, filament colors, and part names.
+- Connect products to backend/CMS.
+- Connect purchases to Stripe/Shopify/Gumroad/Patreon logic.
+- Store inventory, site credit, loyalty, and unlock history server-side.
