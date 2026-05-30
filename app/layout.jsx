@@ -1,8 +1,8 @@
-import './globals.css';
+import "./globals.css";
 
 export const metadata = {
-  title: 'CyberPop Shop',
-  description: 'Playable storefront foundation for CyberPop3D collectibles, STL files, rewards, and community features.'
+  title: "CyberPop Shop",
+  description: "Playable 3D printable collectible shop interface prototype"
 };
 
 export default function RootLayout({ children }) {

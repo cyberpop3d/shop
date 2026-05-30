@@ -1,58 +1,19 @@
-# CyberPop Shop V5 Blueprint
+# CyberPop Shop Interface Blueprint
 
-## Direction
+## Current build goal
 
-CyberPop Shop should feel like a playable collectible platform, not a generic e-commerce template. The home interface should use controlled game mechanisms: lobby modes, character posters, profile inventory, reward progression, mini-game tabs, and a simple studio workflow for print palette decisions.
+The homepage should feel like a playable 3D collectible lobby. It should not look like a generic web shop template.
 
-## Main modules
+## Interface rules
 
-1. Lobby
-   - Large poster-style scroll sections
-   - Character placeholder presence in front of huge background typography
-   - 3D print specifications visible in each drop scene
+1. Navigation buttons change modes inside the app. They should not redirect to anchors in the same page.
+2. The selected character must stay visually central.
+3. The character selection rail must stay close to the main character stage.
+4. User notes and internal critique must never be used as public website slogans.
+5. Product data should feel like character/drop data: rarity, print format, parts, palette, inventory state, and rewards.
+6. 3D printing must remain visible through printable parts, filament mapping, and 3MF/studio language.
+7. UI density should come from controlled mechanisms, not random cards.
 
-2. Profile
-   - Display name
-   - Collector title
-   - Favorite filament
-   - Printer setup
-   - Streak and PopBits summary
+## Planned next technical step
 
-3. Symbolic Inventory
-   - Character tiles
-   - Rarity levels
-   - Character card modal
-   - Rare unlock animation for premium, never-sold, or event-only models
-
-4. 3D Studio
-   - Simple multipart character preview
-   - Detected parts / sublayers
-   - Color picker per part
-   - Filament code input per part
-   - Bambu 3MF import placeholder
-
-5. Loot Foundation
-   - Earned crystals only for now
-   - No paid mystery box loop
-   - Transparent reward rules
-
-6. Mini Games
-   - Piñata Boss
-   - Print Runner
-   - Crystal Forge
-
-7. Rewards
-   - PopBits
-   - Collector level
-   - Daily streak
-   - Makes / contest hooks
-
-## Real implementation later
-
-- Account authentication
-- Real inventory backed by purchases and rewards
-- 3MF parser for Bambu Studio files
-- Model preview with Three.js / React Three Fiber
-- Secure library and downloads
-- Server-side PopBits ledger
-- Admin CMS for products, rarity, rewards, and contests
+The 3D Studio should eventually parse Bambu Studio 3MF files and detect object names, sublayer names, part regions, and assigned colors. In this prototype, that is represented only as an upload placeholder and editable part list.

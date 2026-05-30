@@ -1,21 +1,20 @@
-# CyberPop Shop — Profile + Studio Prototype
+# CyberPop Shop Game UI v6
 
-This is a clean Next.js starter for a playable CyberPop Shop interface.
+A clean Next.js prototype for the CyberPop Shop direction.
 
-## Included
+This version focuses on a playable collectible interface instead of a generic ecommerce hero.
 
-- Game-lobby style home page
-- Interface-mode navigation instead of in-page redirect links
-- Profile creation prototype
-- Symbolic character inventory
-- Character card modal with rarity levels
-- Rare unlock animation demo for premium / not-sold models
-- 3D Studio prototype for multipart print palette planning
-- Filament code mapping inputs for each detected part
-- Bambu 3MF sublayer import placeholder UI
-- Loot foundation with earned crystals, not paid random boxes
-- Mini game foundation tab
-- PopBits loyalty foundation
+## Main ideas
+
+- Top navigation changes interface modes and does not scroll to page anchors.
+- The main lobby keeps the character, selection rail, and character card close together.
+- Character selection changes the central stage, poster background, rarity, print details, and studio data.
+- Profile mode includes a simple collector profile and symbolic inventory.
+- Inventory characters open character cards with rarity and studio actions.
+- Legendary and Founder characters can trigger a rare unlock animation placeholder.
+- Studio mode includes multipart color mapping and filament code inputs.
+- 3MF/Bambu sublayer parsing is represented as UI only for now.
+- Loot, mini game, and rewards modules are present as foundations, not final systems.
 
 ## Run locally
 
@@ -26,8 +25,4 @@ npm run dev
 
 ## Deploy
 
-Push this folder to GitHub and connect it to Vercel as a Next.js project.
-
-## Notes
-
-The 3MF parser is not implemented yet. The UI currently mocks detected sublayers so the flow can be designed before building the real parser.
+Push this folder to the `cyberpop3d/shop` repository and let Vercel deploy the main branch.
