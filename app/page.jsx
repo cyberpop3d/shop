@@ -183,6 +183,14 @@ const sortOptions = [
   { id: "expensive", label: "Highest Price" }
 ];
 
+const earnMissions = [
+  { id: "daily", title: "Daily check-in", value: "+20 units", detail: "Open the lobby once per day and keep the collector streak alive.", icon: "◐", mode: "Rewards" },
+  { id: "make", title: "Upload a make", value: "+80 units", detail: "Share a printed build photo to the makes gallery once the gallery module is active.", icon: "▧", mode: "Profile" },
+  { id: "tag", title: "Tag CyberPop on Instagram", value: "+120 units", detail: "Post your printed model and tag the account to request a manual reward review.", icon: "✦", mode: "Profile" },
+  { id: "app", title: "Mobile companion app", value: "+150 units", detail: "A future app slot for push missions, streaks, and collection alerts.", icon: "▣", mode: "Mini Game" },
+  { id: "studio", title: "Finish a color plan", value: "+40 units", detail: "Assign filament codes to every 3MF part inside the 3D Studio.", icon: "◆", mode: "3D Studio" }
+];
+
 const rewardMilestones = [
   {
     id: "wallpaper-sagat",
@@ -466,7 +474,7 @@ function PurchasePanel({ selected, selectedSize, setSelectedSize, loyaltyXp, onP
   );
 }
 
-function Lobby({ selected, setSelected, selectedSize, setSelectedSize, loyaltyXp, onPurchasePreview, onOpenStudio }) {
+function Lobby({ selected, setSelected, selectedSize, setSelectedSize, loyaltyXp, onPurchasePreview, onOpenStudio, setMode, setCreditDrawerOpen }) {
   const [activeCollection, setActiveCollection] = useState("all");
   const [sortMode, setSortMode] = useState("newest");
 
@@ -495,9 +503,13 @@ function Lobby({ selected, setSelected, selectedSize, setSelectedSize, loyaltyXp
         <h1>CyberPop Drop Room</h1>
         <p>Pick a collectible, inspect the print plan, choose STL or physical, then move it into the studio for color planning.</p>
         <div className="quickStats">
-          <div><b>{selected.rarity}</b><span>Rarity</span></div>
-          <div><b>{selected.creditValue}</b><span>Credit value</span></div>
-          <div><b>{selected.parts.length}</b><span>Parts</span></div>
+          <button onClick={() => setCreditDrawerOpen(true)}><b>{selected.creditValue}</b><span>Credit value</span></button>
+          <button onClick={() => setMode("Rewards")}><b>{selected.rarity}</b><span>Rarity track</span></button>
+          <button onClick={onOpenStudio}><b>{selected.parts.length}</b><span>Color parts</span></button>
+        </div>
+        <div className="miniMissionRail">
+          <button onClick={() => setCreditDrawerOpen(true)}><span>✦</span><b>Earn units</b><small>daily · makes · Instagram tag</small></button>
+          <button onClick={() => setMode("Mini Game")}><span>◆</span><b>Play for wheel progress</b><small>arcade layer</small></button>
         </div>
         <Button variant="light" onClick={onOpenStudio}>Open in 3D Studio</Button>
       </div>
@@ -519,6 +531,7 @@ function Lobby({ selected, setSelected, selectedSize, setSelectedSize, loyaltyXp
           setSortMode={setSortMode}
           selectedSize={selectedSize}
         />
+        <EngagementStack selected={selected} setMode={setMode} setCreditDrawerOpen={setCreditDrawerOpen} />
         <ProductRail products={visibleProducts} selected={selected} onSelect={setSelected} />
       </main>
 
@@ -847,6 +860,91 @@ function Rewards({ loyaltyXp }) {
   );
 }
 
+
+function DepthBackdrop() {
+  return (
+    <div className="depthBackdrop" aria-hidden="true">
+      <span className="bgOrb orbBlue" />
+      <span className="bgOrb orbPurple" />
+      <span className="bgOrb orbGold" />
+      <span className="midRing ringA" />
+      <span className="midRing ringB" />
+      <span className="foregroundShard shardA" />
+      <span className="foregroundShard shardB" />
+      <span className="foregroundShard shardC" />
+    </div>
+  );
+}
+
+function TopActionBar({ selected, siteCredit, loyaltyXp, setMode, setCreditDrawerOpen }) {
+  const nextReward = rewardMilestones.find((reward) => reward.xp > loyaltyXp) || rewardMilestones[rewardMilestones.length - 1];
+  return (
+    <div className="topActionBar">
+      <button className="actionCard actionCredit" onClick={() => setCreditDrawerOpen(true)}>
+        <span className="actionIcon">✦</span>
+        <div><b>Earn units</b><small>{siteCredit} available · missions ready</small></div>
+        <em>Open</em>
+      </button>
+      <button className="actionCard actionStudio" onClick={() => setMode("3D Studio")}>
+        <span className="actionIcon">◆</span>
+        <div><b>Color plan</b><small>{selected.parts.length} parts · filament codes</small></div>
+        <em>Studio</em>
+      </button>
+      <button className="actionCard actionReward" onClick={() => setMode("Rewards")}>
+        <span className="actionIcon">◈</span>
+        <div><b>{nextReward.type}</b><small>{nextReward.title}</small></div>
+        <i><span style={{ width: `${loyaltyXp}%` }} /></i>
+      </button>
+    </div>
+  );
+}
+
+function CreditDrawer({ open, onClose, setMode }) {
+  if (!open) return null;
+  return (
+    <div className="creditOverlay" onClick={onClose}>
+      <aside className="creditDrawer" onClick={(event) => event.stopPropagation()}>
+        <div className="drawerTop">
+          <div><div className="eyebrow">Site credit</div><h2>Unit boost board</h2></div>
+          <button onClick={onClose}>×</button>
+        </div>
+        <div className="unitCore">
+          <div className="unitCrystal"><span /></div>
+          <div><b>Earn more units</b><p>Choose a visible action, then move into the related section. These are UI hooks for the real reward ledger later.</p></div>
+        </div>
+        <div className="missionList">
+          {earnMissions.map((mission) => (
+            <button key={mission.id} className="missionRow" onClick={() => { setMode(mission.mode); onClose(); }}>
+              <span className="missionIcon">{mission.icon}</span>
+              <div><b>{mission.title}</b><small>{mission.detail}</small></div>
+              <strong>{mission.value}</strong>
+            </button>
+          ))}
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function EngagementStack({ selected, setMode, setCreditDrawerOpen }) {
+  const beams = [
+    { title: "Units", detail: "Open missions", action: () => setCreditDrawerOpen(true), icon: "✦" },
+    { title: "Studio", detail: `${selected.parts.length} color groups`, action: () => setMode("3D Studio"), icon: "◆" },
+    { title: "Rewards", detail: "Track unlocks", action: () => setMode("Rewards"), icon: "◈" }
+  ];
+
+  return (
+    <div className="engagementStack">
+      {beams.map((beam) => (
+        <button key={beam.title} onClick={beam.action}>
+          <span>{beam.icon}</span>
+          <div><b>{beam.title}</b><small>{beam.detail}</small></div>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function RareUnlock({ item, onClose }) {
   if (!item) return null;
   return (
@@ -875,6 +973,7 @@ export default function CyberPopShop() {
   const [ownedIds, setOwnedIds] = useState(["sagat-corporate", "cammy-sf6", "sonya-blade"]);
   const [rareItem, setRareItem] = useState(null);
   const [profile, setProfile] = useState({ name: "", printer: "", filament: "" });
+  const [creditDrawerOpen, setCreditDrawerOpen] = useState(false);
 
   const cartCount = useMemo(() => ownedIds.length, [ownedIds]);
 
@@ -887,22 +986,27 @@ export default function CyberPopShop() {
 
   return (
     <div className="appShell">
-      <header className="topbar">
-        <div className="brandMark">CP</div>
-        <div className="brandText"><strong>CyberPop</strong><span>Playable Shop Alpha</span></div>
+      <DepthBackdrop />
+      <header className="topbar topbarNoBrand">
         <nav className="navModes">
           {modeLabels.map((label) => <button key={label} className={mode === label ? "active" : ""} onClick={() => setMode(label)}>{label}</button>)}
         </nav>
-        <div className="topStats"><div className="coin">✦ {siteCredit}</div><div className="cartPill">Inventory {cartCount}</div></div>
+        <div className="topStats">
+          <button className="coin interactivePill" onClick={() => setCreditDrawerOpen(true)}><span>✦</span><b>{siteCredit}</b><small>Units</small></button>
+          <button className="flowPill" onClick={() => setMode("Rewards")}><span>Rewards</span><b>{loyaltyXp}%</b></button>
+          <button className="cartPill" onClick={() => setMode("Profile")}>Inventory {cartCount}</button>
+        </div>
       </header>
+      <TopActionBar selected={selected} siteCredit={siteCredit} loyaltyXp={loyaltyXp} setMode={setMode} setCreditDrawerOpen={setCreditDrawerOpen} />
 
-      {mode === "Lobby" && <Lobby selected={selected} setSelected={setSelected} selectedSize={selectedSize} setSelectedSize={setSelectedSize} loyaltyXp={loyaltyXp} onPurchasePreview={purchasePreview} onOpenStudio={() => setMode("3D Studio")} />}
+      {mode === "Lobby" && <Lobby selected={selected} setSelected={setSelected} selectedSize={selectedSize} setSelectedSize={setSelectedSize} loyaltyXp={loyaltyXp} onPurchasePreview={purchasePreview} onOpenStudio={() => setMode("3D Studio")} setMode={setMode} setCreditDrawerOpen={setCreditDrawerOpen} />}
       {mode === "Profile" && <Profile profile={profile} setProfile={setProfile} ownedIds={ownedIds} setOwnedIds={setOwnedIds} selected={selected} setSelected={setSelected} setMode={setMode} />}
       {mode === "3D Studio" && <Studio selected={selected} />}
       {mode === "Loot" && <Loot siteCredit={siteCredit} setSiteCredit={setSiteCredit} setSelected={setSelected} ownedIds={ownedIds} setOwnedIds={setOwnedIds} triggerRare={setRareItem} />}
       {mode === "Mini Game" && <MiniGame />}
       {mode === "Rewards" && <Rewards loyaltyXp={loyaltyXp} />}
 
+      <CreditDrawer open={creditDrawerOpen} onClose={() => setCreditDrawerOpen(false)} setMode={setMode} />
       <RareUnlock item={rareItem} onClose={() => setRareItem(null)} />
     </div>
   );
