@@ -1,75 +1,61 @@
-# Cyberpop3D Shop Blueprint
+# CyberPop Shop MVP Blueprint
 
-## Product Positioning
+## Positioning
 
-Cyberpop3D is not a normal STL marketplace. It is a premium 3D printable toy ecosystem where physical products, STL files, user profiles, print galleries, collection progress, rewards, mini games, and a digital Cyberpop universe reinforce each other.
+CyberPop Shop is a premium 3D printable toy platform, not a regular ecommerce site. It should connect physical prints, STL/3MF files, user profiles, product libraries, makes galleries, loyalty currency, mini games, contests, and the long-term CyberPop universe.
 
-## Core Flow
+## MVP 1 scope
 
-1. User enters Cyberpop Shop.
-2. User browses STL files, physical prints, stands, accessories, and bundles.
-3. User opens a product page with renders, print notes, part list, and later 3D GLB preview.
-4. User purchases a product.
-5. Digital product appears in the user's protected library.
-6. Product also becomes part of the user's digital collection/profile.
-7. User earns PopBits, badges, shards, or event progress.
-8. User can upload print photos to the makes gallery.
-9. Mini games and seasonal events keep the ecosystem alive.
+Build the shopping core first:
 
-## MVP Phases
+- Home page
+- Shop/catalog
+- Product detail page
+- Product data model
+- Cart placeholder
+- Library placeholder
+- Makes gallery placeholder
+- Rewards placeholder
+- Mini game hub placeholder
+- Admin/CMS planning page
 
-### MVP 1 — Shop Core
-- homepage
-- catalog
-- product page
-- account
-- checkout
-- secure download library
-- license notes
+## Later phases
 
-### MVP 2 — 3D Preview + Profile
-- GLB/GLTF viewer
-- part visibility
-- accessory switch
-- basic user profile
-- makes gallery
-- seed content
+1. Secure account + authenticated digital file delivery
+2. Product CMS and asset pipeline
+3. GLB viewer/customizer
+4. PopBits ledger + reward rules
+5. Mini game vertical slice
+6. Gallery upload + moderation
+7. Contests and seasonal leaderboards
+8. Patreon code bridge
+9. AI print settings assistant
 
-### MVP 3 — Loyalty
-- PopBits or equivalent currency
-- daily login
-- coupons
-- badges
-- collection progress
-- Patreon code input
+## Data model draft
 
-### MVP 4 — Mini Games
-- piñata/boss damage
-- crystal forge/reward opening
-- simple tycoon or map runner
-- monthly leaderboard
+- User
+- Product
+- ProductVariant
+- FileAsset
+- Order
+- License
+- Collection
+- Reward
+- Quest
+- GalleryPost
+- Contest
+- Leaderboard
+- CurrencyLedger
 
-### MVP 5 — Community
-- design/print/painting contests
-- gallery voting
-- curated front-page makes
-- seasonal events
+## Asset pipeline
 
-### MVP 6 — Advanced Tools
-- AI print settings assistant
-- Bambu/slicer workflow
-- advanced customizer
-- animated digital collection scenes
+Each product should eventually support:
 
-## Technical Direction
+- Sales files: STL / 3MF / ZIP
+- Web preview: optimized GLB / GLTF
+- Product media: JPG / PNG / WebP
+- Metadata: dimensions, parts, difficulty, material notes, support notes, stand compatibility
 
-- Frontend: Next.js / React
-- 3D: Three.js / React Three Fiber
-- Hosting: Vercel
-- Database: user, product, order, license, reward, quest, gallery, contest, leaderboard, currency ledger
-- File security: authenticated or signed downloads for STL/3MF/ZIP
-- Preview asset pipeline: STL/3MF/ZIP for sale, GLB/GLTF for web preview, PNG/JPG for thumbnails, JSON metadata for product data
+## UI direction
 
-## Key Rule
-
-The playful layer should support commerce, not obscure it. Children and younger audiences should feel discovery and excitement; parents and adult collectors should see pricing, shipping, materials, file access, and trust information clearly.
+Sky-blue / white glass UI, premium game-interface energy, clear shop conversion, playful but not cheap.

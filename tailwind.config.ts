@@ -1,19 +1,34 @@
-import type { Config } from 'tailwindcss';
+import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: ['./src/**/*.{ts,tsx,js,jsx,mdx}'],
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./data/**/*.{js,ts,jsx,tsx,mdx}"
+  ],
   theme: {
     extend: {
       fontFamily: {
-        display: ['var(--font-display)', 'Inter', 'system-ui', 'sans-serif'],
-        body: ['var(--font-body)', 'Inter', 'system-ui', 'sans-serif']
+        display: ["var(--font-display)", "Inter", "system-ui", "sans-serif"],
+        body: ["var(--font-body)", "Inter", "system-ui", "sans-serif"]
+      },
+      colors: {
+        skyglass: {
+          50: "#f4fbff",
+          100: "#dff3ff",
+          200: "#b8e7ff",
+          300: "#7ed6ff",
+          400: "#35bbf4",
+          500: "#0ca3dc"
+        }
       },
       boxShadow: {
-        soft: '0 30px 90px rgba(70, 160, 255, 0.18)',
-        card: '0 20px 70px rgba(32, 118, 214, 0.14)'
+        soft: "0 24px 70px rgba(8, 60, 90, .16)",
+        card: "0 18px 45px rgba(15, 66, 97, .12)"
       }
     }
   },
   plugins: []
 };
+
 export default config;

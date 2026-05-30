@@ -1,18 +1,18 @@
-# Cyberpop3D Shop MVP
+# CyberPop Shop
 
-A first deployable Next.js prototype for a playable Cyberpop3D storefront.
+A deployable Next.js starter for the CyberPop3D shop platform.
 
-This version is not a finished commerce backend. It is a visual and interaction foundation for:
+This is **not** the final production platform yet. It is the first clean foundation for a premium 3D printable toy storefront that can grow into:
 
-- STL / physical figure / stand / bundle catalog
-- Premium sky-blue / white glass game UI direction
-- Product detail preview modal
-- Cart mockup
-- PopBits loyalty points
-- Piñata boss mini-game loop
-- Protected library placeholder
-- Makes gallery seed content placeholder
-- Future contests section
+- STL + 3MF + ZIP digital product sales
+- physical 3D print sales
+- product pages with 3D preview placeholders
+- user library placeholders
+- PopBits loyalty and reward foundation
+- mini game hub placeholders
+- makes gallery and community proof
+- contests and seasonal drops
+- admin/CMS planning
 
 ## Run locally
 
@@ -21,36 +21,14 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+## Deploy
 
-## Deploy to Vercel
+Push this repository to GitHub and import it in Vercel.
 
-Push this folder to a GitHub repo, import it in Vercel, and deploy.
+## Suggested domain
 
-Recommended project/domain later:
+`shop.kiarostudio.com/cyberpop`
 
-```txt
-shop.kiarostudio.com/cyberpop
-```
+## Current status
 
-For the first clean deployment, a separate repo is recommended:
-
-```txt
-cyberpop3d/cyberpop-shop
-```
-
-## Current scope
-
-This is MVP 0 / visual vertical slice. It intentionally uses mock data from `src/lib/data.ts`.
-
-The next implementation layer should add:
-
-- user accounts
-- product CMS/admin
-- secure paid file delivery
-- real payment provider
-- order records
-- loyalty ledger
-- server-side reward calculation
-- GLB/GLTF product previews
-- gallery upload/moderation
+MVP 0 / visual foundation. Payment, authentication, secure file delivery, CMS, and backend ledger are intentionally not connected yet.
