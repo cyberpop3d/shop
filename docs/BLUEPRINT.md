@@ -1,32 +1,26 @@
-# CyberPop Shop MVP Blueprint
+# CyberPop Shop v4 Blueprint
 
-## Current build
+## Direction
 
-This v3 starter focuses on the top-of-page experience. The previous hero felt too generic, so the landing area has been reframed as a game lobby / shop interface:
+The home page should feel like a controlled game interface for a 3D printable toy universe, not a generic web shop. The first screen must sell the fantasy: collectible drops, big visual poster words, a central 3D product presence, and clear print/product cues.
 
-- Sticky game-style top navigation
-- CyberPop Drop Room hero
-- Central interactive collectible stage
-- Right-side featured drop terminal
-- Left-side quest and mission stack
-- Drop rail product selection
-- Crystal Forge reward loop placeholder
-- Vault / Library / 3D Preview / Makes / Admin module lanes
+## Navigation rule
 
-## Product philosophy
+The top menu must not redirect to sections inside the same page. Users can scroll naturally. Header tabs are interface modes only, used to change small status panels and future app states.
 
-The website should not feel like a normal ecommerce template. The shop should feel like a playable product world: a clean, trustworthy buying flow wrapped in a collectible game interface.
+## Core mechanisms
 
-## MVP discipline
+1. Scroll-reactive character stage
+2. Poster typography behind the 3D collectible placeholder
+3. Drop/product scenes that change the active character
+4. Loot/reward foundation with transparent free daily reward framing
+5. Mini-game tab foundation
+6. Loyalty/PopBits foundation
+7. 3D-print identity through parts, scale, FDM/STL/physical language
 
-This is still MVP 0. It does not yet include real checkout, auth, database, CMS, secure downloads, 3D GLB viewer, server-side reward ledger, or real mini-game anti-cheat.
+## Later replacement points
 
-## Next build targets
-
-1. Replace CSS toy placeholder with real product render slots.
-2. Add real product detail routes.
-3. Add data-driven products from a JSON/CMS structure.
-4. Connect cart to real checkout later.
-5. Add account/library/auth layer.
-6. Add 3D preview bay using GLB viewer.
-7. Build one real mini-game vertical slice with server-side validation.
+- Replace CSS placeholder figure with real GLB/Three.js/R3F viewer.
+- Connect product data to CMS/Shopify/Stripe later.
+- Move rewards to server-side ledger before production.
+- Keep chance mechanics purchase-independent and transparent.
