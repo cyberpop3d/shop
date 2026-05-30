@@ -1,77 +1,32 @@
 # CyberPop Shop MVP Blueprint
 
-## Purpose
+## Current build
 
-CyberPop Shop is not a simple e-commerce storefront. It is the starting point for a premium 3D printable toy ecosystem that can grow into STL sales, physical figures, product previews, user profiles, makes galleries, loyalty rewards, mini games, seasonal contests, Patreon access, and a long-term CyberPop universe.
+This v3 starter focuses on the top-of-page experience. The previous hero felt too generic, so the landing area has been reframed as a game lobby / shop interface:
 
-## MVP 0 in this package
+- Sticky game-style top navigation
+- CyberPop Drop Room hero
+- Central interactive collectible stage
+- Right-side featured drop terminal
+- Left-side quest and mission stack
+- Drop rail product selection
+- Crystal Forge reward loop placeholder
+- Vault / Library / 3D Preview / Makes / Admin module lanes
 
-This package is a clean deployable starter. It intentionally avoids fragile dependencies and keeps the first build stable.
+## Product philosophy
 
-Included:
+The website should not feel like a normal ecommerce template. The shop should feel like a playable product world: a clean, trustworthy buying flow wrapped in a collectible game interface.
 
-- Landing page
-- Product catalog foundation
-- Product spotlight panel
-- Cart mockup
-- PopBits reward placeholder
-- Piñata Boss demo loop
-- Library / 3D preview / game module placeholders
-- Responsive sky-blue / white glass UI direction
+## MVP discipline
 
-Not included yet:
+This is still MVP 0. It does not yet include real checkout, auth, database, CMS, secure downloads, 3D GLB viewer, server-side reward ledger, or real mini-game anti-cheat.
 
-- Real payment
-- User accounts
-- Database
-- Secure STL delivery
-- Admin panel
-- GLB viewer
-- Real product CMS
-- Server-side reward ledger
+## Next build targets
 
-## Suggested next phases
-
-### MVP 1 — Shop core
-
-- Real product data
-- Product detail pages
-- Cart and checkout provider decision
-- Digital vs physical product distinction
-- Secure download architecture plan
-
-### MVP 2 — Library and previews
-
-- User account
-- Purchased product library
-- GLB product preview placeholder to real viewer
-- Makes gallery seed content
-
-### MVP 3 — Loyalty
-
-- PopBits ledger
-- Daily login
-- Coupons and badges
-- Patreon code entry
-
-### MVP 4 — Game systems
-
-- Crystal Forge
-- Piñata Boss
-- Print Lab Tycoon prototype
-- Leaderboard foundation
-
-### MVP 5 — Community
-
-- Makes gallery upload
-- Moderation
-- Contests
-- Collection showcases
-
-## Technical direction
-
-- Next.js / React frontend
-- Vercel hosting
-- Later backend for users, products, orders, library, rewards, games, gallery, contests, and admin tools
-- GLB/GLTF for web previews, STL/3MF/ZIP for actual product delivery
-- Secure authenticated downloads for paid digital files
+1. Replace CSS toy placeholder with real product render slots.
+2. Add real product detail routes.
+3. Add data-driven products from a JSON/CMS structure.
+4. Connect cart to real checkout later.
+5. Add account/library/auth layer.
+6. Add 3D preview bay using GLB viewer.
+7. Build one real mini-game vertical slice with server-side validation.
