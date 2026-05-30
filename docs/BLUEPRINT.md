@@ -1,61 +1,77 @@
 # CyberPop Shop MVP Blueprint
 
-## Positioning
+## Purpose
 
-CyberPop Shop is a premium 3D printable toy platform, not a regular ecommerce site. It should connect physical prints, STL/3MF files, user profiles, product libraries, makes galleries, loyalty currency, mini games, contests, and the long-term CyberPop universe.
+CyberPop Shop is not a simple e-commerce storefront. It is the starting point for a premium 3D printable toy ecosystem that can grow into STL sales, physical figures, product previews, user profiles, makes galleries, loyalty rewards, mini games, seasonal contests, Patreon access, and a long-term CyberPop universe.
 
-## MVP 1 scope
+## MVP 0 in this package
 
-Build the shopping core first:
+This package is a clean deployable starter. It intentionally avoids fragile dependencies and keeps the first build stable.
 
-- Home page
-- Shop/catalog
-- Product detail page
-- Product data model
-- Cart placeholder
-- Library placeholder
-- Makes gallery placeholder
-- Rewards placeholder
-- Mini game hub placeholder
-- Admin/CMS planning page
+Included:
 
-## Later phases
+- Landing page
+- Product catalog foundation
+- Product spotlight panel
+- Cart mockup
+- PopBits reward placeholder
+- Piñata Boss demo loop
+- Library / 3D preview / game module placeholders
+- Responsive sky-blue / white glass UI direction
 
-1. Secure account + authenticated digital file delivery
-2. Product CMS and asset pipeline
-3. GLB viewer/customizer
-4. PopBits ledger + reward rules
-5. Mini game vertical slice
-6. Gallery upload + moderation
-7. Contests and seasonal leaderboards
-8. Patreon code bridge
-9. AI print settings assistant
+Not included yet:
 
-## Data model draft
+- Real payment
+- User accounts
+- Database
+- Secure STL delivery
+- Admin panel
+- GLB viewer
+- Real product CMS
+- Server-side reward ledger
 
-- User
-- Product
-- ProductVariant
-- FileAsset
-- Order
-- License
-- Collection
-- Reward
-- Quest
-- GalleryPost
-- Contest
-- Leaderboard
-- CurrencyLedger
+## Suggested next phases
 
-## Asset pipeline
+### MVP 1 — Shop core
 
-Each product should eventually support:
+- Real product data
+- Product detail pages
+- Cart and checkout provider decision
+- Digital vs physical product distinction
+- Secure download architecture plan
 
-- Sales files: STL / 3MF / ZIP
-- Web preview: optimized GLB / GLTF
-- Product media: JPG / PNG / WebP
-- Metadata: dimensions, parts, difficulty, material notes, support notes, stand compatibility
+### MVP 2 — Library and previews
 
-## UI direction
+- User account
+- Purchased product library
+- GLB product preview placeholder to real viewer
+- Makes gallery seed content
 
-Sky-blue / white glass UI, premium game-interface energy, clear shop conversion, playful but not cheap.
+### MVP 3 — Loyalty
+
+- PopBits ledger
+- Daily login
+- Coupons and badges
+- Patreon code entry
+
+### MVP 4 — Game systems
+
+- Crystal Forge
+- Piñata Boss
+- Print Lab Tycoon prototype
+- Leaderboard foundation
+
+### MVP 5 — Community
+
+- Makes gallery upload
+- Moderation
+- Contests
+- Collection showcases
+
+## Technical direction
+
+- Next.js / React frontend
+- Vercel hosting
+- Later backend for users, products, orders, library, rewards, games, gallery, contests, and admin tools
+- GLB/GLTF for web previews, STL/3MF/ZIP for actual product delivery
+- Secure authenticated downloads for paid digital files
