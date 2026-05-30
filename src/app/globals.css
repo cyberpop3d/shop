@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: Arial, Helvetica, sans-serif;
+  --font-body: Arial, Helvetica, sans-serif;
+  --sky: #8bd8ff;
+  --ice: #eefaff;
+  --deep: #071525;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: #eaf8ff;
+  color: #06111f;
+  font-family: var(--font-body);
+}
+
+.cyber-bg {
+  background:
+    radial-gradient(circle at 18% 4%, rgba(255,255,255,.98), rgba(255,255,255,0) 20%),
+    radial-gradient(circle at 82% 12%, rgba(95,196,255,.45), rgba(255,255,255,0) 24%),
+    radial-gradient(circle at 50% 85%, rgba(199,236,255,.85), rgba(255,255,255,0) 35%),
+    linear-gradient(180deg, #f9fdff 0%, #e7f7ff 42%, #dff4ff 100%);
+}
+
+.glass {
+  background: rgba(255, 255, 255, .66);
+  border: 1px solid rgba(255,255,255,.72);
+  box-shadow: 0 22px 80px rgba(43, 139, 210, .15);
+  backdrop-filter: blur(24px);
+}
+
+.dark-glass {
+  background: rgba(6, 19, 34, .78);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 22px 80px rgba(7, 26, 47, .22);
+  backdrop-filter: blur(24px);
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
