@@ -13,116 +13,144 @@
     <div class="bg-grid"></div>
     <div class="glow glow-blue"></div>
     <div class="glow glow-purple"></div>
-    <div class="glow glow-white"></div>
+    <div class="glow glow-hot"></div>
   </div>
 
-  <header class="top-hud">
-    <nav class="mode-tabs" aria-label="Main navigation">
+  <header class="rivals-nav">
+    <nav class="nav-tabs" aria-label="Main navigation">
       <button class="mode-tab is-active" data-mode="drop">Drop Room</button>
       <button class="mode-tab" data-mode="loot">Loot Crystal</button>
       <button class="mode-tab" data-mode="rewards">Rewards</button>
       <button class="mode-tab" data-mode="collection">Collection</button>
       <button class="mode-tab" data-mode="studio">3D Studio</button>
     </nav>
-    <div class="hud-actions">
-      <button class="hud-pill" id="unitsButton"><span class="gem-dot"></span><strong id="unitCount">345</strong><span>Units</span></button>
-      <button class="hud-pill" data-mode-shortcut="collection"><strong id="ownedCount">3</strong><span>Owned</span></button>
-      <button class="cart-pill" id="cartButton">Cart <strong id="cartCount">0</strong></button>
+    <div class="nav-actions">
+      <button class="unit-chip" id="unitsButton"><span class="gem-dot"></span><strong id="unitCount">345</strong><span>Units</span></button>
+      <button class="unit-chip" data-mode-shortcut="collection"><strong id="ownedCount">3</strong><span>Owned</span></button>
+      <button class="cart-chip" id="cartButton">Cart <strong id="cartCount">0</strong></button>
     </div>
   </header>
 
   <main class="app-shell">
     <section class="mode-screen is-active" data-screen="drop">
-      <section class="drop-room">
-        <div class="drop-title-card">
-          <span>Season 00</span>
-          <h1 id="sideTitle">SONYA<br/>BLADE</h1>
-          <p id="sideSeries">MK Arena</p>
-        </div>
-
-        <div class="square-stage-card">
-          <div class="stage-header">
-            <span class="micro-label">Selected Collectible</span>
-            <button class="preview-toggle" id="togglePreview">3D print preview</button>
+      <section class="fighter-page">
+        <aside class="fighter-spine">
+          <div class="spine-nameplate">
+            <span>Season 00</span>
+            <h1 id="sideTitle">SONYA<br/>BLADE</h1>
+            <p id="sideSeries">MK Arena</p>
           </div>
 
-          <div class="square-poster" id="posterStage">
-            <img id="heroImage" src="/images/covers/sonya-blade.png" alt="Selected collectible cover" />
-            <div class="poster-vignette"></div>
-            <div class="poster-copy">
-              <span id="heroCategory">MK Arena</span>
-              <h2 id="heroName">Sonya Blade</h2>
-              <p id="heroDesc">Compact heroic silhouette with multipart print clarity.</p>
-            </div>
-          </div>
-
-          <div class="square-model" id="modelStage" hidden>
-            <model-viewer id="modelViewer" src="/models/sonya-blade.glb" alt="3D print preview" auto-rotate camera-controls shadow-intensity="1" camera-orbit="45deg 62deg 4.2m"></model-viewer>
-            <button class="preview-toggle model-back" id="closePreview">Back to cover</button>
-          </div>
-        </div>
-
-        <aside class="buy-console" id="buyConsole">
-          <div class="buy-top">
-            <span class="micro-label">Product Action</span>
-            <h3 id="buyName">Sonya Blade</h3>
-            <p id="buyIntro">Choose a format only when you are ready. Prices and loyalty details expand inside this panel.</p>
-          </div>
-
-          <button class="buy-main-button" id="buyMainButton">
-            <span>BUY</span>
-            <small>STL or physical</small>
+          <button class="utility-main" id="utilityButton">
+            <strong>Print Tools</strong>
+            <span>STL preview / utilities</span>
           </button>
 
-          <div class="buy-options" id="buyOptions" hidden>
-            <button class="choice-button" data-buy-type="stl">
-              <b>STL FILE</b>
-              <span>Digital access</span>
-            </button>
-            <button class="choice-button" data-buy-type="physical">
-              <b>PHYSICAL PRODUCT</b>
-              <span>Made-to-order print</span>
-            </button>
-          </div>
-
-          <div class="buy-detail" id="stlDetail" hidden>
-            <div class="price-line"><span>STL file</span><strong>$5</strong></div>
-            <p>Digital files will be available in your profile library after purchase. Subscription access or bulk bundle packs may lower the unit price.</p>
-            <div class="loyalty-mini"><span>After purchase</span><b>+12 XP · library access · profile points</b></div>
-            <button class="commit-button" data-complete="stl">Complete STL order</button>
-          </div>
-
-          <div class="buy-detail" id="physicalDetail" hidden>
-            <div class="size-row" aria-label="Physical size">
-              <button data-size="15">15 cm</button>
-              <button class="is-active" data-size="30">30 cm</button>
-              <button data-size="40">40 cm</button>
+          <div class="utility-drawer" id="utilityDrawer" hidden>
+            <div class="utility-head">
+              <b>Character Utilities</b>
+              <button id="closeUtility" aria-label="Close utilities">×</button>
             </div>
-            <div class="price-line"><span id="physicalLabel">30 cm physical</span><strong id="physicalPrice">$62</strong></div>
-            <p>Made-to-order printed collectible. Size changes price, packaging, and print preparation.</p>
-            <div class="loyalty-mini"><span>After purchase</span><b id="physicalXp">+28 XP · wheel progress · trophy points</b></div>
-            <button class="commit-button gold" data-complete="physical">Complete physical order</button>
+            <div class="utility-grid">
+              <button class="utility-tile" id="utilityPreviewButton">STL Preview</button>
+              <button class="utility-tile" data-mode-shortcut="studio">Color Studio</button>
+              <button class="utility-tile">Support Low</button>
+              <button class="utility-tile is-active">Support Mid</button>
+              <button class="utility-tile">Support High</button>
+              <button class="utility-tile">Height 30 cm</button>
+              <button class="utility-tile">Pieces: 4</button>
+              <button class="utility-tile">3MF Ready</button>
+            </div>
           </div>
         </aside>
-      </section>
 
-      <section class="roster-arena">
-        <div class="roster-topline">
-          <div>
-            <span class="micro-label dark">Choose Your Collectible</span>
-            <h2 id="categoryTitle">View All</h2>
+        <section class="fighter-core">
+          <div class="hero-grid">
+            <div class="poster-console">
+              <div class="console-strip">
+                <span class="micro-label">Selected Collectible</span>
+                <button class="preview-toggle" id="togglePreview">3D print preview</button>
+              </div>
+
+              <div class="poster-square" id="posterStage">
+                <img id="heroImage" src="/images/covers/sonya-blade.png" alt="Selected collectible cover" />
+                <div class="poster-shade"></div>
+                <div class="poster-meta">
+                  <span id="heroCategory">MK Arena</span>
+                  <h2 id="heroName">Sonya Blade</h2>
+                  <p id="heroDesc">Compact heroic silhouette with multipart print clarity.</p>
+                </div>
+              </div>
+
+              <div class="model-square" id="modelStage" hidden>
+                <model-viewer id="modelViewer" src="/models/sonya-blade.glb" alt="3D print preview" auto-rotate camera-controls shadow-intensity="1" camera-orbit="45deg 62deg 4.2m"></model-viewer>
+                <button class="preview-toggle model-back" id="closePreview">Back to cover</button>
+              </div>
+            </div>
+
+            <aside class="buy-console" id="buyConsole">
+              <div class="buy-top">
+                <span class="micro-label">Product Action</span>
+                <h3 id="buyName">Sonya Blade</h3>
+                <p id="buyIntro">Press BUY to open the purchase format panel.</p>
+              </div>
+
+              <button class="buy-main-button" id="buyMainButton">
+                <span>BUY</span>
+                <small>STL or physical</small>
+              </button>
+
+              <div class="buy-options" id="buyOptions" hidden>
+                <button class="choice-button" data-buy-type="stl">
+                  <b>STL FILE</b>
+                  <span>Digital access</span>
+                </button>
+                <button class="choice-button" data-buy-type="physical">
+                  <b>PHYSICAL PRODUCT</b>
+                  <span>Made-to-order print</span>
+                </button>
+              </div>
+
+              <div class="buy-detail" id="stlDetail" hidden>
+                <div class="price-line"><span>STL file</span><strong>$5</strong></div>
+                <p>Digital files will be available in your profile library after checkout. Subscription access or bulk packs may lower the unit price.</p>
+                <div class="loyalty-mini"><span>After purchase</span><b>+12 XP · library access · profile points</b></div>
+                <button class="commit-button" data-complete="stl">Complete STL order</button>
+              </div>
+
+              <div class="buy-detail" id="physicalDetail" hidden>
+                <div class="size-row" aria-label="Physical size">
+                  <button data-size="15">15 cm</button>
+                  <button class="is-active" data-size="30">30 cm</button>
+                  <button data-size="40">40 cm</button>
+                </div>
+                <div class="price-line"><span id="physicalLabel">30 cm physical</span><strong id="physicalPrice">$62</strong></div>
+                <p>Made-to-order printed collectible. Size changes price, packaging, and print preparation.</p>
+                <div class="loyalty-mini"><span>After purchase</span><b id="physicalXp">+28 XP · wheel progress · trophy points</b></div>
+                <button class="commit-button gold" data-complete="physical">Complete physical order</button>
+              </div>
+            </aside>
           </div>
-          <div class="sort-box">
-            <span>Sort roster</span>
-            <select id="sortSelect">
-              <option value="newest">Newest</option>
-              <option value="popular">Most popular</option>
-              <option value="price">Highest price</option>
-            </select>
-          </div>
-        </div>
-        <div class="category-track" id="categoryTrack"></div>
-        <div class="fighter-roster" id="fighterRoster" aria-label="Collectible roster"></div>
+
+          <section class="roster-console">
+            <div class="roster-topline">
+              <div>
+                <span class="micro-label dark">Choose Your Collectible</span>
+                <h2 id="categoryTitle">View All</h2>
+              </div>
+              <div class="sort-box">
+                <span>Sort roster</span>
+                <select id="sortSelect">
+                  <option value="newest">Newest</option>
+                  <option value="popular">Most popular</option>
+                  <option value="price">Highest price</option>
+                </select>
+              </div>
+            </div>
+            <div class="category-track" id="categoryTrack"></div>
+            <div class="fighter-roster" id="fighterRoster" aria-label="Collectible roster"></div>
+          </section>
+        </section>
       </section>
     </section>
 
@@ -155,13 +183,13 @@
       <div class="reward-page">
         <div class="reward-poster">
           <span>Monthly Track</span>
-          <h2>Collect points. Reach checkpoints. Claim rewards.</h2>
-          <p>Climb the monthly ranking and unlock extras placed along the progress line.</p>
+          <h2>Reach checkpoints. Enter the monthly ranking. Claim the drops.</h2>
+          <p>Earn points through purchases, makes, studio plans, and event actions.</p>
         </div>
-        <div class="reward-status">
-          <strong>230 XP</strong>
-          <span>Next checkpoint: 300 XP</span>
-          <b>70 XP left</b>
+        <div class="reward-status-row">
+          <div><b>230 XP</b><span>Current progress</span></div>
+          <div><b>70 XP</b><span>Next checkpoint</span></div>
+          <div><b>2 purchases</b><span>Estimated push</span></div>
         </div>
         <div class="reward-track-wrap"><div class="reward-track" id="rewardTrack"></div></div>
       </div>

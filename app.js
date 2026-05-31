@@ -213,6 +213,17 @@ function init() {
     $('#posterStage').hidden = false;
     $('#modelStage').hidden = true;
   });
+  $('#utilityButton').addEventListener('click', () => {
+    $('#utilityDrawer').hidden = !$('#utilityDrawer').hidden;
+  });
+  $('#closeUtility').addEventListener('click', () => {
+    $('#utilityDrawer').hidden = true;
+  });
+  $('#utilityPreviewButton').addEventListener('click', () => {
+    $('#utilityDrawer').hidden = true;
+    $('#posterStage').hidden = true;
+    $('#modelStage').hidden = false;
+  });
 
   $('#buyMainButton').addEventListener('click', () => {
     buyExpanded = !buyExpanded;
