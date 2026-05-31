@@ -420,3 +420,195 @@ button { cursor: pointer; }
   .collection-actions { justify-content: flex-start; }
   .collection-grid { grid-template-columns: repeat(auto-fill, minmax(138px, 1fr)); }
 }
+
+/* v25 layout correction: media-first command row, no side identity panel */
+.selected-command-row {
+  grid-template-columns: minmax(960px, 1fr) 340px;
+  gap: 16px;
+  align-items: stretch;
+}
+.identity-console { display: none !important; }
+.media-console {
+  min-height: 384px;
+  padding: 14px 16px 16px;
+  background: linear-gradient(135deg, rgba(255,255,255,.7), rgba(255,255,255,.34));
+  overflow: visible;
+}
+.media-toolbar { height: 38px; padding: 0 2px; }
+.media-triptych {
+  grid-template-columns: repeat(3, minmax(280px, 360px));
+  justify-content: start;
+  align-items: start;
+  gap: 16px;
+  min-height: 340px;
+}
+.media-card {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: 360px;
+  border-radius: 22px;
+}
+.media-card strong {
+  bottom: 38px;
+  font-size: clamp(18px, 1.45vw, 26px);
+  line-height: .95;
+  max-width: calc(100% - 34px);
+  text-wrap: balance;
+}
+.media-card small {
+  bottom: 15px;
+  font-size: 10px;
+  max-width: calc(100% - 34px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.media-card .tech-chip { bottom: 12px; right: 12px; }
+.media-card .tech-popover { right: 12px; bottom: 52px; }
+#mediaModeLabel { min-width: 180px; }
+.preview-toggle { padding: 10px 22px; }
+
+/* Product action panel: idle copy stays, buy expands upward without pushing the row down */
+.buy-console {
+  position: relative;
+  min-height: 384px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+.buy-panel-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.admin-copy-button {
+  border: 1px solid rgba(7,16,24,.12);
+  border-radius: 999px;
+  background: rgba(255,255,255,.72);
+  color: rgba(6,17,26,.58);
+  text-transform: uppercase;
+  letter-spacing: .13em;
+  font-size: 9px;
+  font-weight: 820;
+  padding: 8px 10px;
+  transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.admin-copy-button:hover { transform: translateY(-2px); background: #fff; box-shadow: 0 0 18px rgba(95,54,255,.22); }
+.buy-idle-copy {
+  margin: 10px 0 auto;
+  color: rgba(6,17,26,.6);
+  font-size: 14px;
+  line-height: 1.56;
+  font-weight: 680;
+  max-width: 280px;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.buy-expanded-area {
+  display: grid;
+  gap: 10px;
+  margin-top: auto;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .2s ease, transform .2s ease;
+  pointer-events: none;
+}
+.buy-expanded-area.is-active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.buy-console.is-expanded .buy-idle-copy { opacity: 0; transform: translateY(-5px); }
+.action-head { margin-top: auto; }
+.buy-main-button {
+  min-height: 78px;
+  border-radius: 18px;
+  width: 100%;
+  margin-top: 0;
+  grid-template-columns: auto 1fr;
+}
+.buy-console.is-expanded .buy-main-button { min-height: 62px; }
+.buy-console.is-expanded .buy-main-button span { font-size: 34px; }
+.buy-options {
+  margin: 0;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.choice-button { padding: 12px 11px; min-height: 70px; }
+.choice-button:hover, .choice-button.is-active { transform: translateY(-3px); }
+.buy-detail {
+  padding: 11px;
+  border-radius: 16px;
+}
+.buy-detail p { font-size: 12px; line-height: 1.34; margin: 8px 0; }
+.price-line strong { font-size: 28px; }
+.loyalty-mini { padding: 8px; }
+.commit-button { padding: 12px 14px; }
+.size-row button { padding: 9px 7px; }
+
+/* Roster keeps the extra recovered horizontal space and stays aligned */
+.roster-console {
+  margin-left: 0;
+  min-height: 340px;
+  padding: 15px 22px 20px;
+}
+.roster-topline h2 { font-size: clamp(34px, 3.4vw, 54px); }
+.category-card {
+  min-width: 124px;
+  padding: 11px 13px;
+}
+.sort-box { min-width: 170px; align-self: center; }
+.roster-scroll-zone { grid-template-columns: 50px minmax(0, 1fr) 50px; gap: 12px; }
+.fighter-roster { gap: 16px; min-height: 180px; padding: 8px 2px 16px; }
+.roster-tile { flex: 0 0 168px; width: 168px; height: 168px; border-radius: 18px; }
+.roster-tile img { inset: 8px; width: calc(100% - 16px); height: calc(100% - 16px); border-radius: 13px; }
+.roster-arrow { height: 168px; }
+
+/* Admin copy dialog */
+.admin-copy-dialog { border: 0; background: transparent; padding: 0; width: min(620px, 94vw); }
+.admin-copy-dialog::backdrop { background: rgba(8,13,23,.52); backdrop-filter: blur(12px); }
+.admin-copy-panel {
+  position: relative;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #f8fcff, #eee7ff);
+  padding: 24px;
+  box-shadow: 0 44px 140px rgba(0,0,0,.32);
+}
+.admin-copy-panel h2 {
+  font-family: var(--font);
+  font-size: clamp(38px, 5vw, 62px);
+  line-height: .82;
+  margin: 18px 0 8px;
+  text-transform: uppercase;
+  font-weight: 740;
+}
+.admin-copy-panel p { margin: 0 0 14px; color: var(--muted); font-weight: 650; }
+.admin-copy-panel textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 130px;
+  border: 1px solid rgba(7,16,24,.14);
+  border-radius: 18px;
+  background: rgba(255,255,255,.78);
+  padding: 14px;
+  font-weight: 650;
+  line-height: 1.45;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+@media (max-width: 1300px) {
+  .selected-command-row { grid-template-columns: 1fr; }
+  .buy-console { min-height: 260px; }
+  .media-triptych { grid-template-columns: repeat(3, minmax(220px, 1fr)); }
+}
+
+@media (max-width: 860px) {
+  .media-triptych { grid-template-columns: 1fr; }
+  .media-card { max-height: none; }
+  .buy-options { grid-template-columns: 1fr; }
+  .roster-tile { flex-basis: 142px; width: 142px; height: 142px; }
+  .roster-arrow { height: 142px; }
+}

@@ -35,13 +35,6 @@
     <section class="mode-screen is-active" data-screen="drop">
       <section class="drop-board">
         <section class="selected-command-row">
-          <aside class="identity-console">
-            <span class="micro-label">Season 00</span>
-            <h1 id="sideTitle">SONYA<br/>BLADE</h1>
-            <p id="sideSeries">MK Arena</p>
-            <p id="sideDesc">Compact heroic silhouette with multipart print clarity.</p>
-          </aside>
-
           <section class="media-console">
             <div class="media-toolbar">
               <span class="micro-label" id="mediaModeLabel">Selected Collectible</span>
@@ -58,43 +51,45 @@
           </section>
 
           <aside class="buy-console" id="buyConsole">
-            <div class="action-head">
+            <div class="buy-panel-top">
               <span class="micro-label">Product Action</span>
+              <button class="admin-copy-button" id="openAdminCopy" type="button">Admin copy</button>
+            </div>
+            <p class="buy-idle-copy" id="buyIntro">Buying this product moves your loyalty progress forward. Digital or physical purchases may reward you differently, and the item will be added to your site collection for profile access and archiving.</p>
+            <div class="buy-expanded-area" id="buyExpandedArea">
+              <div class="buy-options" id="buyOptions" hidden>
+                <button class="choice-button" data-buy-type="stl">
+                  <b>STL FILE</b>
+                  <span>Digital access</span>
+                </button>
+                <button class="choice-button" data-buy-type="physical">
+                  <b>PHYSICAL PRODUCT</b>
+                  <span>Made-to-order print</span>
+                </button>
+              </div>
+              <div class="buy-detail" id="stlDetail" hidden>
+                <div class="price-line"><span>STL file</span><strong>$5</strong></div>
+                <p>Files will be available in your profile after checkout. Subscription access or bulk packs may lower the unit price.</p>
+                <div class="loyalty-mini"><span>After purchase</span><b>+12 XP · library access · profile points</b></div>
+                <button class="commit-button" data-complete="stl">Complete STL order</button>
+              </div>
+              <div class="buy-detail" id="physicalDetail" hidden>
+                <div class="size-row" aria-label="Physical size">
+                  <button data-size="15">15 cm</button>
+                  <button class="is-active" data-size="30">30 cm</button>
+                  <button data-size="40">40 cm</button>
+                </div>
+                <div class="price-line"><span id="physicalLabel">30 cm physical</span><strong id="physicalPrice">$62</strong></div>
+                <p>Made-to-order printed collectible. Size changes price, packaging and print preparation.</p>
+                <div class="loyalty-mini"><span>After purchase</span><b id="physicalXp">+28 XP · wheel progress · trophy points</b></div>
+                <button class="commit-button gold" data-complete="physical">Complete physical order</button>
+              </div>
+            </div>
+            <div class="action-head">
               <button class="buy-main-button" id="buyMainButton">
                 <span>BUY</span>
                 <small>STL or physical</small>
               </button>
-            </div>
-            <div class="buy-title-line">
-              <h3 id="buyName">Sonya Blade</h3>
-              <p id="buyIntro">Format, price and loyalty details expand here only after you choose.</p>
-            </div>
-            <div class="buy-options" id="buyOptions" hidden>
-              <button class="choice-button" data-buy-type="stl">
-                <b>STL FILE</b>
-                <span>Digital access</span>
-              </button>
-              <button class="choice-button" data-buy-type="physical">
-                <b>PHYSICAL PRODUCT</b>
-                <span>Made-to-order print</span>
-              </button>
-            </div>
-            <div class="buy-detail" id="stlDetail" hidden>
-              <div class="price-line"><span>STL file</span><strong>$5</strong></div>
-              <p>Files will be available in your profile after checkout. Subscription access or bulk packs may lower the unit price.</p>
-              <div class="loyalty-mini"><span>After purchase</span><b>+12 XP · library access · profile points</b></div>
-              <button class="commit-button" data-complete="stl">Complete STL order</button>
-            </div>
-            <div class="buy-detail" id="physicalDetail" hidden>
-              <div class="size-row" aria-label="Physical size">
-                <button data-size="15">15 cm</button>
-                <button class="is-active" data-size="30">30 cm</button>
-                <button data-size="40">40 cm</button>
-              </div>
-              <div class="price-line"><span id="physicalLabel">30 cm physical</span><strong id="physicalPrice">$62</strong></div>
-              <p>Made-to-order printed collectible. Size changes price, packaging and print preparation.</p>
-              <div class="loyalty-mini"><span>After purchase</span><b id="physicalXp">+28 XP · wheel progress · trophy points</b></div>
-              <button class="commit-button gold" data-complete="physical">Complete physical order</button>
             </div>
           </aside>
         </section>
@@ -200,6 +195,18 @@
       </div>
     </section>
   </main>
+
+
+  <dialog class="admin-copy-dialog" id="adminCopyDialog">
+    <form method="dialog" class="admin-copy-panel">
+      <button class="dialog-close" id="closeAdminCopy" type="button">×</button>
+      <span class="micro-label dark">Admin Panel</span>
+      <h2>Product Action Copy</h2>
+      <p>Edit the idle explanation shown before the BUY flow is opened.</p>
+      <textarea id="buyCopyInput" rows="5">Buying this product moves your loyalty progress forward. Digital or physical purchases may reward you differently, and the item will be added to your site collection for profile access and archiving.</textarea>
+      <button class="commit-button" id="saveBuyCopy" type="button">Save copy</button>
+    </form>
+  </dialog>
 
   <dialog class="unit-dialog" id="unitDialog">
     <form method="dialog">

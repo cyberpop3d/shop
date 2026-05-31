@@ -60,6 +60,8 @@ let mediaMode = 'product';
 let cart = 0;
 let lootOffset = 0;
 let rewardDialogIndex = 0;
+const defaultBuyCopy = 'Buying this product moves your loyalty progress forward. Digital or physical purchases may reward you differently, and the item will be added to your site collection for profile access and archiving.';
+let buyIdleCopy = localStorage.getItem('cyberpopBuyIdleCopy') || defaultBuyCopy;
 const galleryTimers = new Map();
 
 const $ = (selector) => document.querySelector(selector);
@@ -148,11 +150,7 @@ function renderMedia() {
 }
 
 function renderSelected() {
-  $('#sideTitle').innerHTML = selected.short.replace('\n', '<br/>');
-  $('#sideSeries').textContent = selected.series;
-  $('#sideDesc').textContent = selected.desc;
-  $('#buyName').textContent = selected.name;
-  $('#buyIntro').textContent = 'Format, price and loyalty details expand here only after you choose.';
+  $('#buyIntro').textContent = buyIdleCopy;
   $('#modelViewer').src = selected.model || '/models/sonya-blade.glb';
   renderMedia();
   renderBuyPanel();
@@ -162,7 +160,10 @@ function renderBuyPanel() {
   $('#buyOptions').hidden = !buyExpanded;
   $('#stlDetail').hidden = selectedBuyType !== 'stl';
   $('#physicalDetail').hidden = selectedBuyType !== 'physical';
-  $('#buyConsole').classList.toggle('is-expanded', Boolean(buyExpanded || selectedBuyType));
+  const isActive = Boolean(buyExpanded || selectedBuyType);
+  $('#buyConsole').classList.toggle('is-expanded', isActive);
+  $('#buyIntro').hidden = isActive;
+  $('#buyExpandedArea').classList.toggle('is-active', isActive);
   $$('.choice-button').forEach((button) => button.classList.toggle('is-active', button.dataset.buyType === selectedBuyType));
   $('#physicalLabel').textContent = `${physicalSize} cm physical`;
   const priceMap = { '15': 42, '30': selected.price, '40': Math.round(selected.price * 1.55) };
@@ -455,6 +456,18 @@ function init() {
   $('#closeStudioPicker').addEventListener('click', () => $('#studioPickerDialog').close());
   $('#closeRewardDialog').addEventListener('click', () => $('#rewardDialog').close());
   $('#unitsButton').addEventListener('click', () => $('#unitDialog').showModal());
+  $('#openAdminCopy').addEventListener('click', () => {
+    $('#buyCopyInput').value = buyIdleCopy;
+    $('#adminCopyDialog').showModal();
+  });
+  $('#closeAdminCopy').addEventListener('click', () => $('#adminCopyDialog').close());
+  $('#saveBuyCopy').addEventListener('click', () => {
+    buyIdleCopy = $('#buyCopyInput').value.trim() || defaultBuyCopy;
+    localStorage.setItem('cyberpopBuyIdleCopy', buyIdleCopy);
+    $('#buyIntro').textContent = buyIdleCopy;
+    $('#adminCopyDialog').close();
+    showToast('Admin copy saved', 'The Product Action idle copy was updated for this browser.');
+  });
   $('#spinButton').addEventListener('click', spinLoot);
   $('#viewCollection').addEventListener('click', () => setMode('collection'));
   $('#unlockStudio').addEventListener('click', () => setMode('studio'));
