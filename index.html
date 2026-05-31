@@ -133,12 +133,16 @@
           <button class="commit-button" id="spinButton">Spin Crystal</button>
         </div>
         <div class="crystal-stage">
+          <div class="wheel-plate" aria-hidden="true"></div>
+          <div class="crystal-pointer">Selected zone</div>
           <div class="preview-orbit" id="previewOrbit"></div>
           <div class="crystal-3d" id="crystal3d"><span></span><i></i><b></b></div>
           <div class="orbit-floor"></div>
+          <div class="orbit-ticker" id="orbitTicker">Ready</div>
         </div>
         <div class="unlock-card" id="unlockCard" hidden>
           <span class="micro-label">Unlocked</span>
+          <span class="jackpot-result" id="unlockJackpot" hidden>100%</span>
           <img id="unlockImage" src="/images/covers/sonya-blade.png" alt="Unlocked collectible" />
           <h3 id="unlockName">Sonya Blade</h3>
           <p id="unlockRarity">Rare collectible added to your shelf.</p>
@@ -161,15 +165,21 @@
           <div><b>2 purchases</b><span>Estimated push</span></div>
         </div>
         <div class="reward-track-wrap"><div class="reward-track" id="rewardTrack"></div></div>
+        <p class="reward-note">Tap any checkpoint to inspect the reward as a collectible poster card.</p>
       </div>
     </section>
 
     <section class="mode-screen" data-screen="collection">
       <div class="collection-page">
-        <div class="page-title-row">
-          <div><span class="micro-label dark">Collection Shelf</span><h2>All Collectibles</h2><p>Owned, locked and upcoming listings all stay visible here.</p></div>
-          <button class="commit-button" data-mode-shortcut="drop">Back to Drop Room</button>
+        <div class="page-title-row collection-head">
+          <div><span class="micro-label dark">Collection Shelf</span><h2>All Collectibles</h2><p>Square listing covers, owned first, clean text and hover media reactions.</p></div>
+          <div class="collection-actions">
+            <label><span>Sort by</span><select id="collectionSort"><option value="owned">The ones I have</option><option value="newest">Newest</option><option value="popular">Popular</option></select></label>
+            <button class="commit-button" id="showAllCollection">Show all</button>
+            <button class="ghost-action" data-mode-shortcut="drop">Back to Drop Room</button>
+          </div>
         </div>
+        <div class="collection-meta" id="collectionCount">0 shown</div>
         <div class="collection-grid" id="collectionGrid"></div>
       </div>
     </section>
@@ -179,7 +189,7 @@
         <div class="studio-preview">
           <span class="micro-label dark">3MF package loaded</span>
           <img id="studioImage" src="/images/covers/sonya-blade.png" alt="Studio collectible cover" />
-          <h2 id="studioName">Sonya Blade</h2>
+          <div class="studio-title-line"><h2 id="studioName">Sonya Blade</h2><button class="ghost-action" id="openStudioPicker">Change character</button></div>
           <p>Choose printable color groups and match them with your filament codes.</p>
         </div>
         <div class="studio-tools">
@@ -203,6 +213,29 @@
         <button type="button"><strong>Open the mobile companion app</strong><span>+40 Units</span></button>
         <button type="button"><strong>Complete a 3D Studio color plan</strong><span>+35 Units</span></button>
       </div>
+    </form>
+  </dialog>
+
+  <dialog class="reward-dialog" id="rewardDialog">
+    <form method="dialog" class="reward-dialog-card">
+      <button class="dialog-close" id="closeRewardDialog" type="button">×</button>
+      <div class="reward-card-image"><img id="rewardModalImg" src="/images/covers/sonya-blade.png" alt="Reward preview" /></div>
+      <div class="reward-card-copy">
+        <span class="micro-label dark" id="rewardModalType">GIF</span>
+        <h2 id="rewardModalName">Sonya Blade GIF</h2>
+        <b id="rewardModalXp">300 XP checkpoint</b>
+        <p id="rewardModalDesc">Earn more points and claim this monthly reward.</p>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="studio-picker-dialog" id="studioPickerDialog">
+    <form method="dialog" class="studio-picker-panel">
+      <button class="dialog-close" id="closeStudioPicker" type="button">×</button>
+      <span class="micro-label dark">Choose character</span>
+      <h2>Studio Shelf</h2>
+      <p>Owned characters appear first. Pick any square cover to edit its color plan.</p>
+      <div class="studio-picker-grid" id="studioPickerGrid"></div>
     </form>
   </dialog>
 

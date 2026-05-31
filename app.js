@@ -15,6 +15,11 @@ const products = [
   { id: 'founder', name: 'Founder Shadow', short: 'FOUNDER\nSHADOW', category: 'Vault Rares', series: 'Vault Rares', code: 'CP-000', rarity: 'Founder', price: 120, stl: 0, popularity: 99, newest: 14, image: '/images/covers/gouken.png', desc: 'Black silhouette unlock slot for premium loyalty milestones.', parts: ['Secret', 'Locked', 'Reward', 'Vault'], support: 'Admin locked', height: '30 cm', pieces: 4 },
 ];
 
+const galleryPool = products.map((p) => p.image);
+products.forEach((p, index) => {
+  p.gallery = [p.image, galleryPool[(index + 1) % galleryPool.length], galleryPool[(index + 2) % galleryPool.length]];
+});
+
 const categories = [
   { name: 'View All', filter: 'all' },
   { name: '90s Arcade', filter: '90s Arcade' },
@@ -25,29 +30,51 @@ const categories = [
 ];
 
 const rewardNodes = [
-  { xp: 100, name: 'Wallpaper Pack', note: '100 XP', img: '/images/covers/sonya-blade.png', left: 10 },
-  { xp: 180, name: 'Silent Sticker', note: '50 XP left', img: '/images/covers/johnny-cage.png', left: 25 },
-  { xp: 300, name: 'Sonya GIF', note: '70 XP left', img: '/images/covers/sonya-blade.png', left: 43 },
-  { xp: 460, name: 'Artwork Drop', note: '230 XP left', img: '/images/covers/bison.webp', left: 62 },
-  { xp: 700, name: 'Character Unlock', note: '470 XP left', img: '/images/covers/gouken.png', left: 84, locked: true },
+  { xp: 100, name: 'Dudley Gentleman Wallpaper', type: 'Wallpaper', note: '100 XP', img: '/images/covers/dudley.webp', detail: 'Square desktop and mobile wallpaper set for collectors who hit the first monthly checkpoint.', left: 10, owned: true },
+  { xp: 180, name: 'Johnny Cage Silent Sticker', type: 'Sticker', note: '50 XP left', img: '/images/covers/johnny-cage.png', detail: 'A playful profile sticker reward. Designed to feel like a collectible card bonus, not a plain coupon.', left: 25, owned: true },
+  { xp: 300, name: 'Sonya Blade GIF', type: 'GIF', note: '70 XP left', img: '/images/covers/sonya-blade.png', detail: 'Animated social reward slot. Clicked rewards open as poster cards with image, value and unlock target.', left: 43 },
+  { xp: 460, name: 'Raiden Vault Artwork', type: 'Artwork', note: '230 XP left', img: '/images/covers/bison.webp', detail: 'Premium artwork drop slot for higher monthly ranking progress. Extra border treatment shows value.', left: 62 },
+  { xp: 700, name: 'Founder Shadow Character Unlock', type: 'Character Unlock', note: '470 XP left', img: '/images/covers/gouken.png', detail: 'Black silhouette character unlock checkpoint reserved for rare monthly reward tiers.', left: 84, locked: true },
+];
+
+const lootItems = [
+  { type: 'Collectible', name: 'Guile Cover Card', img: '/images/covers/guile.webp', rarity: 'Rare', chance: 20 },
+  { type: 'GIF', name: 'Sonya Blade GIF', img: '/images/covers/sonya-blade.png', rarity: 'Bonus', chance: 15 },
+  { type: 'Sticker', name: 'Johnny Cage Silent Sticker', img: '/images/covers/johnny-cage.png', rarity: 'Bonus', chance: 18 },
+  { type: 'Profile Picture', name: 'Cammy Profile Icon', img: '/images/covers/cammy.png', rarity: 'Profile', chance: 14 },
+  { type: 'Collectible', name: 'Founder Shadow Preview', img: '/images/covers/gouken.png', rarity: 'Legendary', chance: 4 },
+  { type: 'Artwork', name: 'Bison Vault Artwork', img: '/images/covers/bison.webp', rarity: 'Epic', chance: 10 },
+  { type: 'Sticker', name: 'Juri Neon Sticker', img: '/images/covers/juri.webp', rarity: 'Bonus', chance: 12 },
+  { type: 'Jackpot', name: '100% Discount Code', label: '100%', img: '', rarity: 'Jackpot', chance: 1, jackpot: true },
 ];
 
 let selected = products[0];
 let activeCategory = 'all';
 let sortMode = 'newest';
+let collectionSortMode = 'owned';
+let collectionShowAll = false;
 let buyExpanded = false;
 let selectedBuyType = null;
 let physicalSize = '30';
 let mediaMode = 'product';
 let cart = 0;
+let lootOffset = 0;
+let rewardDialogIndex = 0;
+const galleryTimers = new Map();
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+}
 
 function setMode(mode) {
   $$('.mode-tab').forEach((button) => button.classList.toggle('is-active', button.dataset.mode === mode));
   $$('.mode-screen').forEach((screen) => screen.classList.toggle('is-active', screen.dataset.screen === mode));
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (mode === 'collection') renderCollection();
+  if (mode === 'studio') renderStudioPicker();
 }
 
 function sortedProducts() {
@@ -62,6 +89,13 @@ function sortedProducts() {
   }
   if (sortMode === 'popular') return list.sort((a, b) => b.popularity - a.popularity);
   if (sortMode === 'price') return list.sort((a, b) => b.price - a.price);
+  return list.sort((a, b) => b.newest - a.newest);
+}
+
+function collectionProducts() {
+  const list = [...products];
+  if (collectionSortMode === 'owned') return list.sort((a, b) => Number(b.owned) - Number(a.owned) || b.newest - a.newest);
+  if (collectionSortMode === 'popular') return list.sort((a, b) => b.popularity - a.popularity);
   return list.sort((a, b) => b.newest - a.newest);
 }
 
@@ -80,20 +114,20 @@ function setSelected(product) {
 function renderMedia() {
   const slots = mediaMode === 'technical'
     ? [
-        { role: 'Parts split', title: 'Part Separation', img: selected.image, note: 'Model breakdown', chip: `${selected.pieces} pieces`, detail: 'Head / body / lower body / base groups previewed here.' },
-        { role: 'Build plate', title: 'Build Plate', img: selected.image, note: 'Print preparation', chip: `Support ${selected.support}`, detail: 'Support density and plate notes come from the admin panel.' },
-        { role: 'Video / 3D', title: '3D Preview', img: selected.image, note: 'Preview flow', chip: 'Open studio', detail: 'Open the model preview and continue into color planning.' },
+        { role: 'Parts split', title: 'Part Separation', img: selected.gallery[0], note: 'Model breakdown', chip: `${selected.pieces} pieces`, detail: 'Hover value: part count, seam logic and admin-entered split notes.' },
+        { role: 'Build plate', title: 'Build Plate', img: selected.gallery[1], note: 'Print preparation', chip: `Support ${selected.support}`, detail: 'Hover value: support density, plate preparation, nozzle/material notes from admin data.' },
+        { role: 'Video / 3D', title: '3D Preview', img: selected.gallery[2], note: 'Studio flow', chip: 'Open studio', detail: 'Click to open the 3D preview and continue into color planning without losing the buy flow.' },
       ]
     : [
-        { role: 'Cover', title: selected.name, img: selected.image, note: selected.series, chip: selected.code, detail: 'Main square listing cover.' },
-        { role: 'Print preview', title: 'Print Preview', img: selected.image, note: 'Product media', chip: selected.rarity, detail: 'Admin-selectable square preview slot.' },
-        { role: 'Technical / video', title: 'Technical / Video', img: selected.image, note: 'Tools embedded', chip: 'Tools', detail: 'Switch to print utilities and technical media.' },
+        { role: 'Cover', title: selected.name, img: selected.gallery[0], note: selected.series, chip: selected.code, detail: 'Main square listing cover.' },
+        { role: 'Print preview', title: 'Print Preview', img: selected.gallery[1], note: 'Product media', chip: selected.rarity, detail: 'Admin-selectable square print preview slot.' },
+        { role: 'Technical / video', title: 'Technical / Video', img: selected.gallery[2], note: 'Tools embedded', chip: 'Tools', detail: 'Switch to part separation, build plate and preview utility media.' },
       ];
 
   $('#mediaModeLabel').textContent = mediaMode === 'technical' ? 'Technical Media' : 'Selected Collectible';
   $('#mediaTriptych').innerHTML = slots.map((slot, index) => `
-    <button class="media-card ${mediaMode === 'technical' ? 'is-technical' : ''}" data-slot-index="${index}" type="button" aria-label="${slot.title}">
-      <img src="${slot.img}" alt="${selected.name} ${slot.role}" />
+    <button class="media-card ${mediaMode === 'technical' ? 'is-technical' : ''}" data-slot-index="${index}" type="button" aria-label="${escapeHtml(slot.title)}">
+      <img src="${slot.img}" alt="${escapeHtml(selected.name)} ${escapeHtml(slot.role)}" />
       <span class="media-badge">${slot.role}</span>
       <strong>${slot.title}</strong>
       <small>${slot.note}</small>
@@ -109,9 +143,7 @@ function renderMedia() {
       renderMedia();
       return;
     }
-    if (mediaMode === 'technical' && index === 2) {
-      openModelPreview();
-    }
+    if (mediaMode === 'technical' && index === 2) openModelPreview();
   }));
 }
 
@@ -130,7 +162,7 @@ function renderBuyPanel() {
   $('#buyOptions').hidden = !buyExpanded;
   $('#stlDetail').hidden = selectedBuyType !== 'stl';
   $('#physicalDetail').hidden = selectedBuyType !== 'physical';
-  $('#buyConsole').classList.toggle('is-expanded', buyExpanded || selectedBuyType);
+  $('#buyConsole').classList.toggle('is-expanded', Boolean(buyExpanded || selectedBuyType));
   $$('.choice-button').forEach((button) => button.classList.toggle('is-active', button.dataset.buyType === selectedBuyType));
   $('#physicalLabel').textContent = `${physicalSize} cm physical`;
   const priceMap = { '15': 42, '30': selected.price, '40': Math.round(selected.price * 1.55) };
@@ -158,7 +190,7 @@ function renderRoster() {
   const list = sortedProducts();
   $('#fighterRoster').innerHTML = list.map((product) => `
     <button class="roster-tile ${selected.id === product.id ? 'is-active' : ''}" data-id="${product.id}">
-      <img src="${product.image}" alt="${product.name}" />
+      <img src="${product.image}" alt="${escapeHtml(product.name)}" />
       <span class="rarity-flag">${product.rarity}</span>
       <b>${product.name}</b>
     </button>
@@ -170,38 +202,81 @@ function renderRoster() {
 }
 
 function renderOrbit() {
-  $('#previewOrbit').innerHTML = products.slice(0, 8).map((product, index) => {
-    const angle = (index / 8) * Math.PI * 2;
-    const x = 50 + Math.cos(angle) * 42;
-    const y = 50 + Math.sin(angle) * 42;
-    return `<span class="orbit-card" style="left:${x}%;top:${y}%"><img src="${product.image}" alt="${product.name}" /></span>`;
+  const total = 8;
+  $('#previewOrbit').innerHTML = Array.from({ length: total }, (_, slot) => {
+    const item = lootItems[(lootOffset + slot) % lootItems.length];
+    const angle = -90 + (slot / total) * 360;
+    const x = 50 + Math.cos(angle * Math.PI / 180) * 39;
+    const y = 50 + Math.sin(angle * Math.PI / 180) * 39;
+    const body = item.jackpot
+      ? `<span class="jackpot-tile">${item.label}</span>`
+      : `<img src="${item.img}" alt="${escapeHtml(item.name)}" />`;
+    return `<button class="orbit-card ${slot === 0 ? 'is-target' : ''} ${item.jackpot ? 'is-jackpot' : ''}" style="left:${x}%;top:${y}%" data-loot-index="${(lootOffset + slot) % lootItems.length}">${body}<small>${item.type}</small></button>`;
   }).join('');
+  const target = lootItems[lootOffset % lootItems.length];
+  $('#orbitTicker').textContent = `${target.type} · ${target.name}`;
 }
 
 function renderRewards() {
-  $('#rewardTrack').innerHTML = rewardNodes.map((reward) => `
-    <button class="reward-node ${reward.locked ? 'locked' : ''}" style="left:${reward.left}%" title="${reward.name}">
+  $('#rewardTrack').innerHTML = rewardNodes.map((reward, index) => `
+    <button class="reward-node ${reward.locked ? 'locked' : ''}" style="left:${reward.left}%" title="${escapeHtml(reward.name)}" data-reward-index="${index}">
       <b>${reward.xp} XP</b>
-      <img src="${reward.img}" alt="${reward.name}" />
+      <img src="${reward.img}" alt="${escapeHtml(reward.name)}" />
       <small>${reward.note}</small>
     </button>
   `).join('');
+  $$('.reward-node').forEach((node) => node.addEventListener('click', () => openRewardDialog(Number(node.dataset.rewardIndex))));
+}
+
+function openRewardDialog(index) {
+  rewardDialogIndex = index;
+  const reward = rewardNodes[index];
+  $('#rewardModalImg').src = reward.img;
+  $('#rewardModalType').textContent = reward.type;
+  $('#rewardModalName').textContent = reward.name;
+  $('#rewardModalXp').textContent = `${reward.xp} XP checkpoint · ${reward.note}`;
+  $('#rewardModalDesc').textContent = reward.detail;
+  $('#rewardDialog').showModal();
 }
 
 function renderCollection() {
-  $('#collectionGrid').innerHTML = products.map((product) => `
-    <button class="collection-card ${product.owned ? '' : 'is-locked'}" data-id="${product.id}">
-      <img src="${product.image}" alt="${product.name}" />
-      <span>${product.owned ? 'Owned' : 'Not owned'}</span>
-      <h3>${product.name}</h3>
-      <p>${product.series} · ${product.rarity}</p>
-      <b>${product.owned ? 'Open product' : 'Preview / buy'}</b>
+  const list = collectionProducts();
+  const visible = collectionShowAll ? list : list.slice(0, 8);
+  $('#collectionGrid').classList.toggle('is-limited', !collectionShowAll);
+  $('#collectionGrid').innerHTML = visible.map((product) => `
+    <button class="collection-card ${product.owned ? '' : 'is-locked'}" data-id="${product.id}" data-gallery="${product.gallery.join('|')}">
+      <span class="collection-image-wrap"><img src="${product.image}" alt="${escapeHtml(product.name)}" /></span>
+      <span class="collection-status">${product.owned ? 'Owned' : 'Locked preview'}</span>
+      <span class="collection-copy"><strong>${product.name}</strong><small>${product.series} · ${product.rarity}</small></span>
     </button>
   `).join('');
-  $$('.collection-card').forEach((card) => card.addEventListener('click', () => {
+  $('#collectionCount').textContent = `${visible.length} / ${list.length} shown`;
+  $('#showAllCollection').textContent = collectionShowAll ? 'Show preview only' : 'Show all';
+  $$('.collection-card').forEach((card) => {
     const product = products.find((p) => p.id === card.dataset.id);
-    if (product) { setSelected(product); setMode('drop'); }
-  }));
+    card.addEventListener('click', () => { if (product) { setSelected(product); setMode('drop'); } });
+    card.addEventListener('mouseenter', () => startCollectionHover(card));
+    card.addEventListener('mouseleave', () => stopCollectionHover(card));
+  });
+}
+
+function startCollectionHover(card) {
+  const img = card.querySelector('img');
+  const gallery = card.dataset.gallery.split('|');
+  let index = 0;
+  clearInterval(galleryTimers.get(card));
+  const timer = setInterval(() => {
+    index = (index + 1) % gallery.length;
+    img.src = gallery[index];
+  }, 520);
+  galleryTimers.set(card, timer);
+}
+
+function stopCollectionHover(card) {
+  clearInterval(galleryTimers.get(card));
+  galleryTimers.delete(card);
+  const product = products.find((p) => p.id === card.dataset.id);
+  if (product) card.querySelector('img').src = product.image;
 }
 
 function renderStudio() {
@@ -214,6 +289,25 @@ function renderStudio() {
       <input type="text" placeholder="Enter your filament code" />
     </div>
   `).join('');
+}
+
+function renderStudioPicker() {
+  const list = [...products].sort((a, b) => Number(b.owned) - Number(a.owned) || b.newest - a.newest);
+  $('#studioPickerGrid').innerHTML = list.map((product) => `
+    <button class="studio-picker-card ${product.owned ? 'is-owned' : 'is-locked'} ${selected.id === product.id ? 'is-active' : ''}" data-id="${product.id}">
+      <img src="${product.image}" alt="${escapeHtml(product.name)}" />
+      <strong>${product.name}</strong>
+      <small>${product.owned ? 'Owned' : 'Locked preview'}</small>
+    </button>
+  `).join('');
+  $$('.studio-picker-card').forEach((card) => card.addEventListener('click', () => {
+    const product = products.find((p) => p.id === card.dataset.id);
+    if (product) {
+      setSelected(product);
+      $('#studioPickerDialog').close();
+      setMode('studio');
+    }
+  }));
 }
 
 function showToast(title, message) {
@@ -237,6 +331,60 @@ function closeModelPreview() {
   $('#modelStage').hidden = true;
 }
 
+function weightedLootPick() {
+  const total = lootItems.reduce((sum, item) => sum + item.chance, 0);
+  let roll = Math.random() * total;
+  for (const item of lootItems) {
+    roll -= item.chance;
+    if (roll <= 0) return lootItems.indexOf(item);
+  }
+  return 0;
+}
+
+function spinLoot() {
+  const targetIndex = weightedLootPick();
+  const baseRounds = 24;
+  const distance = (targetIndex - lootOffset + lootItems.length) % lootItems.length;
+  const steps = baseRounds + distance;
+  let step = 0;
+  $('#unlockCard').hidden = true;
+  $('#previewOrbit').classList.add('is-spinning');
+  $('#crystal3d').classList.add('is-spinning');
+
+  function tick() {
+    lootOffset = (lootOffset + 1) % lootItems.length;
+    renderOrbit();
+    $('#previewOrbit').classList.add('tick-flash');
+    setTimeout(() => $('#previewOrbit').classList.remove('tick-flash'), 90);
+    step += 1;
+    if (step <= steps) {
+      const delay = 44 + Math.pow(step / steps, 2.2) * 210;
+      setTimeout(tick, delay);
+      return;
+    }
+    $('#previewOrbit').classList.remove('is-spinning');
+    $('#crystal3d').classList.remove('is-spinning');
+    revealLoot(lootItems[lootOffset]);
+  }
+  tick();
+}
+
+function revealLoot(item) {
+  if (item.jackpot) {
+    $('#unlockImage').removeAttribute('src');
+    $('#unlockImage').style.display = 'none';
+    $('#unlockJackpot').hidden = false;
+    $('#unlockJackpot').textContent = item.label;
+  } else {
+    $('#unlockImage').style.display = 'block';
+    $('#unlockImage').src = item.img;
+    $('#unlockJackpot').hidden = true;
+  }
+  $('#unlockName').textContent = item.name;
+  $('#unlockRarity').textContent = `${item.rarity} ${item.type} unlocked from the crystal roll.`;
+  $('#unlockCard').hidden = false;
+}
+
 function init() {
   renderSelected();
   renderCategories();
@@ -245,10 +393,13 @@ function init() {
   renderRewards();
   renderCollection();
   renderStudio();
+  renderStudioPicker();
 
   $$('.mode-tab').forEach((button) => button.addEventListener('click', () => setMode(button.dataset.mode)));
   $$('[data-mode-shortcut]').forEach((button) => button.addEventListener('click', () => setMode(button.dataset.modeShortcut)));
   $('#sortSelect').addEventListener('change', (event) => { sortMode = event.target.value; renderRoster(); });
+  $('#collectionSort').addEventListener('change', (event) => { collectionSortMode = event.target.value; renderCollection(); });
+  $('#showAllCollection').addEventListener('click', () => { collectionShowAll = !collectionShowAll; renderCollection(); });
 
   $('#togglePreview').addEventListener('click', openModelPreview);
   $('#closePreview').addEventListener('click', closeModelPreview);
@@ -297,22 +448,14 @@ function init() {
     showToast('Purchase flow started', `${selected.name} ${type} will be available through your profile after checkout.`);
   }));
 
-  $('#unitsButton').addEventListener('click', () => $('#unitDialog').showModal());
-  $('#spinButton').addEventListener('click', () => {
-    $('#previewOrbit').classList.add('is-spinning');
-    $('#crystal3d').classList.add('is-spinning');
-    $('#unlockCard').hidden = true;
-    setTimeout(() => {
-      $('#previewOrbit').classList.remove('is-spinning');
-      $('#crystal3d').classList.remove('is-spinning');
-      const product = products[Math.floor(Math.random() * products.length)];
-      $('#unlockImage').src = product.image;
-      $('#unlockName').textContent = product.name;
-      $('#unlockRarity').textContent = `${product.rarity} collectible added to your shelf.`;
-      $('#unlockCard').hidden = false;
-      selected = product;
-    }, 1700);
+  $('#openStudioPicker').addEventListener('click', () => {
+    renderStudioPicker();
+    $('#studioPickerDialog').showModal();
   });
+  $('#closeStudioPicker').addEventListener('click', () => $('#studioPickerDialog').close());
+  $('#closeRewardDialog').addEventListener('click', () => $('#rewardDialog').close());
+  $('#unitsButton').addEventListener('click', () => $('#unitDialog').showModal());
+  $('#spinButton').addEventListener('click', spinLoot);
   $('#viewCollection').addEventListener('click', () => setMode('collection'));
   $('#unlockStudio').addEventListener('click', () => setMode('studio'));
 }
