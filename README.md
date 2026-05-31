@@ -1,4 +1,4 @@
-# CyberPop Shop v20
+# CyberPop Shop v22
 
 Static CyberPop shop prototype. No Next.js, no React build, no package install.
 

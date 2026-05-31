@@ -68,7 +68,7 @@ function setSelected(product) {
   selected = product;
   selectedBuyType = null;
   buyExpanded = false;
-  $('#posterStage').hidden = false;
+  $('#mediaTriptych').hidden = false;
   $('#modelStage').hidden = true;
   renderSelected();
   renderRoster();
@@ -78,6 +78,10 @@ function setSelected(product) {
 function renderSelected() {
   $('#heroImage').src = selected.image;
   $('#heroImage').alt = `${selected.name} cover`;
+  $('#heroPreviewImage').src = selected.image;
+  $('#heroPreviewImage').alt = `${selected.name} print preview`;
+  $('#heroTechImage').src = selected.image;
+  $('#heroTechImage').alt = `${selected.name} technical media`;
   $('#heroName').textContent = selected.name;
   $('#heroDesc').textContent = selected.desc;
   $('#heroCategory').textContent = selected.series;
@@ -122,8 +126,8 @@ function renderRoster() {
   const list = sortedProducts();
   $('#fighterRoster').innerHTML = list.map((product) => `
     <button class="roster-tile ${selected.id === product.id ? 'is-active' : ''}" data-id="${product.id}">
-      <span class="rarity-flag">${product.rarity}</span>
       <img src="${product.image}" alt="${product.name}" />
+      <span class="rarity-flag">${product.rarity}</span>
       <b>${product.name}</b>
     </button>
   `).join('');
@@ -205,14 +209,17 @@ function init() {
 
   $('#sortSelect').addEventListener('change', (event) => { sortMode = event.target.value; renderRoster(); });
 
-  $('#togglePreview').addEventListener('click', () => {
-    $('#posterStage').hidden = true;
+  function openModelPreview() {
+    $('#mediaTriptych').hidden = true;
     $('#modelStage').hidden = false;
-  });
-  $('#closePreview').addEventListener('click', () => {
-    $('#posterStage').hidden = false;
+  }
+  function closeModelPreview() {
+    $('#mediaTriptych').hidden = false;
     $('#modelStage').hidden = true;
-  });
+  }
+  $('#togglePreview').addEventListener('click', openModelPreview);
+  $('#mediaPreviewButton').addEventListener('click', openModelPreview);
+  $('#closePreview').addEventListener('click', closeModelPreview);
   $('#utilityButton').addEventListener('click', () => {
     $('#utilityDrawer').hidden = !$('#utilityDrawer').hidden;
   });
@@ -221,9 +228,27 @@ function init() {
   });
   $('#utilityPreviewButton').addEventListener('click', () => {
     $('#utilityDrawer').hidden = true;
-    $('#posterStage').hidden = true;
+    $('#mediaTriptych').hidden = true;
     $('#modelStage').hidden = false;
   });
+
+  const roster = $('#fighterRoster');
+  const scrollRoster = (direction) => roster.scrollBy({ left: direction * Math.max(340, roster.clientWidth * 0.75), behavior: 'smooth' });
+  $('#rosterPrev').addEventListener('click', () => scrollRoster(-1));
+  $('#rosterNext').addEventListener('click', () => scrollRoster(1));
+  ['rosterPrev','rosterNext'].forEach((id) => {
+    const arrow = document.getElementById(id);
+    arrow.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      scrollRoster(event.deltaY > 0 ? 1 : -1);
+    }, { passive: false });
+  });
+  roster.addEventListener('wheel', (event) => {
+    if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
+      event.preventDefault();
+      roster.scrollLeft += event.deltaY;
+    }
+  }, { passive: false });
 
   $('#buyMainButton').addEventListener('click', () => {
     buyExpanded = !buyExpanded;

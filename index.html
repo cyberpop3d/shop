@@ -67,24 +67,33 @@
         <section class="fighter-core">
           <div class="hero-grid">
             <div class="poster-console">
-              <div class="console-strip">
+              <div class="media-toolbar">
                 <span class="micro-label">Selected Collectible</span>
-                <button class="preview-toggle" id="togglePreview">3D print preview</button>
+                <button class="preview-toggle" id="togglePreview">Open 3D print preview</button>
               </div>
 
-              <div class="poster-square" id="posterStage">
-                <img id="heroImage" src="/images/covers/sonya-blade.png" alt="Selected collectible cover" />
-                <div class="poster-shade"></div>
-                <div class="poster-meta">
-                  <span id="heroCategory">MK Arena</span>
-                  <h2 id="heroName">Sonya Blade</h2>
-                  <p id="heroDesc">Compact heroic silhouette with multipart print clarity.</p>
-                </div>
+              <div class="media-triptych" id="mediaTriptych" aria-label="Selected collectible media">
+                <button class="media-card media-cover is-active" data-media="cover" type="button">
+                  <img id="heroImage" src="/images/covers/sonya-blade.png" alt="Selected collectible cover" />
+                  <span class="media-badge">Cover</span>
+                  <strong id="heroName">Sonya Blade</strong>
+                </button>
+                <button class="media-card media-preview" id="mediaPreviewButton" data-media="preview" type="button">
+                  <img id="heroPreviewImage" src="/images/covers/sonya-blade.png" alt="Selected collectible print preview" />
+                  <span class="media-badge">Print Preview</span>
+                  <strong>3D Studio View</strong>
+                </button>
+                <button class="media-card media-technical" id="mediaTechnicalButton" data-media="technical" type="button">
+                  <img id="heroTechImage" src="/images/covers/sonya-blade.png" alt="Selected collectible technical media" />
+                  <span class="media-badge">Technical / Video</span>
+                  <strong id="heroCategory">MK Arena</strong>
+                  <small id="heroDesc">Multipart print clarity.</small>
+                </button>
               </div>
 
               <div class="model-square" id="modelStage" hidden>
                 <model-viewer id="modelViewer" src="/models/sonya-blade.glb" alt="3D print preview" auto-rotate camera-controls shadow-intensity="1" camera-orbit="45deg 62deg 4.2m"></model-viewer>
-                <button class="preview-toggle model-back" id="closePreview">Back to cover</button>
+                <button class="preview-toggle model-back" id="closePreview">Back to media</button>
               </div>
             </div>
 
@@ -148,7 +157,11 @@
               </div>
             </div>
             <div class="category-track" id="categoryTrack"></div>
-            <div class="fighter-roster" id="fighterRoster" aria-label="Collectible roster"></div>
+            <div class="roster-scroll-zone">
+              <button class="roster-arrow roster-prev" id="rosterPrev" type="button" aria-label="Previous collectibles">‹</button>
+              <div class="fighter-roster" id="fighterRoster" aria-label="Collectible roster"></div>
+              <button class="roster-arrow roster-next" id="rosterNext" type="button" aria-label="Next collectibles">›</button>
+            </div>
           </section>
         </section>
       </section>
