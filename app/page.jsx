@@ -859,62 +859,120 @@ function CharacterPortrait({ product }) {
 const rosterOffsets = [0, -18, 12, -8, 22, -14, 8, -24, 18, -6, 14, -20, 6, 24, -12, 16, -18, 4];
 const rosterTilts = [-7, 4, -2, 8, -5, 2, -9, 6, -3, 9, -6, 3, -8, 5, -1, 7, -4, 2];
 
+
+function SelectedHeroShowcase({ selected, selectedSize, show3DPreview, setShow3DPreview, onOpenStudio }) {
+  const hasModel = Boolean(selected.modelSrc);
+  return (
+    <div className="selectedHeroShowcase" style={{ "--selectedGlow": selected.glow }}>
+      <div className="selectedHeroBackdrop">
+        <span>{selected.poster}</span>
+      </div>
+
+      <div className="selectedHeroCoverFrame">
+        {show3DPreview && hasModel ? (
+          <GLBFigure product={selected} big />
+        ) : selected.previewSrc ? (
+          <ImageFigure product={selected} big />
+        ) : (
+          <ProductFigure product={selected} big />
+        )}
+      </div>
+
+      <div className="selectedHeroInfo">
+        <div className="selectedHeroTags">
+          <span>{selected.code}</span>
+          <b className={cx("rarity", selected.rarityClass)}>{selected.rarity}</b>
+          <span>{selected.category}</span>
+        </div>
+        <h2>{selected.name}</h2>
+        <p>{selected.printNote}</p>
+        <div className="selectedHeroActions">
+          <button
+            className={cx("heroPreviewButton", show3DPreview && "active")}
+            onClick={() => setShow3DPreview((value) => !value)}
+            disabled={!hasModel}
+            title={hasModel ? "Toggle 3D print preview" : "3D preview will be attached when the model is ready"}
+          >
+            {show3DPreview && hasModel ? "Show cover image" : "3D print preview"}
+          </button>
+          <button className="heroStudioButton" onClick={onOpenStudio}>Open 3D Studio</button>
+          <span className="heroPriceTag">{selectedSize} cm · ${selected.sizePrices[selectedSize]}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FighterSelectArena({ activeCollection, setActiveCollection, sortMode, setSortMode, selectedSize, visibleProducts, selected, onSelect }) {
   const currentCollection = collectionFilters.find((item) => item.id === activeCollection) || collectionFilters[0];
   return (
-    <section className="fighterSelectArena" style={{ "--selectedGlow": selected.glow }}>
-      <div className="fighterHeader">
+    <section className="fighterSelectArena fighterSelectScreen" style={{ "--selectedGlow": selected.glow }}>
+      <div className="fighterSelectTopBar">
         <div>
-          <span className="miniEyebrow">Character select</span>
+          <span className="miniEyebrow">Choose your collectible</span>
           <h3>{currentCollection.label}</h3>
+          <p>{currentCollection.note}</p>
         </div>
         <div className="fighterTools">
           <select value={sortMode} onChange={(event) => setSortMode(event.target.value)} aria-label="Sort characters">
             {sortOptions.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
           </select>
-          <small>{selectedSize} cm price view</small>
+          <small>{visibleProducts.length} slots · {selectedSize} cm price view</small>
         </div>
       </div>
 
-      <div className="rosterTabs" aria-label="Character categories">
+      <div className="fighterCategoryStrip" aria-label="Character categories">
         {collectionFilters.map((collection) => (
           <button key={collection.id} className={activeCollection === collection.id ? "active" : ""} onClick={() => setActiveCollection(collection.id)}>
             <b>{collection.label}</b>
-            <span>{collection.ids.length} slots</span>
+            <span>{collection.ids.length}</span>
           </button>
         ))}
       </div>
 
-      <div className="fighterSelectGridWrap">
-        <div className="selectedFighterPlate">
-          <div className="plateBackText">{selected.poster}</div>
-          <CharacterPortrait product={selected} />
-          <div className="plateMeta">
-            <span className={cx("rarity", selected.rarityClass)}>{selected.rarity}</span>
-            <h4>{selected.name}</h4>
-            <p>{selected.category} · ${selected.sizePrices[selectedSize]}</p>
+      <div className="fighterScreenBody">
+        <div className="fighterSelectedBanner">
+          <div className="fighterBannerImage">
+            <img src={selected.previewSrc || "/images/sonya-preview.png"} alt={`${selected.name} cover`} />
+          </div>
+          <div className="fighterBannerCopy">
+            <span className="fighterSeriesLabel">{selected.category}</span>
+            <h4>{selected.poster}</h4>
+            <p>{selected.name} · ${selected.sizePrices[selectedSize]} physical / $5 STL</p>
+            <div className="fighterBannerChips">
+              <span className={cx("rarity", selected.rarityClass)}>{selected.rarity}</span>
+              <span>{selected.parts.length} color parts</span>
+              <span>{selected.status}</span>
+            </div>
           </div>
         </div>
 
-        <div className="fighterGrid" aria-label="Scrollable character roster">
-          {visibleProducts.map((item, index) => {
-            const offset = rosterOffsets[index % rosterOffsets.length];
-            const tilt = rosterTilts[index % rosterTilts.length];
-            const active = selected.id === item.id;
-            return (
-              <button
-                key={`${item.id}-${index}`}
-                className={cx("fighterSlot", active && "active", item.rarityClass)}
-                style={{ "--slotGlow": item.glow, "--lift": `${offset}px`, "--tilt": `${tilt}deg`, "--z": `${active ? 46 : 8 + (index % 4) * 6}px` }}
-                onClick={() => onSelect(item)}
-              >
-                <span className="slotCode">{item.code}</span>
-                <CharacterPortrait product={item} />
-                <strong>{item.short}</strong>
-                <small>{item.rarity}</small>
-              </button>
-            );
-          })}
+        <div className="fighterRosterShell">
+          <div className="fighterRosterHeader">
+            <span>Player 1</span>
+            <b>Select product</b>
+            <em>Scroll sideways</em>
+          </div>
+          <div className="fighterRosterGrid" aria-label="Character roster">
+            {visibleProducts.map((item, index) => {
+              const active = selected.id === item.id;
+              return (
+                <button
+                  key={`${item.id}-${index}`}
+                  className={cx("fighterSlot", "fighterPortraitTile", active && "active", item.rarityClass)}
+                  style={{ "--slotGlow": item.glow }}
+                  onClick={() => onSelect(item)}
+                >
+                  <span className="slotCode">{item.code}</span>
+                  <span className="fighterTileImage">
+                    {item.previewSrc ? <img src={item.previewSrc} alt={`${item.name} cover`} /> : <CharacterPortrait product={item} />}
+                  </span>
+                  <span className="fighterTileName">{item.short}</span>
+                  <small>{item.rarity}</small>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
@@ -1033,6 +1091,7 @@ function PurchasePanel({ selected, selectedSize, setSelectedSize, loyaltyXp, onP
 function Lobby({ selected, setSelected, selectedSize, setSelectedSize, loyaltyXp, onPurchasePreview, onOpenStudio, setMode, setCreditDrawerOpen }) {
   const [activeCollection, setActiveCollection] = useState("all");
   const [sortMode, setSortMode] = useState("newest");
+  const [show3DPreview, setShow3DPreview] = useState(false);
 
   const visibleProducts = useMemo(() => {
     const collection = collectionFilters.find((item) => item.id === activeCollection) || collectionFilters[0];
@@ -1049,6 +1108,10 @@ function Lobby({ selected, setSelected, selectedSize, setSelectedSize, loyaltyXp
       setSelected(visibleProducts[0]);
     }
   }, [visibleProducts, selected.id, setSelected]);
+
+  useEffect(() => {
+    setShow3DPreview(false);
+  }, [selected.id]);
 
   return (
     <section className="lobbyLayout">
@@ -1071,15 +1134,13 @@ function Lobby({ selected, setSelected, selectedSize, setSelectedSize, loyaltyXp
       </div>
 
       <main className="centerStage panelGlass">
-        <div className="stageTopline">
-          <span>{selected.code}</span>
-          <b className={cx("rarity", selected.rarityClass)}>{selected.rarity}</b>
-        </div>
-        <ProductFigure product={selected} big />
-        <div className="stageCaption">
-          <strong>{selected.name}</strong>
-          <span>{selected.printNote}</span>
-        </div>
+        <SelectedHeroShowcase
+          selected={selected}
+          selectedSize={selectedSize}
+          show3DPreview={show3DPreview}
+          setShow3DPreview={setShow3DPreview}
+          onOpenStudio={onOpenStudio}
+        />
         <EngagementStack selected={selected} setMode={setMode} setCreditDrawerOpen={setCreditDrawerOpen} />
         <FighterSelectArena
           activeCollection={activeCollection}
@@ -1370,7 +1431,7 @@ function RewardPreviewCard({ reward, unlocked, loyaltyXp }) {
         <p>{reward.description}</p>
         <div className="rewardRequirements">
           <span>{unlocked ? "Ready in your profile vault" : `${need.remaining} more XP required`}</span>
-          <span>{unlocked ? "Claimable reward" : `≈ ${need.purchases} more purchases or ${need.units} units`}</span>
+          <span>{unlocked ? "Claimable reward" : `${need.purchases} more products or ${need.units} more units`}</span>
         </div>
       </div>
     </div>
@@ -1399,7 +1460,7 @@ function Rewards({ loyaltyXp }) {
         <div className="rewardProgressStats">
           <div><span>Next checkpoint</span><b>{nextReward.title}</b></div>
           <div><span>Remaining</span><b>{nextNeed.remaining} XP</b></div>
-          <div><span>Purchase push</span><b>{nextNeed.purchases === 0 ? "Ready" : `${nextNeed.purchases} more`}</b></div>
+          <div><span>Purchase push</span><b>{nextNeed.purchases === 0 ? "Ready" : `${nextNeed.purchases} products`}</b></div>
           <div><span>Unit target</span><b>{nextNeed.units} units</b></div>
         </div>
         <div className="rewardProgressLane">

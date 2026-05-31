@@ -1644,3 +1644,499 @@ body {
 @media (max-width: 620px) {
   .rewardProgressStats { grid-template-columns: 1fr; }
 }
+
+/* v16: cover-first fighter select, less random, more like a single-character arcade select screen */
+.centerStage {
+  grid-template-rows: minmax(420px, .95fr) auto auto;
+  gap: 14px;
+}
+.selectedHeroShowcase {
+  --heroGlow: var(--selectedGlow, #6bdcff);
+  position: relative;
+  min-height: 520px;
+  border-radius: 36px;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    linear-gradient(90deg, rgba(5,8,13,.96) 0%, rgba(9,17,29,.88) 36%, rgba(255,255,255,.10) 68%, rgba(255,255,255,.52) 100%),
+    radial-gradient(circle at 72% 28%, color-mix(in srgb, var(--heroGlow) 42%, transparent), transparent 42%),
+    linear-gradient(145deg, rgba(255,255,255,.62), rgba(222,239,255,.30));
+  box-shadow:
+    0 38px 110px color-mix(in srgb, var(--heroGlow) 22%, rgba(26,79,130,.18)),
+    inset 0 1px 0 rgba(255,255,255,.78),
+    inset 0 -40px 80px rgba(7,16,24,.13);
+  transform-style: preserve-3d;
+}
+.selectedHeroShowcase::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,.16);
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.05), transparent 50%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0 1px, transparent 1px 42px);
+  opacity: .65;
+  z-index: 0;
+}
+.selectedHeroShowcase::after {
+  content: "";
+  position: absolute;
+  inset: auto -12% -18% 28%;
+  height: 190px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--heroGlow) 24%, rgba(6,11,18,.44)), transparent 70%);
+  filter: blur(18px);
+  z-index: 0;
+}
+.selectedHeroBackdrop {
+  position: absolute;
+  left: 28px;
+  top: 28px;
+  z-index: 1;
+  width: min(42%, 360px);
+  color: rgba(255,255,255,.93);
+  pointer-events: none;
+}
+.selectedHeroBackdrop span {
+  display: block;
+  font-weight: 1000;
+  font-size: clamp(58px, 7vw, 132px);
+  line-height: .76;
+  letter-spacing: -.12em;
+  text-transform: uppercase;
+  text-shadow: 0 18px 50px rgba(0,0,0,.42);
+}
+.selectedHeroCoverFrame {
+  position: absolute;
+  z-index: 2;
+  inset: 28px 24px 28px 32%;
+  display: grid;
+  place-items: center;
+  perspective: 1200px;
+}
+.selectedHeroCoverFrame .figureWrap {
+  width: 100%;
+  height: 100%;
+  min-height: unset;
+  display: grid;
+  place-items: center;
+}
+.selectedHeroCoverFrame .figureBig .figureCoverCard,
+.selectedHeroCoverFrame .figureCoverCard {
+  width: min(620px, 92%);
+  height: min(460px, 88%);
+  border-radius: 24px;
+  transform: rotateY(-6deg) rotateX(1deg) translateZ(42px);
+  box-shadow:
+    0 36px 100px color-mix(in srgb, var(--heroGlow) 34%, rgba(0,0,0,.42)),
+    0 0 0 1px rgba(255,255,255,.28),
+    inset 0 0 0 1px rgba(255,255,255,.16);
+}
+.selectedHeroCoverFrame .figureCoverCard img {
+  object-fit: cover;
+  object-position: center center;
+}
+.selectedHeroCoverFrame .liveModelShell {
+  width: min(620px, 96%);
+  height: min(480px, 92%);
+  border-radius: 28px;
+  background: radial-gradient(circle at 50% 20%, rgba(255,255,255,.82), rgba(223,246,255,.26) 62%, rgba(7,16,24,.08));
+  box-shadow: 0 36px 100px color-mix(in srgb, var(--heroGlow) 24%, rgba(0,0,0,.32));
+}
+.selectedHeroInfo {
+  position: absolute;
+  z-index: 3;
+  left: 28px;
+  right: 28px;
+  bottom: 24px;
+  display: grid;
+  grid-template-columns: minmax(220px, 410px) 1fr;
+  align-items: end;
+  gap: 22px;
+  pointer-events: none;
+}
+.selectedHeroTags,
+.selectedHeroActions { pointer-events: auto; }
+.selectedHeroTags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.selectedHeroTags > span {
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 999px;
+  background: rgba(0,0,0,.34);
+  backdrop-filter: blur(12px);
+  color: rgba(255,255,255,.72);
+  padding: 7px 10px;
+  font-size: 10px;
+  font-weight: 1000;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+.selectedHeroInfo h2 {
+  margin: 12px 0 0;
+  color: white;
+  font-size: clamp(36px, 4.8vw, 78px);
+  line-height: .78;
+  letter-spacing: -.085em;
+  text-shadow: 0 18px 52px rgba(0,0,0,.44);
+}
+.selectedHeroInfo p {
+  margin: 12px 0 0;
+  max-width: 440px;
+  color: rgba(255,255,255,.70);
+  font-weight: 850;
+  line-height: 1.45;
+}
+.selectedHeroActions {
+  justify-self: end;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.heroPreviewButton,
+.heroStudioButton,
+.heroPriceTag {
+  border-radius: 999px;
+  padding: 12px 16px;
+  font-weight: 1000;
+  font-size: 12px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  box-shadow: 0 16px 44px rgba(0,0,0,.18);
+}
+.heroPreviewButton,
+.heroStudioButton {
+  border: 1px solid rgba(255,255,255,.28);
+  background: linear-gradient(135deg, rgba(255,255,255,.96), rgba(220,246,255,.78));
+  color: #071018;
+  cursor: pointer;
+}
+.heroPreviewButton.active {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--heroGlow) 44%, white), #ffffff);
+  box-shadow: 0 18px 54px color-mix(in srgb, var(--heroGlow) 38%, rgba(0,0,0,.18));
+}
+.heroPreviewButton:disabled {
+  opacity: .48;
+  cursor: not-allowed;
+}
+.heroStudioButton {
+  background: linear-gradient(135deg, #071018, #17223d 54%, #6d4dff);
+  color: white;
+}
+.heroPriceTag {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.34);
+  color: rgba(255,255,255,.86);
+  backdrop-filter: blur(10px);
+}
+
+.fighterSelectArena.fighterSelectScreen {
+  margin-top: 0;
+  padding: 0;
+  border-radius: 32px;
+  background:
+    linear-gradient(180deg, rgba(7,16,24,.92), rgba(17,32,54,.86) 38%, rgba(235,248,255,.38)),
+    radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--selectedGlow) 32%, transparent), transparent 42%),
+    radial-gradient(circle at 86% 14%, rgba(156,96,255,.28), transparent 38%);
+  color: white;
+  box-shadow:
+    0 32px 86px color-mix(in srgb, var(--selectedGlow) 16%, rgba(20,70,130,.22)),
+    inset 0 1px 0 rgba(255,255,255,.25);
+  overflow: hidden;
+}
+.fighterSelectArena.fighterSelectScreen::before,
+.fighterSelectArena.fighterSelectScreen::after { display: none; }
+.fighterSelectTopBar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 18px;
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+  background: linear-gradient(90deg, rgba(0,0,0,.22), rgba(255,255,255,.05));
+}
+.fighterSelectTopBar h3 {
+  margin: 8px 0 0;
+  font-size: clamp(28px, 3vw, 46px);
+  line-height: .82;
+  letter-spacing: -.08em;
+}
+.fighterSelectTopBar p {
+  margin: 7px 0 0;
+  color: rgba(255,255,255,.52);
+  font-size: 12px;
+  font-weight: 850;
+}
+.fighterSelectTopBar .fighterTools select {
+  background: rgba(255,255,255,.94);
+}
+.fighterSelectTopBar .fighterTools small { color: rgba(255,255,255,.54); }
+.fighterCategoryStrip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(126px, max-content);
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px 18px;
+  background: rgba(0,0,0,.16);
+  mask-image: linear-gradient(90deg, transparent, #000 3%, #000 96%, transparent);
+}
+.fighterCategoryStrip button {
+  min-height: 44px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 10px 18px 10px 18px;
+  background: linear-gradient(135deg, rgba(255,255,255,.13), rgba(255,255,255,.05));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 12px;
+  transform: skewX(-8deg);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
+}
+.fighterCategoryStrip button > * { transform: skewX(8deg); }
+.fighterCategoryStrip button.active,
+.fighterCategoryStrip button:hover {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--selectedGlow) 48%, #ffffff), #ffffff);
+  color: #071018;
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--selectedGlow) 28%, transparent);
+}
+.fighterCategoryStrip b { font-size: 12px; }
+.fighterCategoryStrip span { font-size: 12px; font-weight: 1000; }
+.fighterScreenBody {
+  display: grid;
+  grid-template-columns: minmax(250px, 34%) 1fr;
+  gap: 16px;
+  padding: 16px;
+  perspective: 1100px;
+}
+.fighterSelectedBanner {
+  position: relative;
+  min-height: 346px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 26px 18px 30px 18px;
+  overflow: hidden;
+  background: #05070a;
+  box-shadow: 0 32px 80px rgba(0,0,0,.30), 0 0 70px color-mix(in srgb, var(--selectedGlow) 20%, transparent);
+  transform: rotateY(-6deg) translateZ(22px);
+}
+.fighterBannerImage { position: absolute; inset: 0; }
+.fighterBannerImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  filter: saturate(1.08) contrast(1.08);
+}
+.fighterBannerImage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(0deg, rgba(0,0,0,.82), rgba(0,0,0,.18) 52%, rgba(0,0,0,.04)),
+    radial-gradient(circle at 70% 30%, color-mix(in srgb, var(--selectedGlow) 18%, transparent), transparent 42%);
+}
+.fighterBannerCopy {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2;
+  color: white;
+}
+.fighterSeriesLabel {
+  display: inline-block;
+  color: color-mix(in srgb, var(--selectedGlow) 58%, #ffffff);
+  font-size: 11px;
+  font-weight: 1000;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.fighterBannerCopy h4 {
+  margin: 7px 0 0;
+  font-size: clamp(44px, 5vw, 72px);
+  line-height: .74;
+  letter-spacing: -.10em;
+  text-transform: uppercase;
+  text-shadow: 0 10px 28px rgba(0,0,0,.68);
+}
+.fighterBannerCopy p {
+  margin: 10px 0 0;
+  max-width: 360px;
+  color: rgba(255,255,255,.72);
+  font-size: 12px;
+  font-weight: 850;
+}
+.fighterBannerChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.fighterBannerChips > span:not(.rarity) {
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 999px;
+  background: rgba(255,255,255,.12);
+  color: rgba(255,255,255,.76);
+  padding: 7px 9px;
+  font-size: 10px;
+  font-weight: 950;
+}
+.fighterRosterShell {
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 18px 28px 18px 28px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)),
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--selectedGlow) 16%, transparent), transparent 50%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 30px 80px rgba(0,0,0,.18);
+  transform: rotateY(3deg) translateZ(10px);
+}
+.fighterRosterHeader {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: linear-gradient(90deg, rgba(0,0,0,.35), rgba(255,255,255,.06), rgba(0,0,0,.28));
+  border-bottom: 1px solid rgba(255,255,255,.10);
+  text-transform: uppercase;
+}
+.fighterRosterHeader span,
+.fighterRosterHeader em {
+  color: rgba(255,255,255,.50);
+  font-size: 10px;
+  font-weight: 1000;
+  font-style: normal;
+  letter-spacing: .16em;
+}
+.fighterRosterHeader b { font-size: 13px; letter-spacing: .12em; }
+.fighterRosterHeader em { justify-self: end; }
+.fighterRosterGrid {
+  display: grid;
+  grid-template-rows: repeat(3, 112px);
+  grid-auto-flow: column;
+  grid-auto-columns: 96px;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 16px;
+  min-height: 374px;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.12), transparent 14%, transparent 86%, rgba(0,0,0,.12)),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 48px);
+}
+.fighterPortraitTile.fighterSlot {
+  width: 96px;
+  height: 112px;
+  transform: none;
+  border-radius: 6px 14px 6px 14px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.16);
+  color: white;
+  box-shadow: 0 10px 22px rgba(0,0,0,.22);
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  align-items: end;
+  justify-items: stretch;
+  padding: 0;
+  overflow: hidden;
+}
+.fighterPortraitTile.fighterSlot::before,
+.fighterPortraitTile.fighterSlot::after { display: none; }
+.fighterPortraitTile .slotCode {
+  color: rgba(255,255,255,.62);
+  background: rgba(0,0,0,.34);
+  border-radius: 999px;
+  padding: 3px 5px;
+}
+.fighterTileImage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgba(255,255,255,.06);
+}
+.fighterTileImage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.04), transparent 44%, rgba(0,0,0,.72));
+}
+.fighterTileImage img,
+.fighterTileImage .portraitBox {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+.fighterTileName,
+.fighterPortraitTile small {
+  position: relative;
+  z-index: 2;
+  padding: 0 7px;
+  text-shadow: 0 3px 10px rgba(0,0,0,.55);
+}
+.fighterTileName {
+  align-self: end;
+  font-size: 12px;
+  font-weight: 1000;
+  line-height: .92;
+}
+.fighterPortraitTile small {
+  padding-bottom: 7px;
+  color: color-mix(in srgb, var(--slotGlow) 60%, #ffffff);
+  font-size: 8px;
+  font-weight: 1000;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+}
+.fighterPortraitTile:hover,
+.fighterPortraitTile.active {
+  z-index: 5;
+  transform: translateY(-6px) scale(1.08);
+  border-color: color-mix(in srgb, var(--slotGlow) 70%, #ffffff);
+  box-shadow:
+    0 18px 46px color-mix(in srgb, var(--slotGlow) 30%, rgba(0,0,0,.36)),
+    0 0 0 2px rgba(255,255,255,.86),
+    inset 0 0 0 1px rgba(255,255,255,.35);
+}
+.fighterPortraitTile.active {
+  animation: selectedPortraitFlash 1.2s ease-in-out infinite alternate;
+}
+@keyframes selectedPortraitFlash {
+  from { filter: brightness(1.06) saturate(1.05); }
+  to { filter: brightness(1.22) saturate(1.18); }
+}
+
+.rewardRequirements span:nth-child(2)::after {
+  content: " · checkpoint goal";
+  opacity: .72;
+}
+
+@media (max-width: 1180px) {
+  .selectedHeroShowcase { min-height: 460px; }
+  .selectedHeroCoverFrame { inset: 28px 18px 96px 26%; }
+  .selectedHeroInfo { grid-template-columns: 1fr; }
+  .selectedHeroActions { justify-self: start; }
+  .fighterScreenBody { grid-template-columns: 1fr; }
+  .fighterSelectedBanner { min-height: 260px; transform: none; }
+  .fighterRosterShell { transform: none; }
+}
+@media (max-width: 680px) {
+  .selectedHeroShowcase { min-height: 560px; }
+  .selectedHeroBackdrop { width: auto; right: 24px; }
+  .selectedHeroCoverFrame { inset: 120px 12px 116px 12px; }
+  .selectedHeroInfo { left: 18px; right: 18px; bottom: 18px; }
+  .selectedHeroInfo h2 { font-size: 38px; }
+  .fighterSelectTopBar { flex-direction: column; align-items: stretch; }
+  .fighterRosterGrid { grid-template-rows: repeat(2, 112px); }
+}
