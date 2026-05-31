@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CyberPop Shop</title>
+  <meta name="description" content="CyberPop collectible shop prototype" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+</head>
+<body>
+  <div class="world-bg" aria-hidden="true">
+    <div class="orb orb-a"></div>
+    <div class="orb orb-b"></div>
+    <div class="orb orb-c"></div>
+    <div class="grid-floor"></div>
+  </div>
+
+  <header class="top-hud">
+    <nav class="mode-tabs" aria-label="Main modes">
+      <button class="mode-tab is-active" data-mode="drop">Drop Room</button>
+      <button class="mode-tab" data-mode="loot">Loot Crystal</button>
+      <button class="mode-tab" data-mode="rewards">Rewards</button>
+      <button class="mode-tab" data-mode="collection">Collection</button>
+      <button class="mode-tab" data-mode="studio">3D Studio</button>
+    </nav>
+    <div class="hud-actions">
+      <button class="hud-pill" id="unitsButton"><span class="diamond-dot"></span><strong id="unitCount">345</strong><span>Units</span></button>
+      <button class="hud-pill" data-mode-shortcut="collection"><strong id="ownedCount">3</strong><span>Owned</span></button>
+      <button class="cart-pill">Cart <strong>0</strong></button>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <aside class="side-panel left-command">
+      <span class="season-pill">Season 00</span>
+      <h1>CyberPop<br/>Drop Room</h1>
+      <p>Pick a collectible, inspect its print plan, choose STL or physical, then move it into Studio for color planning.</p>
+
+      <div class="stat-stack">
+        <div class="side-stat"><strong id="sideUnits">345</strong><span>Credit value</span></div>
+        <div class="side-stat"><strong id="sideRarity">Rare</strong><span>Rarity track</span></div>
+        <div class="side-stat"><strong id="sideParts">4</strong><span>Color parts</span></div>
+      </div>
+
+      <div class="mission-card" id="missionCard">
+        <div class="mission-icon">✦</div>
+        <div>
+          <strong>Earn units</strong>
+          <span>Daily check-in · makes · Instagram tag</span>
+        </div>
+      </div>
+      <div class="mission-card" data-mode-shortcut="loot">
+        <div class="mission-icon">◆</div>
+        <div>
+          <strong>Play for wheel progress</strong>
+          <span>Arcade layer · crystal spin</span>
+        </div>
+      </div>
+      <button class="wide-cta" data-mode-shortcut="studio">Open in 3D Studio</button>
+    </aside>
+
+    <section class="screen-stack">
+      <section class="mode-screen is-active" data-screen="drop">
+        <div class="fighter-board">
+          <div class="selected-arena">
+            <div class="arena-topline">
+              <span class="micro-label">Selected Collectible</span>
+              <button class="ghost-button" id="togglePreview">3D print preview</button>
+            </div>
+
+            <div class="poster-stage" id="posterStage">
+              <img id="heroImage" class="hero-cover" src="/images/covers/sonya-blade.png" alt="Selected collectible cover" />
+              <div class="poster-shade"></div>
+              <div class="poster-name-block">
+                <span id="heroSeries">MK Arena</span>
+                <h2 id="heroName">Sonya Blade</h2>
+                <p id="heroDesc">Compact heroic silhouette with multipart print clarity.</p>
+              </div>
+              <div class="badge-row overlay-badges">
+                <span id="heroCode">CP-013</span>
+                <span id="heroRarity">Rare</span>
+                <span id="heroFormat">STL Bundle</span>
+              </div>
+            </div>
+
+            <div class="model-stage" id="modelStage" hidden>
+              <model-viewer id="modelViewer" src="/models/sonya-blade.glb" alt="3D print preview" auto-rotate camera-controls shadow-intensity="1" camera-orbit="45deg 62deg 4.2m"></model-viewer>
+              <div class="model-note">Live 3D preview. Cover image stays the default product view.</div>
+            </div>
+
+            <div class="quick-flow-grid">
+              <button class="flow-tile" id="openUnitBoard"><span>✦</span><strong>Units</strong><em>Open missions</em></button>
+              <button class="flow-tile" data-mode-shortcut="studio"><span>◆</span><strong>Studio</strong><em>Color plan</em></button>
+              <button class="flow-tile" data-mode-shortcut="rewards"><span>◇</span><strong>Rewards</strong><em>Track unlocks</em></button>
+            </div>
+          </div>
+
+          <aside class="purchase-panel">
+            <span class="micro-label">Product Actions</span>
+            <h3 id="buyName">Sonya Blade</h3>
+            <p id="buyDesc">Square cover preview first. 3D preview only opens when requested.</p>
+            <div class="buy-card stl-card">
+              <div><span>Get STL</span><strong>$5</strong></div>
+              <p>Digital product access. May be cheaper through subscription access or bulk bundles.</p>
+              <button>Choose STL</button>
+            </div>
+            <div class="buy-card physical-card">
+              <div><span>Get Physical Product</span><strong id="physicalPrice">$62</strong></div>
+              <div class="size-tabs" role="group" aria-label="Physical product size">
+                <button data-size="15">15 cm</button>
+                <button class="is-active" data-size="30">30 cm</button>
+                <button data-size="40">40 cm</button>
+              </div>
+              <p>Made-to-order physical print. Size changes price, packaging, and print preparation.</p>
+              <button class="gold-button">Choose physical</button>
+            </div>
+            <div class="loyalty-after">
+              <div><strong>Loyalty after this purchase</strong><b id="purchaseXp">+28 XP</b></div>
+              <div class="tiny-progress"><span style="width:68%"></span></div>
+              <div class="chip-row"><span>profile trophy</span><span>site points</span><span>wheel progress</span></div>
+            </div>
+            <div class="part-chips" id="partChips"></div>
+          </aside>
+        </div>
+
+        <section class="roster-console">
+          <div class="console-header">
+            <div>
+              <span class="micro-label dark">Choose Your Collectible</span>
+              <h2 id="categoryTitle">View All</h2>
+              <p id="categoryMeta">Full playable shelf · 12 active covers</p>
+            </div>
+            <div class="sort-box">
+              <span>Sort lobby</span>
+              <select id="sortSelect">
+                <option value="newest">Newest</option>
+                <option value="popular">Most popular</option>
+                <option value="price">Highest price</option>
+              </select>
+            </div>
+          </div>
+          <div class="category-track" id="categoryTrack"></div>
+          <div class="fighter-roster" id="fighterRoster" aria-label="Collectible roster"></div>
+        </section>
+      </section>
+
+      <section class="mode-screen" data-screen="loot">
+        <div class="loot-layout">
+          <div class="loot-core">
+            <span class="micro-label dark">Spend site credit (units)</span>
+            <h2>Crystal Roll</h2>
+            <p>One center stage. The crystal and preview ring move together, then reveal a comic-style collectible card.</p>
+            <div class="spin-cost"><input id="spinUnits" type="number" value="50" min="10" step="10" /><span>units</span></div>
+            <button class="primary-action" id="spinButton">Spin Crystal</button>
+          </div>
+          <div class="crystal-stage">
+            <div class="preview-orbit" id="previewOrbit"></div>
+            <div class="crystal-3d" id="crystal3d"><span></span><i></i><b></b></div>
+            <div class="orbit-floor"></div>
+          </div>
+          <div class="unlock-card" id="unlockCard" hidden>
+            <span class="micro-label">Unlocked</span>
+            <img id="unlockImage" src="/images/covers/sonya-blade.png" alt="Unlocked collectible" />
+            <h3 id="unlockName">Sonya Blade</h3>
+            <p id="unlockRarity">Rare collectible added to your shelf.</p>
+            <button id="viewCollection">View in My Collection</button>
+            <button class="ghost-button" id="unlockStudio">Open 3D Studio</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="mode-screen" data-screen="rewards">
+        <div class="reward-page">
+          <div class="reward-poster">
+            <span class="season-pill dark">Monthly Track</span>
+            <h2>Climb the reward line.</h2>
+            <p>Collect more points, enter the monthly ranking, and claim unlocks placed along the track.</p>
+            <div class="ranking-strip"><span>#42 monthly</span><span>230 XP</span><span>2 purchases left</span></div>
+          </div>
+          <div class="reward-track-wrap">
+            <div class="reward-track" id="rewardTrack"></div>
+          </div>
+          <div class="reward-grid" id="rewardGrid"></div>
+        </div>
+      </section>
+
+      <section class="mode-screen" data-screen="collection">
+        <div class="collection-page">
+          <div class="page-title-row">
+            <div><span class="micro-label dark">My Collection</span><h2>Purchased Characters</h2></div>
+            <button class="primary-action" data-mode-shortcut="drop">Back to Drop Room</button>
+          </div>
+          <div class="collection-grid" id="collectionGrid"></div>
+        </div>
+      </section>
+
+      <section class="mode-screen" data-screen="studio">
+        <div class="studio-page">
+          <div class="studio-preview">
+            <span class="micro-label dark">3MF package loaded</span>
+            <img id="studioImage" src="/images/covers/sonya-blade.png" alt="Studio collectible cover" />
+            <h2 id="studioName">Sonya Blade</h2>
+            <p>Color plan only. Parts are treated as printable color groups before real 3MF sublayer parsing is connected.</p>
+          </div>
+          <div class="studio-tools">
+            <h2>Multipart color planner</h2>
+            <p>Choose print colors, then match each part with your filament code.</p>
+            <div id="studioParts" class="studio-parts"></div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="unitDialog" class="unit-dialog">
+    <form method="dialog">
+      <button class="dialog-close">×</button>
+      <span class="micro-label dark">Unit Boost Board</span>
+      <h2>Earn more site credit</h2>
+      <div class="mission-list">
+        <button type="button"><strong>Daily check-in</strong><span>+20 units</span></button>
+        <button type="button"><strong>Upload a make</strong><span>+80 units</span></button>
+        <button type="button"><strong>Tag us on Instagram</strong><span>+120 units</span></button>
+        <button type="button"><strong>Mobile companion app</strong><span>coming soon</span></button>
+        <button type="button"><strong>Finish a Studio color plan</strong><span>+35 units</span></button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/app.js"></script>
+</body>
+</html>
