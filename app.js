@@ -1,250 +1,258 @@
 const products = [
-  { id:'sonya', code:'CP-013', name:'Sonya Blade', series:'MK Arena', category:['View All','MK Arena','90s Arcade'], rarity:'Rare', format:'STL Bundle', price:62, stl:5, popularity:96, date:12, parts:['Hair','Torso','Lower body','Boots'], image:'/images/covers/sonya-blade.png', model:'/models/sonya-blade.glb', desc:'Compact heroic silhouette with multipart print clarity.' },
-  { id:'cammy', code:'CP-021', name:'Cammy SF6', series:'Street Fighters', category:['View All','Street Fighters','90s Arcade'], rarity:'Rare', format:'STL Bundle', price:68, stl:5, popularity:94, date:11, parts:['Head','Body','Gloves','Base'], image:'/images/covers/cammy.png', desc:'Square cover slot with premium collectible energy.' },
-  { id:'johnny', code:'CP-014', name:'Johnny Cage', series:'MK Arena', category:['View All','MK Arena','90s Arcade'], rarity:'Epic', format:'Physical + STL', price:72, stl:5, popularity:90, date:10, parts:['Head','Torso','Arms','Legs'], image:'/images/covers/johnny-cage.png', desc:'Clean action-pose cover with strong shelf presence.' },
-  { id:'ken', code:'CP-017', name:'Ken', series:'Street Fighters', category:['View All','Street Fighters','90s Arcade'], rarity:'Epic', format:'STL Bundle', price:61, stl:5, popularity:89, date:9, parts:['Head','Torso','Pants','Base'], image:'/images/covers/ken.webp', desc:'Arcade fighter energy prepared for product display.' },
-  { id:'guile', code:'CP-019', name:'Guile', series:'Street Fighters', category:['View All','Street Fighters','90s Arcade'], rarity:'Epic', format:'STL Bundle', price:64, stl:5, popularity:86, date:8, parts:['Hair','Torso','Arms','Boots'], image:'/images/covers/guile.webp', desc:'Bold silhouette, square cover, collectible-ready layout.' },
-  { id:'dhalsim', code:'CP-026', name:'Dhalsim', series:'Street Fighters', category:['View All','Street Fighters','90s Arcade'], rarity:'Epic', format:'STL Bundle', price:59, stl:5, popularity:82, date:7, parts:['Head','Body','Accessories','Base'], image:'/images/covers/dhalsim.webp', desc:'Readable multipart zone plan for physical print prep.' },
-  { id:'bison', code:'CP-027', name:'M. Bison', series:'Street Fighters', category:['View All','Street Fighters','90s Arcade'], rarity:'Legendary', format:'Physical Print', price:88, stl:5, popularity:92, date:6, parts:['Cap','Torso','Arms','Boots'], image:'/images/covers/bison.webp', desc:'High-value boss slot with premium drop treatment.' },
-  { id:'dudley', code:'CP-029', name:'Dudley', series:'Street Fighters', category:['View All','Street Fighters'], rarity:'Rare', format:'STL Bundle', price:57, stl:5, popularity:70, date:5, parts:['Hair','Torso','Gloves','Legs'], image:'/images/covers/dudley.webp', desc:'Boutique fighter cover with clean shelf appeal.' },
-  { id:'juri', code:'CP-025', name:'Juri', series:'Street Fighters', category:['View All','Street Fighters'], rarity:'Epic', format:'STL Bundle', price:65, stl:5, popularity:88, date:4, parts:['Head','Torso','Legs','Base'], image:'/images/covers/juri.webp', desc:'Color-heavy fighter slot prepared for print planning.' },
-  { id:'sumo', code:'CP-024', name:'Sumo', series:'90s Arcade', category:['View All','90s Arcade','Street Fighters'], rarity:'Epic', format:'Physical Print', price:70, stl:5, popularity:76, date:3, parts:['Head','Body','Hands','Base'], image:'/images/covers/sumo.webp', desc:'Large character mass with strong product-card potential.' },
-  { id:'gouken', code:'CP-028', name:'Gouken', series:'Street Fighters', category:['View All','Street Fighters','Vault Rares'], rarity:'Legendary', format:'Private Drop', price:95, stl:5, popularity:84, date:2, parts:['Head','Body','Cloth','Base'], image:'/images/covers/gouken.png', desc:'Legendary master slot for premium cover treatment.' },
-  { id:'magik', code:'CP-030', name:'Magik Mock Series', series:'Mock Series', category:['View All','90s Arcade','Vault Rares'], rarity:'Epic', format:'STL Bundle', price:75, stl:5, popularity:79, date:1, parts:['Hair','Body','Accent','Sword'], image:'/images/covers/magik.webp', desc:'Mock-series cover slot with premium collectible energy.' },
-  { id:'beach-01', code:'CP-B01', name:'Beach Power Drop', series:'Beach Theme', category:['View All','Beach Theme'], rarity:'Rare', format:'Coming Soon', price:49, stl:5, popularity:66, date:0, parts:['Head','Body','Base','Accessory'], image:'/images/covers/cammy.png', desc:'Seasonal beach theme placeholder for future product drops.' },
-  { id:'vault-01', code:'CP-V01', name:'Founder Shadow', series:'Vault Rares', category:['View All','Vault Rares'], rarity:'Founder', format:'Not sold', price:120, stl:5, popularity:99, date:0, parts:['Hidden','Hidden','Hidden','Hidden'], image:'/images/covers/gouken.png', desc:'Locked silhouette-style reward character for high loyalty tiers.' }
+  { id: 'sonya', name: 'Sonya Blade', short: 'SONYA\nBLADE', category: 'MK Arena', series: 'MK Arena', code: 'CP-013', rarity: 'Rare', price: 62, stl: 5, popularity: 96, newest: 12, owned: true, image: '/images/covers/sonya-blade.png', model: '/models/sonya-blade.glb', desc: 'Compact heroic silhouette with multipart print clarity.', parts: ['Hair', 'Torso', 'Lower body', 'Boots'] },
+  { id: 'cammy', name: 'Cammy SF6', short: 'CAMMY\nSF6', category: 'Street Fighters', series: 'Street Fighters', code: 'CP-014', rarity: 'Rare', price: 58, stl: 5, popularity: 92, newest: 11, owned: true, image: '/images/covers/cammy.png', desc: 'Fast stance collectible with clean cover-ready attitude.', parts: ['Head', 'Torso', 'Legs', 'Base'] },
+  { id: 'johnny', name: 'Johnny Cage', short: 'JOHNNY\nCAGE', category: 'MK Arena', series: 'MK Arena', code: 'CP-015', rarity: 'Epic', price: 64, stl: 5, popularity: 89, newest: 10, owned: true, image: '/images/covers/johnny-cage.png', desc: 'Movie-star fight pose with premium shelf energy.', parts: ['Head', 'Body', 'Glasses', 'Base'] },
+  { id: 'ken', name: 'Ken', short: 'KEN', category: 'Street Fighters', series: 'Street Fighters', code: 'CP-016', rarity: 'Epic', price: 65, stl: 5, popularity: 87, newest: 9, image: '/images/covers/ken.webp', desc: 'Explosive martial silhouette for arcade shelves.', parts: ['Hair', 'Gi', 'Legs', 'Base'] },
+  { id: 'guile', name: 'Guile', short: 'GUILE', category: 'Street Fighters', series: 'Street Fighters', code: 'CP-017', rarity: 'Epic', price: 61, stl: 5, popularity: 84, newest: 8, image: '/images/covers/guile.webp', desc: 'Classic military shape with bold readable planes.', parts: ['Head', 'Torso', 'Pants', 'Boots'] },
+  { id: 'dhalsim', name: 'Dhalsim', short: 'DHALSIM', category: 'Street Fighters', series: 'Street Fighters', code: 'CP-018', rarity: 'Epic', price: 67, stl: 5, popularity: 78, newest: 7, image: '/images/covers/dhalsim.webp', desc: 'Long-form stylized collectible made for strong silhouettes.', parts: ['Head', 'Torso', 'Arms', 'Base'] },
+  { id: 'bison', name: 'M. Bison', short: 'M.\nBISON', category: 'Street Fighters', series: 'Street Fighters', code: 'CP-019', rarity: 'Legendary', price: 78, stl: 5, popularity: 95, newest: 6, image: '/images/covers/bison.webp', desc: 'Boss-grade poster presence with premium character energy.', parts: ['Head', 'Cape', 'Body', 'Base'] },
+  { id: 'dudley', name: 'Dudley', short: 'DUDLEY', category: 'Street Fighters', series: 'Street Fighters', code: 'CP-020', rarity: 'Rare', price: 59, stl: 5, popularity: 68, newest: 5, image: '/images/covers/dudley.webp', desc: 'Boxing elegance translated into a collectible figure.', parts: ['Head', 'Torso', 'Gloves', 'Legs'] },
+  { id: 'juri', name: 'Juri', short: 'JURI', category: 'Street Fighters', series: 'Street Fighters', code: 'CP-021', rarity: 'Epic', price: 66, stl: 5, popularity: 91, newest: 4, image: '/images/covers/juri.webp', desc: 'High-energy villain pose with strong profile readability.', parts: ['Head', 'Torso', 'Legs', 'Base'] },
+  { id: 'sumo', name: 'Sumo', short: 'SUMO', category: '90s Arcade', series: '90s Arcade', code: 'CP-022', rarity: 'Epic', price: 63, stl: 5, popularity: 71, newest: 3, image: '/images/covers/sumo.webp', desc: 'Chunky arcade power translated into bold print geometry.', parts: ['Head', 'Torso', 'Lower body', 'Base'] },
+  { id: 'gouken', name: 'Gouken', short: 'GOUKEN', category: 'Vault Rares', series: 'Vault Rares', code: 'CP-023', rarity: 'Legendary', price: 84, stl: 5, popularity: 86, newest: 2, image: '/images/covers/gouken.png', desc: 'Rare master figure with heavy shelf presence.', parts: ['Head', 'Torso', 'Hands', 'Base'] },
+  { id: 'magik', name: 'Magik Mockup', short: 'MAGIK', category: 'Vault Rares', series: 'Vault Rares', code: 'CP-024', rarity: 'Epic', price: 72, stl: 5, popularity: 74, newest: 1, image: '/images/covers/magik.webp', desc: 'Premium fantasy drop with cover-first product appeal.', parts: ['Head', 'Body', 'Sword', 'Base'] },
+  { id: 'beach', name: 'Beach Power', short: 'BEACH\nPOWER', category: 'Beach Theme', series: 'Beach Theme', code: 'CP-025', rarity: 'Rare', price: 60, stl: 5, popularity: 77, newest: 13, image: '/images/covers/cammy.png', desc: 'Seasonal beach theme slot for summer collectible drops.', parts: ['Head', 'Body', 'Legs', 'Stand'] },
+  { id: 'founder', name: 'Founder Shadow', short: 'FOUNDER\nSHADOW', category: 'Vault Rares', series: 'Vault Rares', code: 'CP-000', rarity: 'Founder', price: 120, stl: 0, popularity: 99, newest: 14, image: '/images/covers/gouken.png', desc: 'Black silhouette unlock slot for premium loyalty milestones.', parts: ['Secret', 'Locked', 'Reward', 'Vault'] },
 ];
 
 const categories = [
-  { name:'View All', label:'Full shelf' },
-  { name:'90s Arcade', label:'Nostalgia' },
-  { name:'Street Fighters', label:'Fighting game' },
-  { name:'MK Arena', label:'Arena icons' },
-  { name:'Beach Theme', label:'Seasonal' },
-  { name:'Vault Rares', label:'Premium' }
+  { name: 'View All', filter: 'all' },
+  { name: '90s Arcade', filter: '90s Arcade' },
+  { name: 'Street Fighters', filter: 'Street Fighters' },
+  { name: 'MK Arena', filter: 'MK Arena' },
+  { name: 'Beach Theme', filter: 'Beach Theme' },
+  { name: 'Vault Rares', filter: 'Vault Rares' },
 ];
 
-const rewards = [
-  { xp:20, title:'Dudley Gentleman Wallpaper', type:'Wallpaper', status:'Claimed', image:'/images/covers/dudley.webp' },
-  { xp:42, title:'Sonya Blade GIF', type:'GIF', status:'Claimed', image:'/images/covers/sonya-blade.png' },
-  { xp:54, title:'Johnny Cage Silent Sticker', type:'Sticker', status:'Claimed', image:'/images/covers/johnny-cage.png' },
-  { xp:70, title:'Raiden Vault Artwork', type:'Artwork', status:'28 XP left', image:'/images/covers/magik.webp' },
-  { xp:84, title:'Rare Hunter Trophy', type:'Trophy', status:'42 XP left', image:'/images/covers/bison.webp' },
-  { xp:96, title:'Founder Shadow Character', type:'Character Unlock', status:'54 XP left', image:'/images/covers/gouken.png' }
+const rewardNodes = [
+  { xp: 100, name: 'Wallpaper Pack', note: '100 XP', img: '/images/covers/sonya-blade.png', left: 10 },
+  { xp: 180, name: 'Silent Sticker', note: '50 XP left', img: '/images/covers/johnny-cage.png', left: 25 },
+  { xp: 300, name: 'Sonya GIF', note: '70 XP left', img: '/images/covers/sonya-blade.png', left: 43 },
+  { xp: 460, name: 'Artwork Drop', note: '230 XP left', img: '/images/covers/bison.webp', left: 62 },
+  { xp: 700, name: 'Character Unlock', note: '470 XP left', img: '/images/covers/gouken.png', left: 84, locked: true },
 ];
 
 let selected = products[0];
-let activeCategory = 'View All';
-let owned = new Set(['sonya','cammy','johnny']);
-let unitCount = 345;
-let modelOpen = false;
+let activeCategory = 'all';
+let sortMode = 'newest';
+let buyExpanded = false;
+let selectedBuyType = null;
+let physicalSize = '30';
+let cart = 0;
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 
-function rarityClass(rarity) {
-  return String(rarity).toLowerCase().replace(/\s+/g, '-');
-}
-
-function filteredProducts() {
-  const sortValue = $('#sortSelect')?.value || 'newest';
-  let items = products.filter(p => p.category.includes(activeCategory));
-  if (sortValue === 'price') items = items.slice().sort((a,b) => b.price - a.price);
-  if (sortValue === 'popular') items = items.slice().sort((a,b) => b.popularity - a.popularity);
-  if (sortValue === 'newest') items = items.slice().sort((a,b) => b.date - a.date);
-  return items;
-}
-
 function setMode(mode) {
-  $$('.mode-tab').forEach(btn => btn.classList.toggle('is-active', btn.dataset.mode === mode));
-  $$('.mode-screen').forEach(screen => screen.classList.toggle('is-active', screen.dataset.screen === mode));
-  if (mode === 'studio') renderStudio();
-  if (mode === 'collection') renderCollection();
+  $$('.mode-tab').forEach((button) => button.classList.toggle('is-active', button.dataset.mode === mode));
+  $$('.mode-screen').forEach((screen) => screen.classList.toggle('is-active', screen.dataset.screen === mode));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function selectProduct(id) {
-  selected = products.find(p => p.id === id) || products[0];
-  modelOpen = false;
-  updateSelectedUI();
-  renderRoster();
+function sortedProducts() {
+  let list = activeCategory === 'all' ? [...products] : products.filter((product) => product.category === activeCategory);
+  if (activeCategory === 'Street Fighters') {
+    const filler = [];
+    while (list.length + filler.length < 18) {
+      const source = list[(list.length + filler.length) % list.length] || products[0];
+      filler.push({ ...source, id: `${source.id}-alt-${filler.length}`, name: `${source.name} Alt`, short: source.short, isAlt: true });
+    }
+    list = [...list, ...filler];
+  }
+  if (sortMode === 'popular') return list.sort((a, b) => b.popularity - a.popularity);
+  if (sortMode === 'price') return list.sort((a, b) => b.price - a.price);
+  return list.sort((a, b) => b.newest - a.newest);
 }
 
-function updateSelectedUI() {
-  $('#heroImage').src = selected.image;
-  $('#heroImage').alt = `${selected.name} cover`;
-  $('#heroSeries').textContent = selected.series;
-  $('#heroName').textContent = selected.name;
-  $('#heroDesc').textContent = selected.desc;
-  $('#heroCode').textContent = selected.code;
-  $('#heroRarity').textContent = selected.rarity;
-  $('#heroFormat').textContent = selected.format;
-  $('#buyName').textContent = selected.name;
-  $('#buyDesc').textContent = selected.desc;
-  $('#physicalPrice').textContent = `$${selected.price}`;
-  $('#purchaseXp').textContent = `+${Math.max(18, Math.round(selected.price * .45))} XP`;
-  $('#sideRarity').textContent = selected.rarity;
-  $('#sideParts').textContent = selected.parts.length;
-  $('#studioName').textContent = selected.name;
-  $('#studioImage').src = selected.image;
-  const parts = $('#partChips');
-  parts.innerHTML = selected.parts.map(part => `<span>${part}</span>`).join('');
-  const viewer = $('#modelViewer');
-  if (viewer && selected.model) viewer.setAttribute('src', selected.model);
+function setSelected(product) {
+  selected = product;
+  selectedBuyType = null;
+  buyExpanded = false;
   $('#posterStage').hidden = false;
   $('#modelStage').hidden = true;
-  $('#togglePreview').textContent = selected.model ? '3D print preview' : 'No 3D preview yet';
-  $('#togglePreview').disabled = !selected.model;
+  renderSelected();
+  renderRoster();
   renderStudio();
 }
 
+function renderSelected() {
+  $('#heroImage').src = selected.image;
+  $('#heroImage').alt = `${selected.name} cover`;
+  $('#heroName').textContent = selected.name;
+  $('#heroDesc').textContent = selected.desc;
+  $('#heroCategory').textContent = selected.series;
+  $('#sideTitle').innerHTML = selected.short.replace('\n', '<br/>');
+  $('#sideSeries').textContent = selected.series;
+  $('#buyName').textContent = selected.name;
+  $('#buyIntro').textContent = 'Choose a format only when you are ready. Prices and loyalty details expand inside this panel.';
+  $('#modelViewer').src = selected.model || '/models/sonya-blade.glb';
+  renderBuyPanel();
+}
+
+function renderBuyPanel() {
+  $('#buyOptions').hidden = !buyExpanded;
+  $('#stlDetail').hidden = selectedBuyType !== 'stl';
+  $('#physicalDetail').hidden = selectedBuyType !== 'physical';
+  $('#buyConsole').classList.toggle('is-expanded', buyExpanded || selectedBuyType);
+  $$('.choice-button').forEach((button) => button.classList.toggle('is-active', button.dataset.buyType === selectedBuyType));
+  $('#physicalLabel').textContent = `${physicalSize} cm physical`;
+  const priceMap = { '15': 42, '30': selected.price, '40': Math.round(selected.price * 1.55) };
+  $('#physicalPrice').textContent = `$${priceMap[physicalSize]}`;
+  const xpMap = { '15': '+18 XP · wheel progress', '30': '+28 XP · wheel progress · trophy points', '40': '+44 XP · premium trophy · site points' };
+  $('#physicalXp').textContent = xpMap[physicalSize];
+  $$('.size-row button').forEach((button) => button.classList.toggle('is-active', button.dataset.size === physicalSize));
+}
+
 function renderCategories() {
-  const track = $('#categoryTrack');
-  track.innerHTML = categories.map(cat => {
-    const count = products.filter(p => p.category.includes(cat.name)).length;
-    return `<button class="category-tab ${cat.name === activeCategory ? 'is-active' : ''}" data-category="${cat.name}"><strong>${cat.name}</strong><span>${count} slots · ${cat.label}</span></button>`;
-  }).join('');
-  track.querySelectorAll('[data-category]').forEach(btn => btn.addEventListener('click', () => {
-    activeCategory = btn.dataset.category;
-    $('#categoryTitle').textContent = activeCategory;
-    const count = products.filter(p => p.category.includes(activeCategory)).length;
-    $('#categoryMeta').textContent = activeCategory === 'View All' ? `Full playable shelf · ${count} active covers` : `${count} square cover slots`;
+  $('#categoryTrack').innerHTML = categories.map((cat) => `
+    <button class="category-card ${activeCategory === cat.filter ? 'is-active' : ''}" data-category="${cat.filter}">
+      <strong>${cat.name}</strong>
+      <span>${cat.filter === 'all' ? products.length : products.filter((p) => p.category === cat.filter).length} slots</span>
+    </button>
+  `).join('');
+  $$('.category-card').forEach((button) => button.addEventListener('click', () => {
+    activeCategory = button.dataset.category;
+    $('#categoryTitle').textContent = categories.find((c) => c.filter === activeCategory)?.name || 'View All';
     renderCategories();
     renderRoster();
   }));
 }
 
 function renderRoster() {
-  const roster = $('#fighterRoster');
-  const items = filteredProducts();
-  roster.innerHTML = items.map(p => `
-    <button class="roster-tile ${p.id === selected.id ? 'is-active' : ''}" data-product="${p.id}" title="${p.name}">
-      <img src="${p.image}" alt="${p.name}" loading="lazy" />
-      <span class="rarity-flag">${p.rarity}</span>
-      <b>${p.name}</b>
+  const list = sortedProducts();
+  $('#fighterRoster').innerHTML = list.map((product) => `
+    <button class="roster-tile ${selected.id === product.id ? 'is-active' : ''}" data-id="${product.id}">
+      <span class="rarity-flag">${product.rarity}</span>
+      <img src="${product.image}" alt="${product.name}" />
+      <b>${product.name}</b>
     </button>
   `).join('');
-  roster.querySelectorAll('[data-product]').forEach(btn => btn.addEventListener('click', () => selectProduct(btn.dataset.product)));
+  $$('.roster-tile').forEach((tile) => tile.addEventListener('click', () => {
+    const product = sortedProducts().find((p) => p.id === tile.dataset.id) || products.find((p) => p.id === tile.dataset.id.split('-alt')[0]);
+    if (product) setSelected(product);
+  }));
 }
 
 function renderOrbit() {
   const orbit = $('#previewOrbit');
-  const items = products.slice(0, 8);
-  orbit.innerHTML = items.map((p, i) => {
-    const angle = (360 / items.length) * i;
-    const radius = 46;
-    const x = 50 + Math.cos((angle - 90) * Math.PI / 180) * radius;
-    const y = 50 + Math.sin((angle - 90) * Math.PI / 180) * radius;
-    return `<div class="orbit-card" style="left:${x}%;top:${y}%"><img src="${p.image}" alt="${p.name}" /></div>`;
+  const ringProducts = products.slice(0, 8);
+  orbit.innerHTML = ringProducts.map((product, index) => {
+    const angle = (index / ringProducts.length) * Math.PI * 2;
+    const x = 50 + Math.cos(angle) * 42;
+    const y = 50 + Math.sin(angle) * 42;
+    return `<div class="orbit-card" style="left:${x}%; top:${y}%"><img src="${product.image}" alt="${product.name}" /></div>`;
   }).join('');
-}
-
-function spinCrystal() {
-  const orbit = $('#previewOrbit');
-  const crystal = $('#crystal3d');
-  const cost = Number($('#spinUnits').value || 50);
-  unitCount = Math.max(0, unitCount - cost);
-  updateUnits();
-  orbit.classList.add('is-spinning');
-  crystal.style.animationDuration = '.55s';
-  $('#unlockCard').hidden = true;
-  setTimeout(() => {
-    orbit.classList.remove('is-spinning');
-    crystal.style.animationDuration = '3.2s';
-    const prize = products[Math.floor(Math.random() * Math.min(products.length, 10))];
-    selected = prize;
-    owned.add(prize.id);
-    updateSelectedUI();
-    renderRoster();
-    renderUnlock(prize);
-    updateOwnedCount();
-  }, 2100);
-}
-
-function renderUnlock(prize) {
-  $('#unlockImage').src = prize.image;
-  $('#unlockName').textContent = prize.name;
-  $('#unlockRarity').textContent = `${prize.rarity} collectible added to My Collection.`;
-  $('#unlockCard').hidden = false;
 }
 
 function renderRewards() {
-  const xp = 42;
-  const track = $('#rewardTrack');
-  track.innerHTML = rewards.map((r, i) => {
-    const pos = 7 + i * (86 / (rewards.length - 1));
-    const claimed = xp >= r.xp;
-    return `<button class="reward-node ${claimed ? 'claimed' : 'locked'}" style="left:${pos}%" title="${r.title} · ${Math.max(0, r.xp - xp)} XP left"><b>${claimed ? 'Claimed' : r.xp + ' XP'}</b><img src="${r.image}" alt="${r.title}" /><small>${r.type}</small></button>`;
-  }).join('');
-  $('#rewardGrid').innerHTML = rewards.map(r => {
-    const left = Math.max(0, r.xp - xp);
-    const purchases = left === 0 ? 'In vault' : `${Math.max(1, Math.ceil(left / 28))} more purchase${Math.ceil(left / 28) > 1 ? 's' : ''}`;
-    return `<article class="reward-card"><img src="${r.image}" alt="${r.title}" /><div><h3>${r.title}</h3><p>${left === 0 ? 'Unlocked' : `${left} XP left · ${purchases}`}</p></div></article>`;
-  }).join('');
+  $('#rewardTrack').innerHTML = rewardNodes.map((reward) => `
+    <button class="reward-node ${reward.locked ? 'locked' : ''}" style="left:${reward.left}%" title="${reward.name}">
+      <b>${reward.xp} XP</b>
+      <img src="${reward.img}" alt="${reward.name}" />
+      <small>${reward.note}</small>
+    </button>
+  `).join('');
 }
 
 function renderCollection() {
-  const grid = $('#collectionGrid');
-  grid.innerHTML = products.map(p => {
-    const isOwned = owned.has(p.id);
-    return `<button class="collection-card ${isOwned ? '' : 'is-locked'}" data-collection="${p.id}"><img src="${p.image}" alt="${p.name}" /><h3>${p.name}</h3><p>${isOwned ? 'Purchased character' : 'Locked · view drop'}</p></button>`;
-  }).join('');
-  grid.querySelectorAll('[data-collection]').forEach(btn => btn.addEventListener('click', () => {
-    selectProduct(btn.dataset.collection);
-    setMode('drop');
+  $('#collectionGrid').innerHTML = products.map((product) => `
+    <button class="collection-card ${product.owned ? '' : 'is-locked'}" data-id="${product.id}">
+      <img src="${product.image}" alt="${product.name}" />
+      <h3>${product.name}</h3>
+      <p>${product.owned ? 'Purchased character' : 'Locked preview'}</p>
+    </button>
+  `).join('');
+  $$('.collection-card').forEach((card) => card.addEventListener('click', () => {
+    const product = products.find((p) => p.id === card.dataset.id);
+    if (product) { setSelected(product); setMode('drop'); }
   }));
 }
 
 function renderStudio() {
-  const parts = $('#studioParts');
-  if (!parts) return;
-  parts.innerHTML = selected.parts.map((part, index) => {
-    const colors = ['#d9b472', '#2f4f3c', '#101820', '#f3efe1', '#6f50ff'];
-    return `<div class="part-row"><strong>${part}</strong><input type="color" value="${colors[index % colors.length]}" aria-label="${part} color" /><input type="text" placeholder="Enter filament code" value="" /></div>`;
-  }).join('');
+  $('#studioImage').src = selected.image;
+  $('#studioName').textContent = selected.name;
+  $('#studioParts').innerHTML = selected.parts.map((part, index) => `
+    <div class="part-row">
+      <strong>${part}</strong>
+      <input type="color" value="${['#d9c59b', '#556246', '#181e25', '#2f2a25'][index % 4]}" />
+      <input type="text" placeholder="Enter your filament code" />
+    </div>
+  `).join('');
 }
 
-function updateUnits() {
-  $('#unitCount').textContent = unitCount;
-  $('#sideUnits').textContent = unitCount;
-}
-function updateOwnedCount() {
-  $('#ownedCount').textContent = owned.size;
+function showToast(title, message) {
+  $('#toastTitle').textContent = title;
+  $('#toastMessage').textContent = message;
+  $('#toast').hidden = false;
+  $('#toast').classList.add('is-visible');
+  setTimeout(() => {
+    $('#toast').classList.remove('is-visible');
+    setTimeout(() => { $('#toast').hidden = true; }, 250);
+  }, 3300);
 }
 
 function init() {
+  renderSelected();
   renderCategories();
   renderRoster();
   renderOrbit();
   renderRewards();
   renderCollection();
-  updateSelectedUI();
-  updateUnits();
-  updateOwnedCount();
+  renderStudio();
 
-  $$('.mode-tab').forEach(btn => btn.addEventListener('click', () => setMode(btn.dataset.mode)));
-  $$('[data-mode-shortcut]').forEach(btn => btn.addEventListener('click', () => setMode(btn.dataset.modeShortcut)));
-  $('#sortSelect').addEventListener('change', renderRoster);
-  $('#spinButton').addEventListener('click', spinCrystal);
+  $$('.mode-tab').forEach((button) => button.addEventListener('click', () => setMode(button.dataset.mode)));
+  $$('[data-mode-shortcut]').forEach((button) => button.addEventListener('click', () => setMode(button.dataset.modeShortcut)));
+
+  $('#sortSelect').addEventListener('change', (event) => { sortMode = event.target.value; renderRoster(); });
+
+  $('#togglePreview').addEventListener('click', () => {
+    $('#posterStage').hidden = true;
+    $('#modelStage').hidden = false;
+  });
+  $('#closePreview').addEventListener('click', () => {
+    $('#posterStage').hidden = false;
+    $('#modelStage').hidden = true;
+  });
+
+  $('#buyMainButton').addEventListener('click', () => {
+    buyExpanded = !buyExpanded;
+    if (!buyExpanded) selectedBuyType = null;
+    renderBuyPanel();
+  });
+  $$('.choice-button').forEach((button) => button.addEventListener('click', () => {
+    selectedBuyType = button.dataset.buyType;
+    buyExpanded = true;
+    renderBuyPanel();
+  }));
+  $$('.size-row button').forEach((button) => button.addEventListener('click', () => {
+    physicalSize = button.dataset.size;
+    renderBuyPanel();
+  }));
+  $$('[data-complete]').forEach((button) => button.addEventListener('click', () => {
+    cart += 1;
+    $('#cartCount').textContent = cart;
+    const type = button.dataset.complete === 'stl' ? 'STL file' : `${physicalSize} cm physical product`;
+    showToast('Purchase flow started', `${selected.name} ${type} will be available through your profile after checkout.`);
+  }));
+
+  $('#unitsButton').addEventListener('click', () => $('#unitDialog').showModal());
+  $('#spinButton').addEventListener('click', () => {
+    $('#previewOrbit').classList.add('is-spinning');
+    $('#crystal3d').classList.add('is-spinning');
+    $('#unlockCard').hidden = true;
+    setTimeout(() => {
+      $('#previewOrbit').classList.remove('is-spinning');
+      $('#crystal3d').classList.remove('is-spinning');
+      const product = products[Math.floor(Math.random() * products.length)];
+      $('#unlockImage').src = product.image;
+      $('#unlockName').textContent = product.name;
+      $('#unlockRarity').textContent = `${product.rarity} collectible added to your shelf.`;
+      $('#unlockCard').hidden = false;
+      selected = product;
+    }, 1700);
+  });
   $('#viewCollection').addEventListener('click', () => setMode('collection'));
   $('#unlockStudio').addEventListener('click', () => setMode('studio'));
-  $('#togglePreview').addEventListener('click', () => {
-    if (!selected.model) return;
-    modelOpen = !modelOpen;
-    $('#posterStage').hidden = modelOpen;
-    $('#modelStage').hidden = !modelOpen;
-    $('#togglePreview').textContent = modelOpen ? 'Show cover image' : '3D print preview';
-  });
-  $$('.size-tabs button').forEach(btn => btn.addEventListener('click', () => {
-    $$('.size-tabs button').forEach(b => b.classList.remove('is-active'));
-    btn.classList.add('is-active');
-    const base = selected.price;
-    const mult = btn.dataset.size === '15' ? .72 : btn.dataset.size === '40' ? 1.42 : 1;
-    $('#physicalPrice').textContent = `$${Math.round(base * mult)}`;
-  }));
-  const dialog = $('#unitDialog');
-  $('#unitsButton').addEventListener('click', () => dialog.showModal());
-  $('#openUnitBoard').addEventListener('click', () => dialog.showModal());
-  $('#missionCard').addEventListener('click', () => dialog.showModal());
 }
 
-document.addEventListener('DOMContentLoaded', init);
+init();

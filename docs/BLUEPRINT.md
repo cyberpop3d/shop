@@ -1,8 +1,10 @@
-# V18 UI Direction
+# CyberPop Shop UI Direction
 
-- Fighting-game inspired single-character product select screen.
-- All character previews and covers are square.
-- Selected character information, purchase choices, rarity, STL/physical options, and studio actions are grouped around the selected character instead of scattered around the page.
-- Rewards use a compact poster + progress bar checkpoint layout, not long text panels.
-- Loot uses one central crystal-and-roster scene. The unlock result can jump into My Collection or 3D Studio.
-- Static/no-dependency deploy path to avoid Vercel install delays.
+This version uses a fighting-game-inspired single-character selection layout.
+
+- Square product cover first.
+- 3D preview opens only on demand.
+- BUY is collapsed until the user chooses STL FILE or PHYSICAL PRODUCT.
+- Physical size and loyalty details appear only after physical is selected.
+- Character roster uses square cover portraits only.
+- Units, rewards and missions are outside the hero purchase flow.
