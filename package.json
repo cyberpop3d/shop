@@ -1,7 +1,0 @@
-{
-  "scripts": {
-    "build": "echo Static CyberPop prototype ready"
-  },
-  "dependencies": {},
-  "devDependencies": {}
-}

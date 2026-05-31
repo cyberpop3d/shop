@@ -1,6 +1,8 @@
 {
   "version": 2,
-  "installCommand": "echo No dependencies to install",
-  "buildCommand": "echo Static build ready",
-  "outputDirectory": "public"
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" }
+  ]
 }

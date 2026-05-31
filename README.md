@@ -1,5 +1,7 @@
-# CyberPop Shop Static Prototype V18
+# CyberPop Shop Static Prototype
 
-Static, dependency-free prototype for Vercel. The UI is organized around a single-character fighting-game style select screen with square cover images, integrated product actions, loot, rewards, collection, and 3D studio flows.
+Root-static deployment package.
 
-Deploy note: this version intentionally has no React/Next dependency. Vercel should skip dependency installation and serve the `public` directory.
+Important: This package intentionally has no `package.json`, no Next.js files, no build step, and no `/public` output folder requirement. Upload the files directly to the repository root.
+
+For Vercel, set Framework Preset to **Other** if it keeps detecting Next.js from previous deploys.
