@@ -307,28 +307,51 @@ function GLBFigure({ product, big = false, studioColors }) {
     };
   }, [studioColors, product.id]);
 
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer) return;
+
+    let frame = 0;
+    const startedAt = performance.now();
+    const orbitDistance = big ? "3.05m" : "3.35m";
+
+    const rotateCamera = (now) => {
+      const degrees = ((now - startedAt) / 36) % 360;
+      viewer.cameraOrbit = `${degrees}deg 70deg ${orbitDistance}`;
+      viewer.jumpCameraToGoal?.();
+      frame = window.requestAnimationFrame(rotateCamera);
+    };
+
+    frame = window.requestAnimationFrame(rotateCamera);
+    return () => window.cancelAnimationFrame(frame);
+  }, [product.id, big]);
+
   return (
     <div className={cx("figureWrap glbFigureWrap", big && "figureBig")} style={{ "--glow": product.glow }}>
       <div className="orbit orbitOne" />
       <div className="orbit orbitTwo" />
       <div className="shadowBlob" />
-      {product.previewSrc && <img className="glbStaticPreview" src={product.previewSrc} alt="" aria-hidden="true" />}
       <model-viewer
         ref={viewerRef}
         className={cx("glbViewer", big && "glbViewerBig")}
         src={product.modelSrc}
+        poster={product.previewSrc || undefined}
         alt={`${product.name} 3D preview`}
         camera-controls
+        disable-zoom
         auto-rotate
-        rotation-per-second="22deg"
+        auto-rotate-delay="0"
+        rotation-per-second="32deg"
         interaction-prompt="none"
-        shadow-intensity="0.75"
+        shadow-intensity="0.78"
         exposure="1"
         environment-image="neutral"
-        camera-orbit="0deg 72deg 2.8m"
-        field-of-view="30deg"
+        camera-orbit="0deg 70deg 3.2m"
+        field-of-view="29deg"
+        loading="eager"
+        reveal="auto"
       >
-        <div className="modelFallback">Loading 3D preview...</div>
+        <div className="modelFallback">Loading Sonya GLB...</div>
       </model-viewer>
       <div className="liveModelBadge">Live GLB</div>
     </div>
@@ -548,6 +571,8 @@ function Lobby({ selected, setSelected, selectedSize, setSelectedSize, loyaltyXp
 
 function Profile({ profile, setProfile, ownedIds, setOwnedIds, selected, setSelected, setMode }) {
   const owned = products.filter((item) => ownedIds.includes(item.id));
+  const locked = products.filter((item) => !ownedIds.includes(item.id));
+  const inventoryList = [...owned, ...locked];
   const [card, setCard] = useState(selected);
 
   return (
@@ -566,11 +591,11 @@ function Profile({ profile, setProfile, ownedIds, setOwnedIds, selected, setSele
 
       <div className="inventory panelGlass">
         <div className="sectionHead">
-          <div><div className="eyebrow">Symbolic inventory</div><h2>Character shelf</h2></div>
+          <div><div className="eyebrow">My collection</div><h2>Purchased characters</h2><p className="inventorySubline">Unlocked characters from checkout, drops, and loyalty rewards appear here first.</p></div>
           <button className="textButton" onClick={() => setOwnedIds(products.map((p) => p.id))}>Demo unlock all</button>
         </div>
         <div className="inventoryGrid">
-          {products.map((item) => {
+          {inventoryList.map((item) => {
             const owned = ownedIds.includes(item.id);
             return (
               <button key={item.id} className={cx("inventoryTile", owned ? "owned" : "locked")} onClick={() => { setCard(item); setSelected(item); }}>
@@ -645,7 +670,7 @@ function Studio({ selected }) {
   );
 }
 
-function Loot({ siteCredit, setSiteCredit, setSelected, ownedIds, setOwnedIds, triggerRare }) {
+function Loot({ siteCredit, setSiteCredit, setSelected, ownedIds, setOwnedIds, triggerRare, setMode }) {
   const [spinning, setSpinning] = useState(false);
   const [spinIndex, setSpinIndex] = useState(3);
   const [result, setResult] = useState(null);
@@ -742,7 +767,15 @@ function Loot({ siteCredit, setSiteCredit, setSelected, ownedIds, setOwnedIds, t
             <div className="posterFoil" />
             <div className="posterRarity"><span>{result.rarity}</span><b>{result.code}</b></div>
             <div className="posterFigure"><ProductFigure product={result} big /></div>
-            <div className="posterCopy"><small>Character unlocked</small><h3>{result.name}</h3><p>Added to symbolic inventory</p></div>
+            <div className="posterCopy">
+              <small>Character unlocked</small>
+              <h3>{result.name}</h3>
+              <p>Added to My Collection · purchased characters shelf</p>
+              <div className="posterActions">
+                <Button variant="gold" onClick={() => { setSelected(result); setMode("Profile"); }}>View in My Collection</Button>
+                <Button variant="light" onClick={() => { setSelected(result); setMode("3D Studio"); }}>Open 3D Studio</Button>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -1002,7 +1035,7 @@ export default function CyberPopShop() {
       {mode === "Lobby" && <Lobby selected={selected} setSelected={setSelected} selectedSize={selectedSize} setSelectedSize={setSelectedSize} loyaltyXp={loyaltyXp} onPurchasePreview={purchasePreview} onOpenStudio={() => setMode("3D Studio")} setMode={setMode} setCreditDrawerOpen={setCreditDrawerOpen} />}
       {mode === "Profile" && <Profile profile={profile} setProfile={setProfile} ownedIds={ownedIds} setOwnedIds={setOwnedIds} selected={selected} setSelected={setSelected} setMode={setMode} />}
       {mode === "3D Studio" && <Studio selected={selected} />}
-      {mode === "Loot" && <Loot siteCredit={siteCredit} setSiteCredit={setSiteCredit} setSelected={setSelected} ownedIds={ownedIds} setOwnedIds={setOwnedIds} triggerRare={setRareItem} />}
+      {mode === "Loot" && <Loot siteCredit={siteCredit} setSiteCredit={setSiteCredit} setSelected={setSelected} ownedIds={ownedIds} setOwnedIds={setOwnedIds} triggerRare={setRareItem} setMode={setMode} />}
       {mode === "Mini Game" && <MiniGame />}
       {mode === "Rewards" && <Rewards loyaltyXp={loyaltyXp} />}
 

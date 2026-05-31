@@ -1036,3 +1036,47 @@ body {
   .engagementStack { grid-template-columns: 1fr; }
 }
 @keyframes crystalSpin { from { transform: rotateY(0deg) rotateX(-8deg); } to { transform: rotateY(360deg) rotateX(-8deg); } }
+
+/* v13: GLB preview cleanup + collection handoff */
+.glbFigureWrap .glbStaticPreview { display: none !important; }
+.glbFigureWrap model-viewer {
+  --poster-color: transparent;
+  background: transparent;
+  cursor: grab;
+}
+.glbFigureWrap model-viewer:active { cursor: grabbing; }
+.glbFigureWrap model-viewer::part(default-progress-bar) { display: none; }
+.inventorySubline {
+  margin: 6px 0 0;
+  max-width: 560px;
+  color: rgba(7,16,24,.50);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+.posterActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+.posterActions .btn {
+  min-height: 42px;
+  padding: 10px 14px;
+  font-size: 12px;
+}
+.lootPosterReveal .posterCopy {
+  pointer-events: auto;
+}
+.lootPosterReveal {
+  cursor: default;
+}
+.inventoryTile.owned {
+  box-shadow: 0 18px 50px rgba(91,207,255,.13), inset 0 1px 0 rgba(255,255,255,.72);
+}
+.inventoryTile.locked {
+  opacity: .62;
+}
+.inventoryTile.locked .figureWrap {
+  filter: grayscale(.9) brightness(.92);
+}
