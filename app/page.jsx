@@ -154,27 +154,339 @@ const products = [
       { name: "Energy Core", sublayer: "OBJ_core_03", color: "#7bdcff", filament: "PLA-CYAN-NEON" },
       { name: "Base", sublayer: "OBJ_base_04", color: "#ffd97a", filament: "PLA-GOLD-02" }
     ]
+  },
+  {
+    id: "ryu-classic",
+    code: "CP-014",
+    name: "Ryu Classic",
+    short: "Ryu",
+    poster: "RYU",
+    rarity: "Epic",
+    rarityClass: "epic",
+    category: "Street Fighters",
+    status: "Roster concept",
+    digitalPrice: 5,
+    sizePrices: { 15: 38, 30: 68, 40: 104 },
+    creditValue: 250,
+    loyaltyGain: 32,
+    palette: ["#f4c7a0", "#f2f2ef", "#d6403f", "#211d1d"],
+    glow: "#ff5d5d",
+    line: "Classic arcade fighter slot prepared for portfolio model data.",
+    printNote: "Headband / torso / gloves / pants listed as future printable color groups.",
+    parts: [
+      { name: "Head", sublayer: "OBJ_head_01", color: "#f4c7a0", filament: "PLA-SKIN-02" },
+      { name: "Gi", sublayer: "OBJ_gi_02", color: "#f2f2ef", filament: "PLA-WHITE-01" },
+      { name: "Headband", sublayer: "OBJ_band_03", color: "#d6403f", filament: "PLA-RED-04" },
+      { name: "Gloves", sublayer: "OBJ_gloves_04", color: "#211d1d", filament: "PLA-BLACK-01" }
+    ]
+  },
+  {
+    id: "ken-retro",
+    code: "CP-015",
+    name: "Ken Retro",
+    short: "Ken",
+    poster: "KEN",
+    rarity: "Rare",
+    rarityClass: "rare",
+    category: "Street Fighters",
+    status: "Roster concept",
+    digitalPrice: 5,
+    sizePrices: { 15: 36, 30: 66, 40: 101 },
+    creditValue: 220,
+    loyaltyGain: 30,
+    palette: ["#ffd080", "#e9433f", "#f6f0dc", "#191923"],
+    glow: "#ff9d45",
+    line: "Fast action shelf figure slot with bold color blocking.",
+    printNote: "Hair / torso / pants / gloves are ready as planned color sections.",
+    parts: [
+      { name: "Hair", sublayer: "OBJ_hair_01", color: "#ffd080", filament: "PLA-BLONDE-02" },
+      { name: "Torso", sublayer: "OBJ_torso_02", color: "#e9433f", filament: "PLA-RED-05" },
+      { name: "Pants", sublayer: "OBJ_pants_03", color: "#f6f0dc", filament: "PLA-CREAM-01" },
+      { name: "Gloves", sublayer: "OBJ_gloves_04", color: "#191923", filament: "PLA-BLACK-01" }
+    ]
+  },
+  {
+    id: "chun-arcade",
+    code: "CP-016",
+    name: "Chun Arcade",
+    short: "Chun",
+    poster: "CHUN",
+    rarity: "Epic",
+    rarityClass: "epic",
+    category: "Street Fighters",
+    status: "Roster concept",
+    digitalPrice: 5,
+    sizePrices: { 15: 40, 30: 72, 40: 112 },
+    creditValue: 310,
+    loyaltyGain: 38,
+    palette: ["#ffd5a6", "#2859d6", "#f7f8ff", "#151a29"],
+    glow: "#527cff",
+    line: "Arcade heroine roster slot with premium collectible staging.",
+    printNote: "Hair buns / torso / boots / base planned for multipart color decisions.",
+    parts: [
+      { name: "Head", sublayer: "OBJ_head_01", color: "#ffd5a6", filament: "PLA-SKIN-03" },
+      { name: "Dress", sublayer: "OBJ_body_02", color: "#2859d6", filament: "PLA-BLUE-07" },
+      { name: "Boots", sublayer: "OBJ_boots_03", color: "#f7f8ff", filament: "PLA-WHITE-01" },
+      { name: "Hair", sublayer: "OBJ_hair_04", color: "#151a29", filament: "PLA-BLACK-02" }
+    ]
+  },
+  {
+    id: "guile-shelf",
+    code: "CP-017",
+    name: "Guile Shelf",
+    short: "Guile",
+    poster: "GUILE",
+    rarity: "Rare",
+    rarityClass: "rare",
+    category: "Street Fighters",
+    status: "Roster concept",
+    digitalPrice: 5,
+    sizePrices: { 15: 37, 30: 67, 40: 103 },
+    creditValue: 240,
+    loyaltyGain: 31,
+    palette: ["#e8c18a", "#f4d071", "#455942", "#171a1f"],
+    glow: "#f0d560",
+    line: "Compact military-inspired display figure slot.",
+    printNote: "Hair / shirt / pants / boots tracked as future 3MF sublayers.",
+    parts: [
+      { name: "Hair", sublayer: "OBJ_hair_01", color: "#f4d071", filament: "PLA-BLONDE-03" },
+      { name: "Skin", sublayer: "OBJ_skin_02", color: "#e8c18a", filament: "PLA-SKIN-02" },
+      { name: "Pants", sublayer: "OBJ_pants_03", color: "#455942", filament: "PLA-OLIVE-04" },
+      { name: "Boots", sublayer: "OBJ_boots_04", color: "#171a1f", filament: "PLA-BLACK-01" }
+    ]
+  },
+  {
+    id: "blanka-burst",
+    code: "CP-018",
+    name: "Blanka Burst",
+    short: "Blanka",
+    poster: "BLANKA",
+    rarity: "Legendary",
+    rarityClass: "legendary",
+    category: "Street Fighters",
+    status: "Roster concept",
+    digitalPrice: 5,
+    sizePrices: { 15: 44, 30: 82, 40: 128 },
+    creditValue: 520,
+    loyaltyGain: 52,
+    palette: ["#63d64d", "#ff8c32", "#f5d28a", "#112219"],
+    glow: "#6eff48",
+    line: "Electric wild-card slot for rare roster moments.",
+    printNote: "Hair / body / wrist bands / base planned as bold printable zones.",
+    parts: [
+      { name: "Body", sublayer: "OBJ_body_01", color: "#63d64d", filament: "PLA-GREEN-06" },
+      { name: "Hair", sublayer: "OBJ_hair_02", color: "#ff8c32", filament: "PLA-ORANGE-04" },
+      { name: "Bands", sublayer: "OBJ_bands_03", color: "#f5d28a", filament: "PLA-YELLOW-02" },
+      { name: "Base", sublayer: "OBJ_base_04", color: "#112219", filament: "PLA-DARK-GREEN" }
+    ]
+  },
+  {
+    id: "vega-mask",
+    code: "CP-019",
+    name: "Vega Mask",
+    short: "Vega",
+    poster: "VEGA",
+    rarity: "Epic",
+    rarityClass: "epic",
+    category: "Street Fighters",
+    status: "Roster concept",
+    digitalPrice: 5,
+    sizePrices: { 15: 41, 30: 75, 40: 118 },
+    creditValue: 330,
+    loyaltyGain: 40,
+    palette: ["#f4caa2", "#f5f2e9", "#7a4fe8", "#151724"],
+    glow: "#a66cff",
+    line: "Masked display figure slot with clean premium silhouette.",
+    printNote: "Mask / hair / torso / base listed as planned 3MF objects.",
+    parts: [
+      { name: "Skin", sublayer: "OBJ_skin_01", color: "#f4caa2", filament: "PLA-SKIN-03" },
+      { name: "Mask", sublayer: "OBJ_mask_02", color: "#f5f2e9", filament: "PLA-WHITE-02" },
+      { name: "Sash", sublayer: "OBJ_sash_03", color: "#7a4fe8", filament: "PLA-PURPLE-04" },
+      { name: "Base", sublayer: "OBJ_base_04", color: "#151724", filament: "PLA-BLACK-01" }
+    ]
+  },
+  {
+    id: "balrog-boxer",
+    code: "CP-020",
+    name: "Balrog Boxer",
+    short: "Balrog",
+    poster: "BALROG",
+    rarity: "Rare",
+    rarityClass: "rare",
+    category: "Street Fighters",
+    status: "Roster concept",
+    digitalPrice: 5,
+    sizePrices: { 15: 38, 30: 70, 40: 110 },
+    creditValue: 260,
+    loyaltyGain: 34,
+    palette: ["#6b3b26", "#2e6fff", "#d83b36", "#f9f4e4"],
+    glow: "#3f82ff",
+    line: "Boxing shelf figure slot with chunky multipart logic.",
+    printNote: "Head / shorts / gloves / shoes ready for studio color assignment.",
+    parts: [
+      { name: "Head", sublayer: "OBJ_head_01", color: "#6b3b26", filament: "PLA-BROWN-04" },
+      { name: "Shorts", sublayer: "OBJ_shorts_02", color: "#2e6fff", filament: "PLA-BLUE-08" },
+      { name: "Gloves", sublayer: "OBJ_gloves_03", color: "#d83b36", filament: "PLA-RED-06" },
+      { name: "Shoes", sublayer: "OBJ_shoes_04", color: "#f9f4e4", filament: "PLA-CREAM-01" }
+    ]
+  },
+  {
+    id: "akuma-shadow",
+    code: "CP-022",
+    name: "Akuma Shadow",
+    short: "Akuma",
+    poster: "AKUMA",
+    rarity: "Legendary",
+    rarityClass: "legendary",
+    category: "Street Fighters",
+    status: "Roster concept",
+    digitalPrice: 5,
+    sizePrices: { 15: 49, 30: 89, 40: 140 },
+    creditValue: 720,
+    loyaltyGain: 62,
+    palette: ["#c74842", "#26202b", "#ff7838", "#0c1016"],
+    glow: "#ff5a3b",
+    line: "High-level shadow slot for rare poster-card reveals.",
+    printNote: "Hair / gi / beads / base planned as printable color zones.",
+    parts: [
+      { name: "Hair", sublayer: "OBJ_hair_01", color: "#c74842", filament: "PLA-RED-07" },
+      { name: "Gi", sublayer: "OBJ_gi_02", color: "#26202b", filament: "PLA-GRAPHITE" },
+      { name: "Core", sublayer: "OBJ_core_03", color: "#ff7838", filament: "PLA-ORANGE-05" },
+      { name: "Base", sublayer: "OBJ_base_04", color: "#0c1016", filament: "PLA-BLACK-01" }
+    ]
+  },
+  {
+    id: "bison-summer",
+    code: "CP-023",
+    name: "Bison Summer",
+    short: "Bison",
+    poster: "BISON",
+    rarity: "Epic",
+    rarityClass: "epic",
+    category: "Beach Theme",
+    status: "Roster concept",
+    digitalPrice: 5,
+    sizePrices: { 15: 43, 30: 79, 40: 124 },
+    creditValue: 360,
+    loyaltyGain: 44,
+    palette: ["#f0c096", "#ff4f6d", "#fff0b3", "#1b2131"],
+    glow: "#ff5f85",
+    line: "Summer boss concept slot with clean multipart blocks.",
+    printNote: "Hat / torso / shorts / sandals planned for color mapping.",
+    parts: [
+      { name: "Skin", sublayer: "OBJ_skin_01", color: "#f0c096", filament: "PLA-SKIN-02" },
+      { name: "Top", sublayer: "OBJ_top_02", color: "#ff4f6d", filament: "PLA-PINK-05" },
+      { name: "Trim", sublayer: "OBJ_trim_03", color: "#fff0b3", filament: "PLA-YELLOW-02" },
+      { name: "Base", sublayer: "OBJ_base_04", color: "#1b2131", filament: "PLA-NAVY-06" }
+    ]
+  },
+  {
+    id: "sakura-club",
+    code: "CP-024",
+    name: "Sakura Club",
+    short: "Sakura",
+    poster: "SAKURA",
+    rarity: "Rare",
+    rarityClass: "rare",
+    category: "Street Fighters",
+    status: "Roster concept",
+    digitalPrice: 5,
+    sizePrices: { 15: 34, 30: 63, 40: 98 },
+    creditValue: 200,
+    loyaltyGain: 27,
+    palette: ["#f7c7a0", "#ffffff", "#2c5bd8", "#e95b75"],
+    glow: "#ff77a0",
+    line: "Club roster slot with bright collectible energy.",
+    printNote: "Head / uniform / skirt / shoes prepared as future color groups.",
+    parts: [
+      { name: "Head", sublayer: "OBJ_head_01", color: "#f7c7a0", filament: "PLA-SKIN-03" },
+      { name: "Top", sublayer: "OBJ_top_02", color: "#ffffff", filament: "PLA-WHITE-01" },
+      { name: "Skirt", sublayer: "OBJ_skirt_03", color: "#2c5bd8", filament: "PLA-BLUE-08" },
+      { name: "Trim", sublayer: "OBJ_trim_04", color: "#e95b75", filament: "PLA-PINK-04" }
+    ]
+  },
+  {
+    id: "dee-jay-beach",
+    code: "CP-025",
+    name: "Dee Jay Beach",
+    short: "Dee Jay",
+    poster: "DEEJAY",
+    rarity: "Epic",
+    rarityClass: "epic",
+    category: "Beach Theme",
+    status: "Roster concept",
+    digitalPrice: 5,
+    sizePrices: { 15: 39, 30: 71, 40: 109 },
+    creditValue: 280,
+    loyaltyGain: 34,
+    palette: ["#6b3b26", "#fff467", "#ff824d", "#0c9f96"],
+    glow: "#ffe75d",
+    line: "Music-energy beach roster slot with bright stage colors.",
+    printNote: "Hair / torso / shorts / base planned for FDM color splits.",
+    parts: [
+      { name: "Skin", sublayer: "OBJ_skin_01", color: "#6b3b26", filament: "PLA-BROWN-05" },
+      { name: "Top", sublayer: "OBJ_top_02", color: "#fff467", filament: "PLA-YELLOW-03" },
+      { name: "Shorts", sublayer: "OBJ_shorts_03", color: "#ff824d", filament: "PLA-ORANGE-05" },
+      { name: "Base", sublayer: "OBJ_base_04", color: "#0c9f96", filament: "PLA-TEAL-06" }
+    ]
+  },
+  {
+    id: "dhalsim-mystic",
+    code: "CP-026",
+    name: "Dhalsim Mystic",
+    short: "Dhalsim",
+    poster: "DHALSIM",
+    rarity: "Rare",
+    rarityClass: "rare",
+    category: "Street Fighters",
+    status: "Roster concept",
+    digitalPrice: 5,
+    sizePrices: { 15: 37, 30: 69, 40: 106 },
+    creditValue: 255,
+    loyaltyGain: 33,
+    palette: ["#a66a38", "#f06f2f", "#fff1b1", "#2b1b16"],
+    glow: "#ff9b3d",
+    line: "Mystic arcade roster slot with poster-style shelf energy.",
+    printNote: "Head / torso / wraps / base planned for readable color splits.",
+    parts: [
+      { name: "Skin", sublayer: "OBJ_skin_01", color: "#a66a38", filament: "PLA-BROWN-03" },
+      { name: "Cloth", sublayer: "OBJ_cloth_02", color: "#f06f2f", filament: "PLA-ORANGE-04" },
+      { name: "Wraps", sublayer: "OBJ_wraps_03", color: "#fff1b1", filament: "PLA-YELLOW-02" },
+      { name: "Base", sublayer: "OBJ_base_04", color: "#2b1b16", filament: "PLA-DARK-BROWN" }
+    ]
   }
 ];
 
 const modeLabels = ["Lobby", "Profile", "3D Studio", "Loot", "Mini Game", "Rewards"];
 
 const collectionFilters = [
-  { id: "all", label: "View All", note: "Full lobby shelf", ids: products.map((item) => item.id) },
-  { id: "90s-arcade", label: "90s Arcade", note: "Fighting game nostalgia", ids: ["sagat-corporate", "cammy-sf6", "johnny-cage", "sonya-blade", "raiden-vault"] },
-  { id: "street-fighters", label: "Street Fighters", note: "Tournament shelf", ids: ["sagat-corporate", "cammy-sf6"] },
-  { id: "mk-arena", label: "MK Arena", note: "Arcade combat icons", ids: ["johnny-cage", "sonya-blade", "raiden-vault"] },
-  { id: "beach-theme", label: "Beach Theme", note: "Summer body drops", ids: ["cammy-sf6", "sonya-blade"] },
-  { id: "vault-rares", label: "Vault Rares", note: "High value unlocks", ids: ["raiden-vault", "shadow-founder"] }
+  { id: "all", label: "View All", note: "Full playable shelf", ids: products.map((item) => item.id) },
+  { id: "90s-arcade", label: "90s Arcade", note: "Arcade nostalgia wall", ids: ["sagat-corporate", "cammy-sf6", "johnny-cage", "sonya-blade", "raiden-vault", "ryu-classic", "ken-retro", "chun-arcade", "guile-shelf", "blanka-burst", "vega-mask", "balrog-boxer", "akuma-shadow", "dhalsim-mystic"] },
+  { id: "street-fighters", label: "Street Fighters", note: "18-slot tournament select", ids: ["sagat-corporate", "cammy-sf6", "ryu-classic", "ken-retro", "chun-arcade", "guile-shelf", "blanka-burst", "vega-mask", "balrog-boxer", "akuma-shadow", "bison-summer", "sakura-club", "dee-jay-beach", "dhalsim-mystic", "johnny-cage", "sonya-blade", "raiden-vault", "shadow-founder", "cammy-sf6"] },
+  { id: "MK Arena", label: "MK Arena", note: "Combat shelf", ids: ["johnny-cage", "sonya-blade", "raiden-vault", "shadow-founder"] },
+  { id: "beach-theme", label: "Beach Theme", note: "Summer body drops", ids: ["cammy-sf6", "sonya-blade", "bison-summer", "dee-jay-beach"] },
+  { id: "vault-rares", label: "Vault Rares", note: "High value unlocks", ids: ["raiden-vault", "shadow-founder", "akuma-shadow", "blanka-burst"] }
 ];
 
 const productRanks = {
-  "sagat-corporate": { popularity: 86, release: 4 },
-  "cammy-sf6": { popularity: 91, release: 5 },
-  "johnny-cage": { popularity: 82, release: 3 },
-  "sonya-blade": { popularity: 94, release: 6 },
-  "raiden-vault": { popularity: 98, release: 2 },
-  "shadow-founder": { popularity: 72, release: 1 }
+  "sagat-corporate": { popularity: 72, release: 1 },
+  "cammy-sf6": { popularity: 79, release: 2 },
+  "johnny-cage": { popularity: 86, release: 3 },
+  "sonya-blade": { popularity: 93, release: 4 },
+  "raiden-vault": { popularity: 100, release: 5 },
+  "shadow-founder": { popularity: 78, release: 6 },
+  "ryu-classic": { popularity: 85, release: 7 },
+  "ken-retro": { popularity: 92, release: 8 },
+  "chun-arcade": { popularity: 99, release: 9 },
+  "guile-shelf": { popularity: 77, release: 10 },
+  "blanka-burst": { popularity: 84, release: 11 },
+  "vega-mask": { popularity: 91, release: 12 },
+  "balrog-boxer": { popularity: 98, release: 13 },
+  "akuma-shadow": { popularity: 76, release: 14 },
+  "bison-summer": { popularity: 83, release: 15 },
+  "sakura-club": { popularity: 90, release: 16 },
+  "dee-jay-beach": { popularity: 97, release: 17 },
+  "dhalsim-mystic": { popularity: 83, release: 18 }
 };
 
 const sortOptions = [
@@ -388,6 +700,93 @@ function ProductFigure({ product, big = false, studioColors }) {
 }
 
 
+function CharacterPortrait({ product }) {
+  const swatches = product.palette || product.parts.map((part) => part.color);
+  if (product.previewSrc) {
+    return (
+      <div className="portraitBox livePortrait" style={{ "--portraitGlow": product.glow }}>
+        <img src={product.previewSrc} alt={`${product.name} preview`} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="portraitBox" style={{ "--portraitGlow": product.glow, "--p0": swatches[0], "--p1": swatches[1], "--p2": swatches[2], "--p3": swatches[3] }}>
+      <span className="portraitHalo" />
+      <span className="portraitHead" />
+      <span className="portraitChest" />
+      <span className="portraitArm left" />
+      <span className="portraitArm right" />
+      <span className="portraitBase" />
+    </div>
+  );
+}
+
+const rosterOffsets = [0, -18, 12, -8, 22, -14, 8, -24, 18, -6, 14, -20, 6, 24, -12, 16, -18, 4];
+const rosterTilts = [-7, 4, -2, 8, -5, 2, -9, 6, -3, 9, -6, 3, -8, 5, -1, 7, -4, 2];
+
+function FighterSelectArena({ activeCollection, setActiveCollection, sortMode, setSortMode, selectedSize, visibleProducts, selected, onSelect }) {
+  const currentCollection = collectionFilters.find((item) => item.id === activeCollection) || collectionFilters[0];
+  return (
+    <section className="fighterSelectArena" style={{ "--selectedGlow": selected.glow }}>
+      <div className="fighterHeader">
+        <div>
+          <span className="miniEyebrow">Character select</span>
+          <h3>{currentCollection.label}</h3>
+        </div>
+        <div className="fighterTools">
+          <select value={sortMode} onChange={(event) => setSortMode(event.target.value)} aria-label="Sort characters">
+            {sortOptions.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+          </select>
+          <small>{selectedSize} cm price view</small>
+        </div>
+      </div>
+
+      <div className="rosterTabs" aria-label="Character categories">
+        {collectionFilters.map((collection) => (
+          <button key={collection.id} className={activeCollection === collection.id ? "active" : ""} onClick={() => setActiveCollection(collection.id)}>
+            <b>{collection.label}</b>
+            <span>{collection.ids.length} slots</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="fighterSelectGridWrap">
+        <div className="selectedFighterPlate">
+          <div className="plateBackText">{selected.poster}</div>
+          <CharacterPortrait product={selected} />
+          <div className="plateMeta">
+            <span className={cx("rarity", selected.rarityClass)}>{selected.rarity}</span>
+            <h4>{selected.name}</h4>
+            <p>{selected.category} · ${selected.sizePrices[selectedSize]}</p>
+          </div>
+        </div>
+
+        <div className="fighterGrid" aria-label="Scrollable character roster">
+          {visibleProducts.map((item, index) => {
+            const offset = rosterOffsets[index % rosterOffsets.length];
+            const tilt = rosterTilts[index % rosterTilts.length];
+            const active = selected.id === item.id;
+            return (
+              <button
+                key={`${item.id}-${index}`}
+                className={cx("fighterSlot", active && "active", item.rarityClass)}
+                style={{ "--slotGlow": item.glow, "--lift": `${offset}px`, "--tilt": `${tilt}deg`, "--z": `${active ? 46 : 8 + (index % 4) * 6}px` }}
+                onClick={() => onSelect(item)}
+              >
+                <span className="slotCode">{item.code}</span>
+                <CharacterPortrait product={item} />
+                <strong>{item.short}</strong>
+                <small>{item.rarity}</small>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CategoryControls({ activeCollection, setActiveCollection, sortMode, setSortMode, selectedSize }) {
   return (
     <div className="collectionControls">
@@ -547,15 +946,17 @@ function Lobby({ selected, setSelected, selectedSize, setSelectedSize, loyaltyXp
           <strong>{selected.name}</strong>
           <span>{selected.printNote}</span>
         </div>
-        <CategoryControls
+        <EngagementStack selected={selected} setMode={setMode} setCreditDrawerOpen={setCreditDrawerOpen} />
+        <FighterSelectArena
           activeCollection={activeCollection}
           setActiveCollection={setActiveCollection}
           sortMode={sortMode}
           setSortMode={setSortMode}
           selectedSize={selectedSize}
+          visibleProducts={visibleProducts}
+          selected={selected}
+          onSelect={setSelected}
         />
-        <EngagementStack selected={selected} setMode={setMode} setCreditDrawerOpen={setCreditDrawerOpen} />
-        <ProductRail products={visibleProducts} selected={selected} onSelect={setSelected} />
       </main>
 
       <PurchasePanel
