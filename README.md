@@ -1,14 +1,25 @@
-# CyberPop Shop v23 Command Layout
+# CyberPop Shop v26 Static Prototype
 
-Static prototype package. No Next.js, no package install, no build step.
+Static HTML/CSS/JS prototype for the CyberPop Drop Room.
 
-Deploy as a static site on Vercel with Framework Preset: Other, Output Directory: .
+## Deploy notes
 
-This version focuses on:
-- compact selected character command row
-- left identity panel only, no loose Print Tools block
-- three square media slots: Cover, Print Preview, Technical / Video
-- technical tools embedded into technical media cards
-- compact BUY drawer that expands inside the action panel
-- larger square roster cards with active breathing glow
-- collection page showing all listings, owned and locked
+Vercel project settings should use:
+
+- Framework Preset: Other
+- Build Command: empty
+- Output Directory: .
+- Install Command: empty
+
+## Routes
+
+- `/` main shop prototype
+- `/admin` prototype admin/editor placeholder
+
+## v26 updates
+
+- Removed the floating Open 3D Print Preview button from the hero.
+- Widened the Product Action panel so the right-side negative space is used more intentionally.
+- Kept the BUY button at the bottom and the BUY drawer expands upward inside its own panel.
+- Moved admin copy editing to `/admin` instead of showing admin controls in the main shop UI.
+- Improved technical media spacing and hover button glow/reaction.

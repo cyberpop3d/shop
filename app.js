@@ -402,8 +402,8 @@ function init() {
   $('#collectionSort').addEventListener('change', (event) => { collectionSortMode = event.target.value; renderCollection(); });
   $('#showAllCollection').addEventListener('click', () => { collectionShowAll = !collectionShowAll; renderCollection(); });
 
-  $('#togglePreview').addEventListener('click', openModelPreview);
-  $('#closePreview').addEventListener('click', closeModelPreview);
+  $('#togglePreview')?.addEventListener('click', openModelPreview);
+  $('#closePreview')?.addEventListener('click', closeModelPreview);
   $('#modelBuyButton').addEventListener('click', () => {
     closeModelPreview();
     buyExpanded = true;
@@ -456,12 +456,13 @@ function init() {
   $('#closeStudioPicker').addEventListener('click', () => $('#studioPickerDialog').close());
   $('#closeRewardDialog').addEventListener('click', () => $('#rewardDialog').close());
   $('#unitsButton').addEventListener('click', () => $('#unitDialog').showModal());
-  $('#openAdminCopy').addEventListener('click', () => {
+  // Main shop does not expose admin editing controls. Admin copy lives at /admin.
+  $('#openAdminCopy')?.addEventListener('click', () => {
     $('#buyCopyInput').value = buyIdleCopy;
     $('#adminCopyDialog').showModal();
   });
-  $('#closeAdminCopy').addEventListener('click', () => $('#adminCopyDialog').close());
-  $('#saveBuyCopy').addEventListener('click', () => {
+  $('#closeAdminCopy')?.addEventListener('click', () => $('#adminCopyDialog').close());
+  $('#saveBuyCopy')?.addEventListener('click', () => {
     buyIdleCopy = $('#buyCopyInput').value.trim() || defaultBuyCopy;
     localStorage.setItem('cyberpopBuyIdleCopy', buyIdleCopy);
     $('#buyIntro').textContent = buyIdleCopy;

@@ -612,3 +612,148 @@ button { cursor: pointer; }
   .roster-tile { flex-basis: 142px; width: 142px; height: 142px; }
   .roster-arrow { height: 142px; }
 }
+
+/* v26 correction: remove floating preview button, widen the buy command area, keep media aligned */
+.selected-command-row {
+  grid-template-columns: minmax(980px, 1fr) 520px;
+  gap: 18px;
+}
+.media-console {
+  min-height: 392px;
+  padding: 12px 16px 16px;
+  overflow: hidden;
+}
+.media-toolbar {
+  height: 32px;
+  margin-bottom: 8px;
+  justify-content: flex-start;
+}
+.media-triptych {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  min-height: 0;
+  align-items: start;
+  justify-content: stretch;
+}
+.media-card {
+  width: 100%;
+  max-height: 340px;
+  border-radius: 22px;
+}
+.media-card strong {
+  bottom: 36px;
+  left: 18px;
+  right: 18px;
+  font-size: clamp(18px, 1.25vw, 27px);
+  line-height: .95;
+  letter-spacing: .01em;
+  max-height: 58px;
+  overflow: hidden;
+}
+.media-card small {
+  bottom: 14px;
+  left: 18px;
+  right: 112px;
+  font-size: 10px;
+  line-height: 1.15;
+}
+.media-card .tech-chip {
+  bottom: 13px;
+  right: 13px;
+  background: linear-gradient(95deg, #ffffff, #efeaff);
+  border: 1px solid rgba(255,255,255,.75);
+  color: #060c15;
+  box-shadow: 0 12px 24px rgba(0,0,0,.2), 0 0 0 1px rgba(90,60,255,.08);
+}
+.media-card:hover .tech-chip {
+  transform: translateY(-6px) scale(1.1);
+  box-shadow: 0 0 22px rgba(255,255,255,.95), 0 0 34px rgba(106,73,255,.55), 0 18px 34px rgba(0,0,0,.26);
+  animation: techButtonPulse .75s ease-in-out infinite alternate;
+}
+.media-card:hover .tech-popover {
+  opacity: 1;
+  transform: translateY(-4px) scale(1);
+}
+.media-card:hover::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: 24px;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.25), inset 0 0 42px rgba(116,72,255,.22);
+}
+@keyframes techButtonPulse {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.26); }
+}
+
+.buy-console {
+  min-height: 392px;
+  padding: 18px 18px 20px;
+  background: linear-gradient(135deg, rgba(255,255,255,.80), rgba(222,211,255,.66));
+}
+.buy-panel-top {
+  justify-content: flex-start;
+  min-height: 33px;
+}
+.buy-idle-copy {
+  max-width: 430px;
+  font-size: 14px;
+  line-height: 1.62;
+  margin: 16px 0 auto;
+}
+.buy-expanded-area {
+  margin-top: auto;
+  align-self: stretch;
+  gap: 10px;
+}
+.buy-expanded-area.is-active {
+  padding-top: 0;
+}
+.buy-main-button {
+  min-height: 82px;
+  border-radius: 18px;
+  padding: 0 26px;
+}
+.buy-main-button span {
+  font-size: 48px;
+  font-weight: 720;
+}
+.buy-main-button small {
+  font-size: 12px;
+  line-height: 1.1;
+  justify-self: end;
+}
+.buy-console.is-expanded .buy-main-button {
+  min-height: 68px;
+}
+.choice-button {
+  min-height: 76px;
+  border-radius: 16px;
+}
+.buy-options {
+  grid-template-columns: 1fr 1fr;
+}
+.buy-detail {
+  max-width: 100%;
+  border-radius: 18px;
+}
+.price-line strong {
+  font-size: 34px;
+}
+.admin-copy-button { display: none !important; }
+
+.roster-console {
+  margin-top: 0;
+}
+
+@media (min-width: 1600px) {
+  .media-card { max-height: 360px; }
+  .buy-console, .media-console { min-height: 414px; }
+}
+
+@media (max-width: 1350px) {
+  .selected-command-row { grid-template-columns: 1fr; }
+  .buy-console { min-height: 300px; }
+}
