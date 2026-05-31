@@ -4,23 +4,24 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 const products = [
   {
-    id: "sagat-corporate",
+    id: "dudley-boxer",
     code: "CP-010",
-    name: "Sagat Corporate",
-    short: "Sagat",
-    poster: "SAGAT",
+    name: "Dudley Gentleman Boxer",
+    short: "Dudley",
+    poster: "DUDLEY",
     rarity: "Epic",
     rarityClass: "epic",
     category: "Physical + STL",
     status: "Portfolio sample",
+    previewSrc: "/images/covers/dudley.webp",
     digitalPrice: 5,
     sizePrices: { 15: 39, 30: 69, 40: 109 },
     creditValue: 260,
     loyaltyGain: 35,
     palette: ["#f2c68d", "#1a2438", "#f7faff", "#111820"],
     glow: "#48c7ff",
-    line: "Suit display figure with readable multipart zones.",
-    printNote: "Head / torso / arms / shoes prepared as color planning groups.",
+    line: "Gentleman boxer portfolio slot with clean multipart display zones.",
+    printNote: "Head / shirt torso / gloves / shoes prepared as color planning groups.",
     parts: [
       { name: "Head", sublayer: "OBJ_head_01", color: "#f2c68d", filament: "PLA-SKIN-02" },
       { name: "Suit Torso", sublayer: "OBJ_torso_02", color: "#1a2438", filament: "PLA-NAVY-06" },
@@ -38,6 +39,7 @@ const products = [
     rarityClass: "rare",
     category: "STL Bundle",
     status: "Portfolio sample",
+    previewSrc: "/images/covers/cammy.png",
     digitalPrice: 5,
     sizePrices: { 15: 35, 30: 64, 40: 99 },
     creditValue: 210,
@@ -63,6 +65,7 @@ const products = [
     rarityClass: "epic",
     category: "Physical Print",
     status: "Portfolio sample",
+    previewSrc: "/images/covers/johnny-cage.png",
     digitalPrice: 5,
     sizePrices: { 15: 39, 30: 72, 40: 118 },
     creditValue: 300,
@@ -89,7 +92,7 @@ const products = [
     category: "STL Bundle",
     status: "Live GLB preview",
     modelSrc: "/models/sonya-blade.glb",
-    previewSrc: "/images/sonya-preview.png",
+    previewSrc: "/images/covers/sonya-blade.png",
     digitalPrice: 5,
     sizePrices: { 15: 34, 30: 62, 40: 96 },
     creditValue: 230,
@@ -190,6 +193,7 @@ const products = [
     rarityClass: "rare",
     category: "Street Fighters",
     status: "Roster concept",
+    previewSrc: "/images/covers/ken.webp",
     digitalPrice: 5,
     sizePrices: { 15: 36, 30: 66, 40: 101 },
     creditValue: 220,
@@ -240,6 +244,7 @@ const products = [
     rarityClass: "rare",
     category: "Street Fighters",
     status: "Roster concept",
+    previewSrc: "/images/covers/guile.webp",
     digitalPrice: 5,
     sizePrices: { 15: 37, 30: 67, 40: 103 },
     creditValue: 240,
@@ -365,6 +370,7 @@ const products = [
     rarityClass: "epic",
     category: "Beach Theme",
     status: "Roster concept",
+    previewSrc: "/images/covers/bison.webp",
     digitalPrice: 5,
     sizePrices: { 15: 43, 30: 79, 40: 124 },
     creditValue: 360,
@@ -440,6 +446,7 @@ const products = [
     rarityClass: "rare",
     category: "Street Fighters",
     status: "Roster concept",
+    previewSrc: "/images/covers/dhalsim.webp",
     digitalPrice: 5,
     sizePrices: { 15: 37, 30: 69, 40: 106 },
     creditValue: 255,
@@ -454,6 +461,110 @@ const products = [
       { name: "Wraps", sublayer: "OBJ_wraps_03", color: "#fff1b1", filament: "PLA-YELLOW-02" },
       { name: "Base", sublayer: "OBJ_base_04", color: "#2b1b16", filament: "PLA-DARK-BROWN" }
     ]
+  },
+  {
+    id: "juri-punk",
+    code: "CP-027",
+    name: "Juri Punk Shelf",
+    short: "Juri",
+    poster: "JURI",
+    rarity: "Epic",
+    rarityClass: "epic",
+    category: "Street Fighters",
+    status: "Portfolio cover",
+    previewSrc: "/images/covers/juri.webp",
+    digitalPrice: 5,
+    sizePrices: { 15: 40, 30: 73, 40: 115 },
+    creditValue: 330,
+    loyaltyGain: 38,
+    palette: ["#f5a1d6", "#2b1a42", "#4ed6c4", "#10131f"],
+    glow: "#ff66d4",
+    line: "High energy shelf fighter cover slot with bold collectible attitude.",
+    printNote: "Hair / torso / pants / feet prepared as readable color groups.",
+    parts: [
+      { name: "Hair", sublayer: "OBJ_hair_01", color: "#f5a1d6", filament: "PLA-PINK-05" },
+      { name: "Torso", sublayer: "OBJ_torso_02", color: "#2b1a42", filament: "PLA-PURPLE-06" },
+      { name: "Bands", sublayer: "OBJ_bands_03", color: "#4ed6c4", filament: "PLA-TEAL-05" },
+      { name: "Base", sublayer: "OBJ_base_04", color: "#10131f", filament: "PLA-BLACK-01" }
+    ]
+  },
+  {
+    id: "sumo-arcade",
+    code: "CP-028",
+    name: "Sumo Arcade",
+    short: "Sumo",
+    poster: "SUMO",
+    rarity: "Rare",
+    rarityClass: "rare",
+    category: "90s Arcade",
+    status: "Portfolio cover",
+    previewSrc: "/images/covers/sumo.webp",
+    digitalPrice: 5,
+    sizePrices: { 15: 37, 30: 68, 40: 104 },
+    creditValue: 245,
+    loyaltyGain: 31,
+    palette: ["#f0b37c", "#192d58", "#f3f0de", "#bb2b2d"],
+    glow: "#245cff",
+    line: "Chunky arcade shelf figure cover slot for collection browsing.",
+    printNote: "Hair / body / wraps / belt planned as printable color sections.",
+    parts: [
+      { name: "Skin", sublayer: "OBJ_skin_01", color: "#f0b37c", filament: "PLA-SKIN-04" },
+      { name: "Body", sublayer: "OBJ_body_02", color: "#192d58", filament: "PLA-NAVY-07" },
+      { name: "Wraps", sublayer: "OBJ_wraps_03", color: "#f3f0de", filament: "PLA-WHITE-01" },
+      { name: "Belt", sublayer: "OBJ_belt_04", color: "#bb2b2d", filament: "PLA-RED-04" }
+    ]
+  },
+  {
+    id: "gouken-master",
+    code: "CP-029",
+    name: "Gouken Master",
+    short: "Gouken",
+    poster: "GOUKEN",
+    rarity: "Legendary",
+    rarityClass: "legendary",
+    category: "Street Fighters",
+    status: "Portfolio cover",
+    previewSrc: "/images/covers/gouken.png",
+    digitalPrice: 5,
+    sizePrices: { 15: 48, 30: 88, 40: 134 },
+    creditValue: 640,
+    loyaltyGain: 58,
+    palette: ["#d6a579", "#f4f4ed", "#d8d7d2", "#3b2417"],
+    glow: "#f1d7a2",
+    line: "Master figure cover slot with premium shelf presence.",
+    printNote: "Head / beard / cloth / base prepared as color planning groups.",
+    parts: [
+      { name: "Skin", sublayer: "OBJ_skin_01", color: "#d6a579", filament: "PLA-SKIN-05" },
+      { name: "Beard", sublayer: "OBJ_beard_02", color: "#f4f4ed", filament: "PLA-WHITE-02" },
+      { name: "Cloth", sublayer: "OBJ_cloth_03", color: "#d8d7d2", filament: "PLA-LIGHT-GRAY" },
+      { name: "Base", sublayer: "OBJ_base_04", color: "#3b2417", filament: "PLA-BROWN-06" }
+    ]
+  },
+  {
+    id: "magik-mock",
+    code: "CP-030",
+    name: "Magik Mock Series",
+    short: "Magik",
+    poster: "MAGIK",
+    rarity: "Epic",
+    rarityClass: "epic",
+    category: "90s Arcade",
+    status: "Portfolio cover",
+    previewSrc: "/images/covers/magik.webp",
+    digitalPrice: 5,
+    sizePrices: { 15: 41, 30: 75, 40: 118 },
+    creditValue: 345,
+    loyaltyGain: 39,
+    palette: ["#f2d18a", "#1e2031", "#b9a1ff", "#e8f5ff"],
+    glow: "#b08cff",
+    line: "Mock-series cover slot with premium collectible energy.",
+    printNote: "Hair / body / sword / boots prepared as readable multipart zones.",
+    parts: [
+      { name: "Hair", sublayer: "OBJ_hair_01", color: "#f2d18a", filament: "PLA-BLONDE-03" },
+      { name: "Body", sublayer: "OBJ_body_02", color: "#1e2031", filament: "PLA-GRAPHITE" },
+      { name: "Accent", sublayer: "OBJ_accent_03", color: "#b9a1ff", filament: "PLA-PURPLE-04" },
+      { name: "Sword", sublayer: "OBJ_sword_04", color: "#e8f5ff", filament: "PLA-ICE-WHITE" }
+    ]
   }
 ];
 
@@ -461,15 +572,15 @@ const modeLabels = ["Lobby", "Profile", "3D Studio", "Loot", "Mini Game", "Rewar
 
 const collectionFilters = [
   { id: "all", label: "View All", note: "Full playable shelf", ids: products.map((item) => item.id) },
-  { id: "90s-arcade", label: "90s Arcade", note: "Arcade nostalgia wall", ids: ["sagat-corporate", "cammy-sf6", "johnny-cage", "sonya-blade", "raiden-vault", "ryu-classic", "ken-retro", "chun-arcade", "guile-shelf", "blanka-burst", "vega-mask", "balrog-boxer", "akuma-shadow", "dhalsim-mystic"] },
-  { id: "street-fighters", label: "Street Fighters", note: "18-slot tournament select", ids: ["sagat-corporate", "cammy-sf6", "ryu-classic", "ken-retro", "chun-arcade", "guile-shelf", "blanka-burst", "vega-mask", "balrog-boxer", "akuma-shadow", "bison-summer", "sakura-club", "dee-jay-beach", "dhalsim-mystic", "johnny-cage", "sonya-blade", "raiden-vault", "shadow-founder", "cammy-sf6"] },
+  { id: "90s-arcade", label: "90s Arcade", note: "Arcade nostalgia wall", ids: ["dudley-boxer", "cammy-sf6", "johnny-cage", "sonya-blade", "raiden-vault", "ryu-classic", "ken-retro", "chun-arcade", "guile-shelf", "blanka-burst", "vega-mask", "balrog-boxer", "akuma-shadow", "dhalsim-mystic", "sumo-arcade", "gouken-master", "magik-mock", "juri-punk"] },
+  { id: "street-fighters", label: "Street Fighters", note: "18-slot tournament select", ids: ["dudley-boxer", "cammy-sf6", "ryu-classic", "ken-retro", "chun-arcade", "guile-shelf", "blanka-burst", "vega-mask", "balrog-boxer", "akuma-shadow", "bison-summer", "sakura-club", "dee-jay-beach", "dhalsim-mystic", "johnny-cage", "sonya-blade", "juri-punk", "sumo-arcade"] },
   { id: "MK Arena", label: "MK Arena", note: "Combat shelf", ids: ["johnny-cage", "sonya-blade", "raiden-vault", "shadow-founder"] },
   { id: "beach-theme", label: "Beach Theme", note: "Summer body drops", ids: ["cammy-sf6", "sonya-blade", "bison-summer", "dee-jay-beach"] },
-  { id: "vault-rares", label: "Vault Rares", note: "High value unlocks", ids: ["raiden-vault", "shadow-founder", "akuma-shadow", "blanka-burst"] }
+  { id: "vault-rares", label: "Vault Rares", note: "High value unlocks", ids: ["raiden-vault", "shadow-founder", "akuma-shadow", "blanka-burst", "gouken-master", "magik-mock"] }
 ];
 
 const productRanks = {
-  "sagat-corporate": { popularity: 72, release: 1 },
+  "dudley-boxer": { popularity: 72, release: 1 },
   "cammy-sf6": { popularity: 79, release: 2 },
   "johnny-cage": { popularity: 86, release: 3 },
   "sonya-blade": { popularity: 93, release: 4 },
@@ -486,7 +597,11 @@ const productRanks = {
   "bison-summer": { popularity: 83, release: 15 },
   "sakura-club": { popularity: 90, release: 16 },
   "dee-jay-beach": { popularity: 97, release: 17 },
-  "dhalsim-mystic": { popularity: 83, release: 18 }
+  "dhalsim-mystic": { popularity: 83, release: 18 },
+  "juri-punk": { popularity: 94, release: 19 },
+  "sumo-arcade": { popularity: 81, release: 20 },
+  "gouken-master": { popularity: 88, release: 21 },
+  "magik-mock": { popularity: 87, release: 22 }
 };
 
 const sortOptions = [
@@ -508,9 +623,9 @@ const rewardMilestones = [
     id: "wallpaper-sagat",
     xp: 8,
     type: "Wallpaper",
-    title: "Sagat Corporate Wallpaper",
+    title: "Dudley Gentleman Wallpaper",
     description: "A clean cover-image style wallpaper reward for the collector profile library.",
-    characterId: "sagat-corporate",
+    characterId: "dudley-boxer",
     icon: "▣",
     glow: "#4fc9ff"
   },
@@ -670,7 +785,26 @@ function GLBFigure({ product, big = false, studioColors }) {
   );
 }
 
+
+function ImageFigure({ product, big = false }) {
+  return (
+    <div className={cx("figureWrap imageFigureWrap", big && "figureBig")} style={{ "--glow": product.glow }}>
+      <div className="orbit orbitOne" />
+      <div className="orbit orbitTwo" />
+      <div className="shadowBlob" />
+      <div className="figureCoverCard">
+        <div className="figureCoverWord">{product.poster}</div>
+        <img src={product.previewSrc} alt={`${product.name} cover preview`} />
+      </div>
+    </div>
+  );
+}
+
 function ProductFigure({ product, big = false, studioColors }) {
+  if (product.previewSrc && !studioColors) {
+    return <ImageFigure product={product} big={big} />;
+  }
+
   if (product.modelSrc) {
     return <GLBFigure product={product} big={big} studioColors={studioColors} />;
   }
@@ -1207,15 +1341,26 @@ function MiniGame() {
   );
 }
 
-function RewardPreviewCard({ reward, unlocked }) {
+
+function getRewardNeed(reward, loyaltyXp) {
+  const remaining = Math.max(0, reward.xp - loyaltyXp);
+  return {
+    remaining,
+    purchases: Math.max(0, Math.ceil(remaining / 30)),
+    units: remaining * 10
+  };
+}
+
+function RewardPreviewCard({ reward, unlocked, loyaltyXp }) {
   const product = products.find((item) => item.id === reward.characterId) || products[0];
+  const need = getRewardNeed(reward, loyaltyXp);
   return (
     <div className={cx("rewardPreviewCard", unlocked ? "unlocked" : "locked")} style={{ "--cardGlow": reward.glow }}>
       <div className="rewardPosterWord">{reward.mystery && !unlocked ? "LOCKED" : product.poster}</div>
       <div className="rewardCardShine" />
       <div className="rewardCardTop">
         <span>{reward.type}</span>
-        <b>{unlocked ? "Unlocked" : `${reward.xp} XP`}</b>
+        <b>{unlocked ? "Unlocked" : `${need.remaining} XP left`}</b>
       </div>
       <div className={cx("rewardFigureSlot", reward.mystery && !unlocked && "mysteryFigureSlot")}>
         <ProductFigure product={product} big />
@@ -1223,6 +1368,10 @@ function RewardPreviewCard({ reward, unlocked }) {
       <div className="rewardCardText">
         <h2>{reward.title}</h2>
         <p>{reward.description}</p>
+        <div className="rewardRequirements">
+          <span>{unlocked ? "Ready in your profile vault" : `${need.remaining} more XP required`}</span>
+          <span>{unlocked ? "Claimable reward" : `≈ ${need.purchases} more purchases or ${need.units} units`}</span>
+        </div>
       </div>
     </div>
   );
@@ -1230,6 +1379,8 @@ function RewardPreviewCard({ reward, unlocked }) {
 
 function Rewards({ loyaltyXp }) {
   const [activeReward, setActiveReward] = useState(rewardMilestones[1]);
+  const nextReward = rewardMilestones.find((reward) => reward.xp > loyaltyXp) || rewardMilestones[rewardMilestones.length - 1];
+  const nextNeed = getRewardNeed(nextReward, loyaltyXp);
 
   return (
     <section className="pagePanel rewardsPanel rewardTrackPanel">
@@ -1245,6 +1396,12 @@ function Rewards({ loyaltyXp }) {
       </div>
 
       <div className="rewardStage panelGlass">
+        <div className="rewardProgressStats">
+          <div><span>Next checkpoint</span><b>{nextReward.title}</b></div>
+          <div><span>Remaining</span><b>{nextNeed.remaining} XP</b></div>
+          <div><span>Purchase push</span><b>{nextNeed.purchases === 0 ? "Ready" : `${nextNeed.purchases} more`}</b></div>
+          <div><span>Unit target</span><b>{nextNeed.units} units</b></div>
+        </div>
         <div className="rewardProgressLane">
           <div className="rewardProgressBase" />
           <div className="rewardProgressFill" style={{ width: `${loyaltyXp}%` }} />
@@ -1264,6 +1421,7 @@ function Rewards({ loyaltyXp }) {
                 <span className="nodeIcon">{reward.icon}</span>
                 <span className="nodeMiniFigure"><ProductFigure product={product} /></span>
                 <small>{reward.type}</small>
+                <em>{unlocked ? "Claimed" : `${reward.xp} XP`}</em>
               </button>
             );
           })}
@@ -1282,14 +1440,15 @@ function Rewards({ loyaltyXp }) {
               >
                 <span>{reward.type}</span>
                 <b>{reward.title}</b>
-                <small>{unlocked ? "Unlocked" : `${reward.xp} XP`}</small>
+                <small>{unlocked ? "Unlocked" : `${getRewardNeed(reward, loyaltyXp).remaining} XP left`}</small>
+                <em>{unlocked ? "In vault" : `≈ ${getRewardNeed(reward, loyaltyXp).purchases} more purchases`}</em>
               </button>
             );
           })}
         </div>
       </div>
 
-      <RewardPreviewCard reward={activeReward} unlocked={loyaltyXp >= activeReward.xp} />
+      <RewardPreviewCard reward={activeReward} unlocked={loyaltyXp >= activeReward.xp} loyaltyXp={loyaltyXp} />
     </section>
   );
 }
@@ -1404,7 +1563,7 @@ export default function CyberPopShop() {
   const [selectedSize, setSelectedSize] = useState(30);
   const [siteCredit, setSiteCredit] = useState(260);
   const [loyaltyXp, setLoyaltyXp] = useState(42);
-  const [ownedIds, setOwnedIds] = useState(["sagat-corporate", "cammy-sf6", "sonya-blade"]);
+  const [ownedIds, setOwnedIds] = useState(["dudley-boxer", "cammy-sf6", "sonya-blade"]);
   const [rareItem, setRareItem] = useState(null);
   const [profile, setProfile] = useState({ name: "", printer: "", filament: "" });
   const [creditDrawerOpen, setCreditDrawerOpen] = useState(false);
