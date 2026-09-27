@@ -22,6 +22,59 @@ function addMonths(dateStr,n){const d=new Date(dateStr+'T12:00:00Z');d.setUTCMon
 function customerName(id){const c=customers.find(x=>x.user_id===id);return c?(c.full_name||c.email):id}
 function collectionName(id){const c=collections.find(x=>x.id===id);return c?c.display_name:id}
 
+async function checkCultsConnection(){
+  const badge=$('#cultsConnectionBadge'),button=$('#cultsSyncButton'),status=$('#cultsSyncStatus');
+  badge.textContent='CHECKING';badge.className='badge warn';button.disabled=true;
+  try{
+    const response=await fetch('/api/cults-sync?limit=1&offset=0',{cache:'no-store'});
+    const data=await response.json();
+    if(data.configured){
+      badge.textContent=data.ok?'CONNECTED':'API ERROR';
+      badge.className='badge '+(data.ok?'on':'warn');
+      button.disabled=!data.ok;
+      status.textContent=data.ok?'Cults API connected. Ready to import your own designs.':(data.error||'Cults API error.');
+    }else{
+      badge.textContent='NOT CONFIGURED';badge.className='badge warn';
+      status.textContent='Add CULTS_USERNAME and CULTS_API_KEY to Vercel environment variables to enable sync.';
+    }
+  }catch(error){
+    badge.textContent='UNAVAILABLE';badge.className='badge warn';
+    status.textContent=error.message||'Could not check Cults API.';
+  }
+}
+
+async function syncFromCults(){
+  const button=$('#cultsSyncButton'),status=$('#cultsSyncStatus');
+  button.disabled=true;setSync('Cults sync…');status.textContent='Fetching latest designs from Cults…';
+  try{
+    const response=await fetch('/api/cults-sync?limit=50&offset=0',{cache:'no-store'});
+    const payload=await response.json();
+    if(!payload.ok)throw new Error(payload.error||'Cults sync failed.');
+    let created=0,updated=0,failed=0;
+    const items=[...(payload.results||[])].sort((a,b)=>new Date(a.publishedAt||0)-new Date(b.publishedAt||0));
+    for(const item of items){
+      const r=await supabase.rpc('admin_import_cults_product',{
+        p_source_url:item.url,
+        p_source_name:item.name,
+        p_image_url:item.imageUrl||null,
+        p_published_at:item.publishedAt||null,
+        p_raw_metadata:item
+      });
+      if(r.error){console.error(r.error);failed++;continue}
+      const row=Array.isArray(r.data)?r.data[0]:null;
+      if(row&&row.was_created)created++;else updated++;
+    }
+    status.textContent='Cults sync complete · '+created+' new · '+updated+' updated'+(failed?' · '+failed+' failed':'')+'.';
+    notify('Cults catalog synced.');
+    await loadAll();
+  }catch(error){
+    status.textContent=error.message||'Cults sync failed.';
+    notify(status.textContent,'error');
+  }finally{
+    setSync('Ready');button.disabled=false;
+  }
+}
+
 async function ensureAdmin(){
   const auth=await supabase.auth.getSession();session=auth.data.session;
   if(!session){$('#loginPanel').hidden=false;$('#adminApp').hidden=true;return false}
@@ -49,6 +102,7 @@ async function loadAll(){
   customers=res[4].data||[];entitlements=res[5].data||[];subscriptions=res[6].data||[];codes=res[7].data||[];plans=res[8].data||[];
   products=products.map(p=>({...p,delivery:deliveryRows.find(d=>d.product_id===p.id)||null}));
   renderAll();setSync('Synced');
+  checkCultsConnection();
 }
 
 function renderAll(){
@@ -131,6 +185,12 @@ $('#productForm').addEventListener('submit',async e=>{
   if(deliveryUrl){
     const delivery=await supabase.from('membership_product_delivery').insert({product_id:p.data.id,cults_url:deliveryUrl});
     if(delivery.error){await supabase.from('membership_products').delete().eq('id',p.data.id);setText('#productStatus',delivery.error.message);return}
+    const source=await supabase.from('membership_product_sources').insert({
+      product_id:p.data.id,provider:'cults',source_url:deliveryUrl,
+      source_name:$('#productInternalName').value.trim(),source_image_url:$('#productThumbnail').value.trim()||null,
+      sync_status:'linked',last_synced_at:new Date().toISOString()
+    });
+    if(source.error){console.warn(source.error)}
   }
   e.target.reset();setText('#productStatus','Product added and included by default.');notify('Product added to the collection.');await loadAll();
 });
@@ -179,6 +239,8 @@ $('#loginForm').addEventListener('submit',async e=>{
   setText('#loginStatus',r.error?r.error.message:'Check your email for the admin sign-in link.');
 });
 $('#refresh').onclick=loadAll;
+$('#cultsCheckButton').onclick=checkCultsConnection;
+$('#cultsSyncButton').onclick=syncFromCults;
 supabase.auth.onAuthStateChange(()=>setTimeout(init,0));
 async function init(){if(await ensureAdmin())loadAll().catch(e=>{setSync('Error');notify(e.message,'error')})}
 init();
