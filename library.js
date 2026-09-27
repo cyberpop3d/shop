@@ -24,6 +24,24 @@ async function loadPublic(){
   products=p.data||[];
   plans=pl.data||[];
 }
+async function ensureCustomerProfile(){
+  if(!session||!session.user||!session.user.email)return;
+  const existing=await supabase.from('membership_customers').select('user_id').eq('user_id',session.user.id).maybeSingle();
+  if(existing.error)throw existing.error;
+  if(existing.data)return;
+
+  const meta=session.user.user_metadata||{};
+  const fallback=session.user.email.split('@')[0].replace(/[._-]+/g,' ').trim()||'Member';
+  const fullName=String(meta.full_name||meta.name||fallback).trim();
+  const created=await supabase.from('membership_customers').insert({
+    user_id:session.user.id,
+    full_name:fullName,
+    email:session.user.email,
+    client_type:'professional'
+  });
+  if(created.error&&created.error.code!=='23505')throw created.error;
+}
+
 async function loadPrivate(){
   if(!session){codes=[];subscriptions=[];return}
   const results=await Promise.all([
@@ -35,7 +53,7 @@ async function loadPrivate(){
 }
 function renderAccount(){
   const logged=!!session;
-  $('#loginForm').hidden=logged;
+  $('#authMethods').hidden=logged;
   $('#sessionBox').hidden=!logged;
   $('#accountTitle').textContent=logged?'Signed in':'Sign in';
   $('#memberState').textContent=logged?'MEMBER ACCOUNT':'GUEST';
@@ -96,10 +114,20 @@ async function refresh(){
   const auth=await supabase.auth.getSession();
   session=auth.data.session;
   await loadPublic();
+  if(session)await ensureCustomerProfile();
   await loadPrivate();
   if(!selectedId&&collections.length)selectedId=collections[0].id;
   renderAccount();renderPlans();renderCollections();renderDetail();
 }
+$('#googleSignInButton').addEventListener('click',async()=>{
+  setStatus('Opening Google sign-in…');
+  const result=await supabase.auth.signInWithOAuth({
+    provider:'google',
+    options:{redirectTo:location.origin+'/'}
+  });
+  if(result.error)setStatus(result.error.message);
+});
+
 $('#loginForm').addEventListener('submit',async e=>{
   e.preventDefault();
   setStatus('Sending sign-in link…');
