@@ -5,7 +5,7 @@ const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
-let session=null,collections=[],products=[],privateRows=[],customers=[],entitlements=[],subscriptions=[],codes=[],plans=[];
+let session=null,collections=[],products=[],privateRows=[],customers=[],entitlements=[],subscriptions=[],codes=[],plans=[],creditAccounts=[];
 
 $('#collectionMonth').innerHTML=monthNames.map((m,i)=>'<option value="'+(i+1)+'">'+m+'</option>').join('');
 $('#collectionMonth').value='10';
@@ -94,12 +94,13 @@ async function loadAll(){
     supabase.from('membership_entitlements').select('*'),
     supabase.from('membership_subscriptions').select('*,membership_plans(name,plan_type)'),
     supabase.from('membership_collection_codes').select('*'),
-    supabase.from('membership_plans').select('*').order('sort_order')
+    supabase.from('membership_plans').select('*').order('sort_order'),
+    supabase.from('credit_accounts').select('*')
   ]);
   const err=res.find(x=>x.error);if(err)throw err.error;
   collections=res[0].data||[];products=res[1].data||[];privateRows=res[2].data||[];
   const deliveryRows=res[3].data||[];
-  customers=res[4].data||[];entitlements=res[5].data||[];subscriptions=res[6].data||[];codes=res[7].data||[];plans=res[8].data||[];
+  customers=res[4].data||[];entitlements=res[5].data||[];subscriptions=res[6].data||[];codes=res[7].data||[];plans=res[8].data||[];creditAccounts=res[9].data||[];
   products=products.map(p=>({...p,delivery:deliveryRows.find(d=>d.product_id===p.id)||null}));
   renderAll();setSync('Synced');
   checkCultsConnection();
@@ -130,17 +131,21 @@ function renderProducts(){
     const thumb=p.thumbnail_url?'<div class="record-thumb"><img src="'+esc(p.thumbnail_url)+'" alt=""></div>':'<div class="record-thumb empty">CP</div>';
     return '<article class="record"><div class="record-head"><div class="record-main">'+thumb+'<div><h3>'+esc(p.public_title)+'</h3><p>Admin name: <strong>'+esc(priv?priv.internal_name:'—')+'</strong> · '+esc(collectionName(p.collection_id))+'</p></div></div>'+
       '<div><span class="badge '+(p.is_included?'on':'')+'">'+(p.is_included?'INCLUDED':'EXCLUDED')+'</span> <span class="badge '+(p.is_published?'on':'')+'">'+(p.is_published?'VISIBLE':'HIDDEN')+'</span></div></div>'+
-      '<div class="actions"><button data-toggle-included="'+p.id+'">'+(p.is_included?'Exclude from membership':'Include in membership')+'</button><button data-toggle-published="'+p.id+'" class="secondary">'+(p.is_published?'Hide product':'Show product')+'</button></div></article>';
+      '<div class="actions"><label style="max-width:150px">Credit price<input data-credit-price="'+p.id+'" type="number" min="1" step="1" value="'+(p.credit_price??'')+'" placeholder="40"></label><button data-save-credit-price="'+p.id+'" class="secondary">Save price</button><button data-toggle-included="'+p.id+'">'+(p.is_included?'Exclude from membership':'Include in membership')+'</button><button data-toggle-published="'+p.id+'" class="secondary">'+(p.is_published?'Hide product':'Show product')+'</button></div></article>';
   }).join('')||'<p class="small">No models added yet.</p>';
   document.querySelectorAll('[data-toggle-included]').forEach(b=>b.onclick=()=>toggleProduct(b.dataset.toggleIncluded,'is_included'));
   document.querySelectorAll('[data-toggle-published]').forEach(b=>b.onclick=()=>toggleProduct(b.dataset.togglePublished,'is_published'));
+  document.querySelectorAll('[data-save-credit-price]').forEach(b=>b.onclick=()=>saveCreditPrice(b.dataset.saveCreditPrice));
 }
 function optionRows(list,valueFn,labelFn){return list.map(x=>'<option value="'+esc(valueFn(x))+'">'+esc(labelFn(x))+'</option>').join('')}
 function renderSelects(){
   const collectionOptions=optionRows(collections,x=>x.id,x=>x.display_name);
   ['#productCollection','#monthlyCollection','#codeCollection'].forEach(s=>$(s).innerHTML=collectionOptions);
   const customerOptions=optionRows(customers,x=>x.user_id,x=>(x.full_name||x.email)+' · '+x.email);
-  ['#monthlyCustomer','#annualCustomer','#codeCustomer'].forEach(s=>$(s).innerHTML=customerOptions);
+  ['#monthlyCustomer','#annualCustomer','#codeCustomer','#creditCustomer'].forEach(s=>$(s).innerHTML=customerOptions);
+  document.querySelectorAll('#creditCustomer option').forEach(o=>{
+    const account=creditAccounts.find(x=>x.user_id===o.value);o.textContent+=' · '+Number(account?.balance||0)+' C';
+  });
 }
 function renderPlans(){
   const rows=plans.filter(p=>p.slug==='monthly'||p.slug==='annual');
@@ -157,6 +162,14 @@ async function toggleCollection(id){
   const c=collections.find(x=>x.id===id);if(!c)return;
   const r=await supabase.from('membership_collections').update({is_published:!c.is_published}).eq('id',id);
   if(r.error){notify(r.error.message,'error');return}notify('Collection visibility updated.');await loadAll();
+}
+async function saveCreditPrice(id){
+  const input=document.querySelector('[data-credit-price="'+id+'"]');
+  const value=input.value.trim();
+  const patch={credit_price:value?Number(value):null};
+  const r=await supabase.from('membership_products').update(patch).eq('id',id);
+  if(r.error){notify(r.error.message,'error');return}
+  notify(value?'Credit price updated.':'Credit price cleared.');await loadAll();
 }
 async function toggleProduct(id,field){
   const p=products.find(x=>x.id===id);if(!p)return;
@@ -193,6 +206,21 @@ $('#productForm').addEventListener('submit',async e=>{
     if(source.error){console.warn(source.error)}
   }
   e.target.reset();setText('#productStatus','Product added and included by default.');notify('Product added to the collection.');await loadAll();
+});
+
+$('#creditAdjustForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  setText('#creditAdjustStatus','Applying ledger adjustment…');
+  const amount=Number($('#creditAmount').value);
+  const r=await supabase.rpc('admin_adjust_credits',{
+    p_user_id:$('#creditCustomer').value,
+    p_amount:amount,
+    p_description:$('#creditDescription').value.trim()
+  });
+  if(r.error){setText('#creditAdjustStatus',r.error.message);return}
+  const data=r.data||{};
+  setText('#creditAdjustStatus','Adjustment recorded. New balance: '+Number(data.balance||0)+' C.');
+  notify('Credit ledger updated.');e.target.reset();await loadAll();
 });
 
 $('#monthlyAccessForm').addEventListener('submit',async e=>{

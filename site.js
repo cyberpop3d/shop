@@ -72,16 +72,41 @@ export async function sendMagicLink(email,redirectPath='/account'){
 export async function signOut(){
   await supabase.auth.signOut();
 }
-export function syncHeader(session){
+export async function getCreditSummary(){
+  const session=await getSession();
+  if(!session)return {balance:0,transaction_count:0};
+  const r=await supabase.rpc('get_my_credit_summary');
+  if(r.error)throw r.error;
+  const row=Array.isArray(r.data)?r.data[0]:r.data;
+  return {balance:Number(row?.balance||0),transaction_count:Number(row?.transaction_count||0)};
+}
+export function syncHeader(session,creditBalance=0){
   const label=session&&session.user?session.user.email.split('@')[0]:'Account';
   document.querySelectorAll('[data-account-label]').forEach(el=>el.textContent=label);
-  const toggle=document.querySelector('.menu-toggle');
   const nav=document.querySelector('.site-nav');
+  if(nav&&session){
+    let credit=nav.querySelector('.credit-chip');
+    if(!credit){
+      credit=document.createElement('a');
+      credit.className='credit-chip';
+      credit.href='/account#credits';
+      const account=nav.querySelector('.account-chip')||nav.lastElementChild;
+      nav.insertBefore(credit,account);
+    }
+    credit.innerHTML='◇ <strong data-credit-balance>'+Number(creditBalance||0)+'</strong> C';
+  }else if(nav){
+    nav.querySelector('.credit-chip')?.remove();
+  }
+  const toggle=document.querySelector('.menu-toggle');
   if(toggle&&nav)toggle.onclick=()=>nav.classList.toggle('open');
 }
 export async function initChrome(){
   const session=await getSession();
-  if(session)await ensureCustomerProfile(session);
-  syncHeader(session);
+  let balance=0;
+  if(session){
+    await ensureCustomerProfile(session);
+    try{balance=(await getCreditSummary()).balance}catch(error){console.warn('Credit summary unavailable',error)}
+  }
+  syncHeader(session,balance);
   return session;
 }
