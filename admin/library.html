@@ -15,6 +15,7 @@
     <nav class="admin-nav">
       <a href="/admin/">Overview</a>
       <a class="active" href="/admin/library">Library & Access</a>\n      <a href="/admin/media">Media Manager</a>
+      <a href="/admin/rights">Rights & Legal</a>
       <a href="/admin/memberships">Legacy Billing</a>
       <a href="/">Customer site ↗</a>
     </nav>
@@ -81,6 +82,12 @@
           <label>Product number<input id="productNumber" type="number" min="1" required></label>
           <label>Thumbnail URL<input id="productThumbnail" type="url" placeholder="optional"></label>
           <label>Cults product URL<input id="productCultsUrl" type="url" placeholder="optional"></label>
+          <label>IP Class<select id="productIpClass"><option value="ORIGINAL">ORIGINAL</option><option value="RIGHTS_CLEARED">RIGHTS_CLEARED</option><option value="UNOFFICIAL_FAN_WORK">UNOFFICIAL_FAN_WORK</option></select></label>
+          <label>License Scope<select id="productLicenseScope"><option value="PERSONAL">PERSONAL</option><option value="PHYSICAL_COMMERCIAL">PHYSICAL_COMMERCIAL</option></select></label>
+          <label>Subscription access<select id="productSubscriptionAccess"><option value="true">Included</option><option value="false">Excluded</option></select></label>
+          <label>Commercial physical print<select id="productCommercialPrint"><option value="false">No</option><option value="true">Yes</option></select></label>
+          <label>Fan-art notice<select id="productFanDisclaimer"><option value="false">Off</option><option value="true">On</option></select></label>
+          <label>Rights property key<input id="productRightsPropertyKey" placeholder="admin-only · e.g. property-key"></label>
           <label class="wide">Admin note<input id="productNote" placeholder="optional"></label>
           <button class="wide">Add product · included by default</button>
         </form>
@@ -88,7 +95,7 @@
       </section>
 
       <section class="panel">
-        <div class="section-head"><div><span class="eyebrow">MODEL SETTINGS</span><h2>Membership inclusion</h2><p class="small">Control customer visibility and membership eligibility independently.</p></div></div>
+        <div class="section-head"><div><span class="eyebrow">MODEL SETTINGS</span><h2>Catalog, license & legal state</h2><p class="small">IP class, license scope, subscription access and takedown controls drive customer-facing behavior automatically.</p></div><a class="secondary" href="/admin/rights">Open Rights & Legal →</a></div>
         <div id="products" class="stack"></div>
       </section>
 
