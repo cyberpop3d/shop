@@ -9,6 +9,8 @@ let activeSession=null;
 let currentProfile=null;
 let accountRequirements=[];
 let missingAccountRequirements=[];
+let actionRequirements=[];
+let missingActionRequirements=[];
 
 const ISO_CODES=`AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW`.split(' ');
 
@@ -85,10 +87,18 @@ function renderLegalHistory(docs,acceptances){
     target.innerHTML=stateMarkup('','No published legal versions yet','Draft legal pages exist, but CyberPop is not recording acceptance of unpublished documents.');
     return;
   }
-  target.innerHTML='<div class="legal-version-list">'+docs.map(d=>{
+  const missingIds=new Set(missingActionRequirements.map(x=>x.document_id));
+  const required=missingActionRequirements.length
+    ? '<div class="legal-action-required"><strong>Action required</strong><p>Current agreements must be accepted before protected purchase/download actions continue.</p>'+
+      missingActionRequirements.map(d=>'<label class="legal-check"><input type="checkbox" data-action-legal="'+d.document_type+'"><span>I have read and agree to <a href="'+esc(d.public_path)+'" target="_blank">'+esc(d.title)+'</a> <small>'+esc(d.document_version)+'</small>.</span></label>').join('')+
+      '<button id="acceptActionLegal" class="btn btn-primary" type="button">Accept selected agreements</button><span id="actionLegalStatus" class="small"></span></div>'
+    : '';
+  target.innerHTML=required+'<div class="legal-version-list">'+docs.map(d=>{
     const accepted=acceptances.find(a=>a.legal_document_id===d.id);
-    return '<div class="legal-version-row"><div><strong>'+esc(d.title)+'</strong><span>'+esc(d.version)+'</span></div><div>'+(accepted?'Accepted '+new Date(accepted.accepted_at).toLocaleDateString():'Not accepted')+'</div><a href="'+esc(d.public_path)+'">View →</a></div>';
+    return '<div class="legal-version-row"><div><strong>'+esc(d.title)+'</strong><span>'+esc(d.version)+'</span></div><div>'+(accepted?'Accepted '+new Date(accepted.accepted_at).toLocaleDateString():(missingIds.has(d.id)?'Acceptance required':'Not required'))+'</div><a href="'+esc(d.public_path)+'">View →</a></div>';
   }).join('')+'</div>';
+  const accept=document.querySelector('#acceptActionLegal');
+  if(accept)accept.onclick=acceptRequiredActionLegal;
 }
 function renderPayments(rows){
   const target=document.querySelector('#purchaseHistory');
@@ -105,13 +115,35 @@ function renderSellerLicense(row){
     '<p class="section-copy" style="margin-top:14px">Digital redistribution is never included. Seller permission does not grant third-party character, trademark or franchise rights.</p>';
 }
 
+function uniqDocs(rows){return [...new Map(rows.map(x=>[x.document_id,x])).values()]}
 async function loadLegalState(){
-  const [req,missing]=await Promise.all([
+  const [accountReq,accountMissing,purchaseReq,purchaseMissing,downloadReq,downloadMissing]=await Promise.all([
     supabase.rpc('get_current_legal_requirements',{p_scope:'account'}),
-    supabase.rpc('get_my_missing_legal_requirements',{p_scope:'account'})
+    supabase.rpc('get_my_missing_legal_requirements',{p_scope:'account'}),
+    supabase.rpc('get_current_legal_requirements',{p_scope:'purchase'}),
+    supabase.rpc('get_my_missing_legal_requirements',{p_scope:'purchase'}),
+    supabase.rpc('get_current_legal_requirements',{p_scope:'download'}),
+    supabase.rpc('get_my_missing_legal_requirements',{p_scope:'download'})
   ]);
-  if(req.error)throw req.error;if(missing.error)throw missing.error;
-  accountRequirements=req.data||[];missingAccountRequirements=missing.data||[];
+  const all=[accountReq,accountMissing,purchaseReq,purchaseMissing,downloadReq,downloadMissing];
+  const err=all.find(x=>x.error);if(err)throw err.error;
+  accountRequirements=accountReq.data||[];
+  missingAccountRequirements=accountMissing.data||[];
+  actionRequirements=uniqDocs([...(purchaseReq.data||[]),...(downloadReq.data||[])]);
+  missingActionRequirements=uniqDocs([...(purchaseMissing.data||[]),...(downloadMissing.data||[])]);
+}
+async function acceptRequiredActionLegal(){
+  const status=document.querySelector('#actionLegalStatus');
+  const boxes=[...document.querySelectorAll('[data-action-legal]')];
+  const unchecked=boxes.filter(x=>!x.checked);
+  if(unchecked.length){status.textContent='Accept each required current agreement to continue.';return}
+  status.textContent='Recording acceptance…';
+  for(const box of boxes){
+    const r=await supabase.rpc('accept_current_legal_document',{p_document_type:box.dataset.actionLegal,p_acceptance_method:'account_legal_review'});
+    if(r.error){status.textContent=r.error.message;return}
+  }
+  status.textContent='Accepted.';
+  setTimeout(()=>render(),300);
 }
 
 async function render(){
@@ -184,7 +216,7 @@ async function render(){
   const verified=Boolean(activeSession.user.email_confirmed_at);
 
   document.querySelector('#accountHeading').textContent=currentProfile.handle?'@'+currentProfile.handle:activeSession.user.email;
-  document.querySelector('#accountCopy').textContent=needsOnboarding?'Finish onboarding before protected actions.':(annual?'Annual collection access is active.':'Your CyberPop account is ready.');
+  document.querySelector('#accountCopy').textContent=needsOnboarding?'Finish onboarding before protected actions.':(missingActionRequirements.length?'Review current agreements before purchase/download actions.':(annual?'Annual collection access is active.':'Your CyberPop account is ready.'));
   summary.innerHTML='<div class="mini-card"><span>Email</span><strong>'+(verified?'Verified':'Verification required')+'</strong></div>'+
     '<div class="mini-card"><span>Owned models</span><strong>'+ownedProducts.length+'</strong></div>'+
     '<div class="mini-card"><span>Credits</span><strong>'+credits.balance+' C</strong></div>'+
@@ -205,7 +237,7 @@ async function render(){
 
   owned.innerHTML=unlocked.length?unlocked.map(collectionCard).join(''):stateMarkup('','No collection access yet','Permanent product unlocks can still appear in your Library independently of monthly collection access.');
 
-  if(returnTo&&!needsOnboarding&&verified){
+  if(returnTo&&!needsOnboarding&&verified&&!missingActionRequirements.length){
     history.replaceState(null,'',location.pathname);
     location.replace(returnTo);
   }
