@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080808">
+  <title>CyberPop Collection</title>
+  <meta name="description" content="CyberPop monthly collection detail.">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand-lockup" href="/"><i></i><span>CYBERPOP</span></a>
+    <button class="menu-toggle" type="button" aria-label="Open navigation">☰</button>
+    <nav class="site-nav">
+      <a href="/">Home</a>
+      <a class="active" href="/library">Library</a>
+      <a href="/#membership">Membership</a>
+      <a class="account-chip" href="/account"><span data-account-label>Account</span> ↗</a>
+    </nav>
+  </header>
+
+  <main class="site-shell">
+    <section class="section-tight" style="padding-top:38px">
+      <div id="collectionHero" class="skeleton" style="min-height:420px"></div>
+    </section>
+
+    <section id="accessArea" class="section-tight" hidden>
+      <div id="accessCode" class="access-code"></div>
+    </section>
+
+    <section class="section-tight">
+      <div class="section-head">
+        <div><span class="eyebrow">PRODUCTS</span><h2 class="section-title">Inside this drop.</h2></div>
+        <a class="btn btn-ghost" href="/library">← All collections</a>
+      </div>
+      <div id="productGrid" class="product-grid">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="site-shell footer-grid">
+      <div><strong>CYBERPOP</strong><p>Designer collectibles built for 3D printing.</p></div>
+      <div><div class="footer-label">Navigate</div><div class="footer-links"><a href="/library">Library</a><a href="/account">Account</a><a href="/#membership">Membership</a></div></div>
+      <div><div class="footer-label">Access</div><div class="footer-links"><span>Month-based library</span><span>Entitlement protected</span><span>Delivery links per account</span></div></div>
+    </div>
+  </footer>
+
+  <script type="module" src="/collection.js"></script>
+</body>
+</html>
