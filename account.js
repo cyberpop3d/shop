@@ -16,6 +16,7 @@ async function render(){
   const summary=document.querySelector('#accountSummary');
   const owned=document.querySelector('#ownedCollections');
 
+  document.querySelector('#profileSection').hidden=!session;
   if(!session){
     authMethods.hidden=false;
     document.querySelector('#accountHeading').textContent='Not signed in';
