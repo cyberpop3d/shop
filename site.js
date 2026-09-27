@@ -112,7 +112,16 @@ export function syncHeader(session,creditBalance=0,handle=null){
   const toggle=document.querySelector('.menu-toggle');
   if(toggle&&nav)toggle.onclick=()=>nav.classList.toggle('open');
 }
+export function ensureGlobalLegalFooter(){
+  const footer=document.querySelector('.footer');
+  if(!footer||footer.querySelector('.global-legal-footer'))return;
+  const row=document.createElement('div');
+  row.className='site-shell global-legal-footer';
+  row.innerHTML='<div class="global-legal-links"><a href="/terms">Terms</a><a href="/rights-of-use">Rights of Use</a><a href="/privacy">Privacy</a><a href="/refund-policy">Refund Policy</a><a href="/ip-policy">IP / Rights Holder</a><a href="/rights-center">Rights Center</a><a href="/license-faq">License FAQ</a></div><p>CyberPop creates independent digital designs, including original works and unofficial fan-created interpretations. Third-party names and properties remain the property of their respective rights holders. Rights holders may contact <a href="mailto:rights@yontuk.com">rights@yontuk.com</a>.</p>';
+  footer.appendChild(row);
+}
 export async function initChrome(){
+  ensureGlobalLegalFooter();
   const session=await getSession();
   let balance=0;
   let handle=null;
