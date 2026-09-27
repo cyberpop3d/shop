@@ -1,10 +1,11 @@
-import { supabase,initChrome,monthLabel,stateMarkup,esc } from '/site.js';
+import { supabase,initChrome,getSiteMediaSlots,setMediaImage,monthLabel,stateMarkup,esc } from '/site.js';
 
 let session=null,collections=[],products=[],libraryItems=[],activeFilter='all',searchTerm='',sortMode='newest';
 
 function collectionCard(c){
   const open=Boolean(c.has_access);
-  return '<a class="collection-card" href="/collection?slug='+encodeURIComponent(c.slug)+'"><div class="lock-art"></div><div class="collection-card-body"><div class="collection-card-top"><span class="eyebrow">'+esc(c.slug)+'</span><span class="badge '+(open?'open':'')+'">'+(open?'Unlocked':'Locked')+'</span></div><h3>'+esc(monthLabel(c.starts_on))+'</h3><p>'+Number(c.product_count||0)+' published product'+(Number(c.product_count||0)===1?'':'s')+' · '+(open?'Ready in your library':'Visible in the archive')+'</p></div></a>';
+  const media=c.cover_image_url?'<img src="'+esc(c.cover_image_url)+'" alt="'+esc(c.display_name||monthLabel(c.starts_on))+'">':'<div class="media-placeholder"><span>1200 × 900</span></div>';
+  return '<a class="collection-tile" href="/collection?slug='+encodeURIComponent(c.slug)+'"><div class="collection-tile-media">'+media+'</div><div class="collection-tile-copy"><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name||monthLabel(c.starts_on))+'</h3><p>'+Number(c.product_count||0)+' models · '+(open?'Unlocked':'Locked')+'</p></div></a>';
 }
 
 function itemFor(productId){return libraryItems.find(x=>x.product_id===productId)}
@@ -85,6 +86,8 @@ async function toggleFavorite(productId){
 
 async function loadLibrary(){
   session=await initChrome();
+  const slots=await getSiteMediaSlots();
+  setMediaImage(document.querySelector('#libraryHero'),slots.library_hero?.asset_url,'LIBRARY HERO · 1920 × 640');
   const notice=document.querySelector('#libraryNotice');
   const cta=document.querySelector('#libraryAccountCta');
   if(session){
@@ -98,14 +101,16 @@ async function loadLibrary(){
 
   const requests=[
     supabase.from('membership_collection_overview').select('*').order('starts_on',{ascending:false}),
-    supabase.from('membership_library_products').select('*')
+    supabase.from('membership_library_products').select('*'),
+    supabase.from('membership_collections').select('*').eq('is_published',true)
   ];
   if(session)requests.push(supabase.from('member_library_items').select('*'));
   const results=await Promise.all(requests);
   const err=results.find(x=>x.error);if(err)throw err.error;
-  collections=results[0].data||[];
+  const overview=results[0].data||[],rawCollections=results[2].data||[];
+  collections=overview.map(c=>({...c,...(rawCollections.find(x=>x.id===c.id)||{})}));
   products=results[1].data||[];
-  libraryItems=session?(results[2].data||[]):[];
+  libraryItems=session?(results[3].data||[]):[];
 
   const grid=document.querySelector('#collectionGrid');
   grid.innerHTML=collections.length?collections.map(collectionCard).join(''):stateMarkup('','No collection months yet','Published monthly drops will appear here automatically.');

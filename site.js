@@ -14,6 +14,18 @@ export function money(amount,currency='USD'){
 export function stateMarkup(type,title,copy){
   return '<div class="state-card '+esc(type||'')+'"><strong>'+esc(title)+'</strong><p>'+esc(copy)+'</p></div>';
 }
+export async function getSiteMediaSlots(){
+  const r=await supabase.from('site_media_slots').select('*');
+  if(r.error)throw r.error;
+  return Object.fromEntries((r.data||[]).map(x=>[x.slot_key,x]));
+}
+export function setMediaImage(container,imageUrl,label='MEDIA'){
+  if(!container)return;
+  const img=container.querySelector('img');
+  const placeholder=container.querySelector('.media-placeholder');
+  if(imageUrl&&img){img.src=imageUrl;img.hidden=false;if(placeholder)placeholder.hidden=true}
+  else{if(img){img.removeAttribute('src');img.hidden=true}if(placeholder){placeholder.hidden=false;const span=placeholder.querySelector('span');if(span&&label)span.textContent=label}}
+}
 export async function getSession(){
   const r=await supabase.auth.getSession();
   return r.data.session||null;

@@ -1,53 +1,8 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#080808">
-  <title>CyberPop Collection</title>
-  <meta name="description" content="CyberPop monthly collection detail.">
-  <link rel="stylesheet" href="/site.css">
-</head>
-<body>
-  <header class="site-header">
-    <a class="brand-lockup" href="/"><i></i><span>CYBERPOP</span></a>
-    <button class="menu-toggle" type="button" aria-label="Open navigation">☰</button>
-    <nav class="site-nav">
-      <a href="/">Home</a>
-      <a class="active" href="/library">Library</a>
-      <a href="/#membership">Membership</a>
-      <a class="account-chip" href="/account"><span data-account-label>Account</span> ↗</a>
-    </nav>
-  </header>
-
-  <main class="site-shell">
-    <section class="section-tight" style="padding-top:38px">
-      <div id="collectionHero" class="skeleton" style="min-height:420px"></div>
-    </section>
-
-    <section id="accessArea" class="section-tight" hidden>
-      <div id="accessCode" class="access-code"></div>
-    </section>
-
-    <section class="section-tight">
-      <div class="section-head">
-        <div><span class="eyebrow">PRODUCTS</span><h2 class="section-title">Inside this drop.</h2></div>
-        <a class="btn btn-ghost" href="/library">← All collections</a>
-      </div>
-      <div id="productGrid" class="product-grid">
-        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="site-shell footer-grid">
-      <div><strong>CYBERPOP</strong><p>Designer collectibles built for 3D printing.</p></div>
-      <div><div class="footer-label">Navigate</div><div class="footer-links"><a href="/library">Library</a><a href="/account">Account</a><a href="/#membership">Membership</a></div></div>
-      <div><div class="footer-label">Access</div><div class="footer-links"><span>Month-based library</span><span>Entitlement protected</span><span>Delivery links per account</span></div></div>
-    </div>
-  </footer>
-
-  <script type="module" src="/collection.js"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Collection — CyberPop</title><link rel="stylesheet" href="/site.css"></head><body>
+<header class="site-header"><a class="brand-lockup" href="/">CYBERPOP</a><button class="menu-toggle">☰</button><nav class="site-nav"><a href="/">Shop</a><a class="active" href="/collections">Collections</a><a href="/library">Library</a><a href="/membership">Membership</a><a href="/account"><span data-account-label>Account</span></a></nav></header>
+<section id="collectionHero" class="collection-detail-hero media-letterbox"><img alt="Collection artwork" hidden><div class="media-placeholder"><span>COLLECTION HERO · 1920 × 900</span></div><div class="hero-overlay"></div><div class="site-shell store-hero-content"><div class="store-hero-copy"><span id="collectionCrumb" class="eyebrow">COLLECTION</span><h1 id="collectionTitle">COLLECTION</h1><p id="collectionDescription">Monthly CyberPop drop.</p><div id="collectionMeta" class="hero-meta"></div></div></div></section>
+<main class="site-shell">
+<section class="section-tight"><div id="collectionFilters" class="filter-row"><button class="filter-chip active" data-filter="all">All</button><button class="filter-chip" data-filter="owned">Owned</button><button class="filter-chip" data-filter="locked">Locked</button><select id="collectionSort" class="field" style="margin-left:auto"><option value="newest">Sort: Newest</option><option value="oldest">Sort: Oldest</option><option value="az">Sort: A–Z</option></select></div><div id="productGrid" class="store-product-grid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div></section>
+<section id="accessArea" class="section-tight" hidden></section>
+</main>
+<footer class="footer"><div class="site-shell footer-grid"><div><strong>CYBERPOP</strong></div><div><a href="/collections">All Collections</a></div><div><a href="/library">Library</a></div></div></footer><script type="module" src="/collection.js"></script></body></html>
