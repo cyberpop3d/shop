@@ -29,6 +29,7 @@ async function loadAll(){
     supabase.from('membership_collections').select('*').order('starts_on',{ascending:false}),
     supabase.from('membership_products').select('*').order('collection_id').order('product_number'),
     supabase.from('membership_product_private').select('*'),
+    supabase.from('membership_product_delivery').select('*'),
     supabase.from('membership_customers').select('*').order('full_name'),
     supabase.from('membership_entitlements').select('*'),
     supabase.from('membership_subscriptions').select('*,membership_plans(name,plan_type)'),
@@ -36,8 +37,10 @@ async function loadAll(){
     supabase.from('membership_plans').select('*').order('sort_order')
   ]);
   const err=res.find(x=>x.error);if(err)throw err.error;
-  collections=res[0].data||[];products=res[1].data||[];privateRows=res[2].data||[];customers=res[3].data||[];
-  entitlements=res[4].data||[];subscriptions=res[5].data||[];codes=res[6].data||[];plans=res[7].data||[];
+  collections=res[0].data||[];products=res[1].data||[];privateRows=res[2].data||[];
+  const deliveryRows=res[3].data||[];
+  customers=res[5].data||[];entitlements=res[6].data||[];subscriptions=res[7].data||[];codes=res[8].data||[];plans=res[9].data||[];
+  products=products.map(p=>({...p,delivery:deliveryRows.find(d=>d.product_id===p.id)||null}));
   renderAll();
 }
 
@@ -110,11 +113,16 @@ $('#collectionForm').addEventListener('submit',async e=>{
 
 $('#productForm').addEventListener('submit',async e=>{
   e.preventDefault();setText('#productStatus','Adding product…');
-  const row={collection_id:$('#productCollection').value,product_number:Number($('#productNumber').value),thumbnail_url:$('#productThumbnail').value.trim()||null,cults_url:$('#productCultsUrl').value.trim()||null,is_included:true,is_published:true,sort_order:Number($('#productNumber').value)};
+  const row={collection_id:$('#productCollection').value,product_number:Number($('#productNumber').value),thumbnail_url:$('#productThumbnail').value.trim()||null,is_included:true,is_published:true,sort_order:Number($('#productNumber').value)};
   const p=await supabase.from('membership_products').insert(row).select('id').single();
   if(p.error){setText('#productStatus',p.error.message);return}
   const priv=await supabase.from('membership_product_private').insert({product_id:p.data.id,internal_name:$('#productInternalName').value.trim(),admin_note:$('#productNote').value.trim()||null});
   if(priv.error){await supabase.from('membership_products').delete().eq('id',p.data.id);setText('#productStatus',priv.error.message);return}
+  const deliveryUrl=$('#productCultsUrl').value.trim();
+  if(deliveryUrl){
+    const delivery=await supabase.from('membership_product_delivery').insert({product_id:p.data.id,cults_url:deliveryUrl});
+    if(delivery.error){await supabase.from('membership_products').delete().eq('id',p.data.id);setText('#productStatus',delivery.error.message);return}
+  }
   e.target.reset();setText('#productStatus','Product added and included by default.');await loadAll();
 });
 
