@@ -129,13 +129,24 @@ function renderProducts(){
   $('#products').innerHTML=products.map(p=>{
     const priv=privateRows.find(x=>x.product_id===p.id);
     const thumb=p.thumbnail_url?'<div class="record-thumb"><img src="'+esc(p.thumbnail_url)+'" alt=""></div>':'<div class="record-thumb empty">CP</div>';
-    return '<article class="record"><div class="record-head"><div class="record-main">'+thumb+'<div><h3>'+esc(p.public_title)+'</h3><p>Admin name: <strong>'+esc(priv?priv.internal_name:'—')+'</strong> · '+esc(collectionName(p.collection_id))+'</p></div></div>'+
-      '<div><span class="badge '+(p.is_included?'on':'')+'">'+(p.is_included?'INCLUDED':'EXCLUDED')+'</span> <span class="badge '+(p.is_published?'on':'')+'">'+(p.is_published?'VISIBLE':'HIDDEN')+'</span></div></div>'+
-      '<div class="actions"><label style="max-width:150px">Credit price<input data-credit-price="'+p.id+'" type="number" min="1" step="1" value="'+(p.credit_price??'')+'" placeholder="40"></label><button data-save-credit-price="'+p.id+'" class="secondary">Save price</button><button data-toggle-included="'+p.id+'">'+(p.is_included?'Exclude from membership':'Include in membership')+'</button><button data-toggle-published="'+p.id+'" class="secondary">'+(p.is_published?'Hide product':'Show product')+'</button></div></article>';
+    const legalWarn=p.legal_status!=='ACTIVE'||p.takedown_state!=='NONE';
+    return '<article class="record"><div class="record-head"><div class="record-main">'+thumb+'<div><h3>'+esc(p.public_title)+'</h3><p>Admin name: <strong>'+esc(priv?priv.internal_name:'—')+'</strong> · '+esc(collectionName(p.collection_id))+'</p><p>Property key: <strong>'+esc(priv?.rights_property_key||'—')+'</strong></p></div></div>'+
+      '<div><span class="badge '+(p.is_included?'on':'')+'">'+(p.is_included?'INCLUDED':'EXCLUDED')+'</span> <span class="badge '+(p.is_published?'on':'')+'">'+(p.is_published?'VISIBLE':'HIDDEN')+'</span> <span class="badge '+(legalWarn?'warn':'on')+'">'+esc(p.legal_status||'ACTIVE')+'</span></div></div>'+
+      '<div class="rights-admin-grid">'+
+        '<label>Credit price<input data-credit-price="'+p.id+'" type="number" min="1" step="1" value="'+(p.credit_price??'')+'" placeholder="40"></label>'+
+        '<label>IP Class<select data-ip-class="'+p.id+'"><option value="ORIGINAL" '+(p.ip_class==='ORIGINAL'?'selected':'')+'>ORIGINAL</option><option value="RIGHTS_CLEARED" '+(p.ip_class==='RIGHTS_CLEARED'?'selected':'')+'>RIGHTS_CLEARED</option><option value="UNOFFICIAL_FAN_WORK" '+(p.ip_class==='UNOFFICIAL_FAN_WORK'?'selected':'')+'>UNOFFICIAL_FAN_WORK</option></select></label>'+
+        '<label>License Scope<select data-license-scope="'+p.id+'"><option value="PERSONAL" '+(p.license_scope==='PERSONAL'?'selected':'')+'>PERSONAL</option><option value="PHYSICAL_COMMERCIAL" '+(p.license_scope==='PHYSICAL_COMMERCIAL'?'selected':'')+'>PHYSICAL_COMMERCIAL</option></select></label>'+
+        '<label>Subscription<select data-subscription-access="'+p.id+'"><option value="true" '+(p.subscription_access?'selected':'')+'>Included</option><option value="false" '+(!p.subscription_access?'selected':'')+'>Excluded</option></select></label>'+
+        '<label>Physical print<select data-commercial-print="'+p.id+'"><option value="false" '+(!p.commercial_print_allowed?'selected':'')+'>No</option><option value="true" '+(p.commercial_print_allowed?'selected':'')+'>Yes</option></select></label>'+
+        '<label>Fan notice<select data-fan-disclaimer="'+p.id+'"><option value="false" '+(!p.fan_art_disclaimer?'selected':'')+'>Off</option><option value="true" '+(p.fan_art_disclaimer?'selected':'')+'>On</option></select></label>'+
+        '<label>Rights property key<input data-rights-property="'+p.id+'" value="'+esc(priv?.rights_property_key||'')+'" placeholder="admin-only"></label>'+
+        '<label>License terms version<input data-license-version="'+p.id+'" value="'+esc(p.license_terms_version||'')+'" placeholder="optional"></label>'+
+      '</div>'+
+      '<div class="actions"><button data-save-rights="'+p.id+'">Save product rights</button><button data-toggle-included="'+p.id+'" class="secondary">'+(p.is_included?'Exclude membership':'Include membership')+'</button><button data-legal-action="HIDE" data-product-id="'+p.id+'" class="secondary">Hide</button><button data-legal-action="LEGAL_REVIEW" data-product-id="'+p.id+'" class="secondary">Legal review</button><button data-legal-action="TAKEDOWN" data-product-id="'+p.id+'" class="danger">Takedown</button><button data-legal-action="DISCONTINUE" data-product-id="'+p.id+'" class="secondary">Discontinue</button><button data-legal-action="DISABLE_DOWNLOADS" data-product-id="'+p.id+'" class="secondary">Disable downloads</button><button data-legal-action="ACTIVATE" data-product-id="'+p.id+'" class="secondary">Activate</button></div></article>';
   }).join('')||'<p class="small">No models added yet.</p>';
   document.querySelectorAll('[data-toggle-included]').forEach(b=>b.onclick=()=>toggleProduct(b.dataset.toggleIncluded,'is_included'));
-  document.querySelectorAll('[data-toggle-published]').forEach(b=>b.onclick=()=>toggleProduct(b.dataset.togglePublished,'is_published'));
-  document.querySelectorAll('[data-save-credit-price]').forEach(b=>b.onclick=()=>saveCreditPrice(b.dataset.saveCreditPrice));
+  document.querySelectorAll('[data-save-rights]').forEach(b=>b.onclick=()=>saveProductRights(b.dataset.saveRights));
+  document.querySelectorAll('[data-legal-action]').forEach(b=>b.onclick=()=>runLegalAction(b.dataset.productId,b.dataset.legalAction));
 }
 function optionRows(list,valueFn,labelFn){return list.map(x=>'<option value="'+esc(valueFn(x))+'">'+esc(labelFn(x))+'</option>').join('')}
 function renderSelects(){
@@ -163,13 +174,38 @@ async function toggleCollection(id){
   const r=await supabase.from('membership_collections').update({is_published:!c.is_published}).eq('id',id);
   if(r.error){notify(r.error.message,'error');return}notify('Collection visibility updated.');await loadAll();
 }
-async function saveCreditPrice(id){
-  const input=document.querySelector('[data-credit-price="'+id+'"]');
-  const value=input.value.trim();
-  const patch={credit_price:value?Number(value):null};
+async function saveProductRights(id){
+  const p=products.find(x=>x.id===id);if(!p)return;
+  const priceValue=document.querySelector('[data-credit-price="'+id+'"]').value.trim();
+  const ipClass=document.querySelector('[data-ip-class="'+id+'"]').value;
+  let licenseScope=document.querySelector('[data-license-scope="'+id+'"]').value;
+  let commercial=document.querySelector('[data-commercial-print="'+id+'"]').value==='true';
+  if(commercial)licenseScope='PHYSICAL_COMMERCIAL';
+  if(licenseScope==='PHYSICAL_COMMERCIAL')commercial=true;
+  const patch={
+    credit_price:priceValue?Number(priceValue):null,
+    ip_class:ipClass,
+    license_scope:licenseScope,
+    subscription_access:document.querySelector('[data-subscription-access="'+id+'"]').value==='true',
+    commercial_print_allowed:commercial,
+    fan_art_disclaimer:ipClass==='UNOFFICIAL_FAN_WORK'||document.querySelector('[data-fan-disclaimer="'+id+'"]').value==='true',
+    license_terms_version:document.querySelector('[data-license-version="'+id+'"]').value.trim()||null
+  };
+  const priv=privateRows.find(x=>x.product_id===id);
+  const propertyKey=document.querySelector('[data-rights-property="'+id+'"]').value.trim()||null;
+  const pr=priv
+    ? await supabase.from('membership_product_private').update({rights_property_key:propertyKey}).eq('product_id',id)
+    : await supabase.from('membership_product_private').insert({product_id:id,internal_name:'',rights_property_key:propertyKey});
+  if(pr.error){notify(pr.error.message,'error');return}
   const r=await supabase.from('membership_products').update(patch).eq('id',id);
   if(r.error){notify(r.error.message,'error');return}
-  notify(value?'Credit price updated.':'Credit price cleared.');await loadAll();
+  notify('Product rights metadata updated.');await loadAll();
+}
+async function runLegalAction(id,action){
+  const note=window.prompt('Optional internal note for '+action+':','')||null;
+  const r=await supabase.rpc('admin_set_product_legal_state',{p_product_id:id,p_action:action,p_note:note});
+  if(r.error){notify(r.error.message,'error');return}
+  notify('Legal state updated: '+action);await loadAll();
 }
 async function toggleProduct(id,field){
   const p=products.find(x=>x.id===id);if(!p)return;
@@ -189,10 +225,29 @@ $('#collectionForm').addEventListener('submit',async e=>{
 
 $('#productForm').addEventListener('submit',async e=>{
   e.preventDefault();setText('#productStatus','Adding product…');
-  const row={collection_id:$('#productCollection').value,product_number:Number($('#productNumber').value),thumbnail_url:$('#productThumbnail').value.trim()||null,is_included:true,is_published:true,sort_order:Number($('#productNumber').value)};
+  const ipClass=$('#productIpClass').value;
+  let licenseScope=$('#productLicenseScope').value;
+  let commercial=$('#productCommercialPrint').value==='true';
+  if(commercial)licenseScope='PHYSICAL_COMMERCIAL';
+  if(licenseScope==='PHYSICAL_COMMERCIAL')commercial=true;
+  const row={
+    collection_id:$('#productCollection').value,
+    product_number:Number($('#productNumber').value),
+    thumbnail_url:$('#productThumbnail').value.trim()||null,
+    is_included:true,is_published:true,sort_order:Number($('#productNumber').value),
+    ip_class:ipClass,license_scope:licenseScope,
+    subscription_access:$('#productSubscriptionAccess').value==='true',
+    commercial_print_allowed:commercial,
+    fan_art_disclaimer:ipClass==='UNOFFICIAL_FAN_WORK'||$('#productFanDisclaimer').value==='true'
+  };
   const p=await supabase.from('membership_products').insert(row).select('id').single();
   if(p.error){setText('#productStatus',p.error.message);return}
-  const priv=await supabase.from('membership_product_private').insert({product_id:p.data.id,internal_name:$('#productInternalName').value.trim(),admin_note:$('#productNote').value.trim()||null});
+  const priv=await supabase.from('membership_product_private').insert({
+    product_id:p.data.id,
+    internal_name:$('#productInternalName').value.trim(),
+    admin_note:$('#productNote').value.trim()||null,
+    rights_property_key:$('#productRightsPropertyKey').value.trim()||null
+  });
   if(priv.error){await supabase.from('membership_products').delete().eq('id',p.data.id);setText('#productStatus',priv.error.message);return}
   const deliveryUrl=$('#productCultsUrl').value.trim();
   if(deliveryUrl){

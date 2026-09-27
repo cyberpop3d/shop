@@ -39,10 +39,31 @@ async function toggleFavorite(productId,button){
 async function renderAccess(p){
   const access=document.querySelector('#productAccess');
   if(p.has_access){
+    let delivery='';
+    if(p.disable_new_downloads){
+      delivery='<button class="btn btn-ghost" disabled>Downloads currently unavailable</button>';
+    }else if(p.cults_url){
+      delivery='<a class="btn btn-light" href="'+esc(p.cults_url)+'" target="_blank" rel="noopener">Open on Cults →</a>';
+    }else if(currentSession){
+      const [missing,emailOk]=await Promise.all([
+        supabase.rpc('get_my_missing_legal_requirements',{p_scope:'download'}),
+        Promise.resolve(Boolean(currentSession.user.email_confirmed_at))
+      ]);
+      if(!emailOk)delivery='<a class="btn btn-ghost" href="/account?returnTo='+encodeURIComponent(safeReturnPath())+'">Verify email to download →</a>';
+      else if(!missing.error&&(missing.data||[]).length)delivery='<a class="btn btn-ghost" href="/account?returnTo='+encodeURIComponent(safeReturnPath())+'">Review download agreements →</a>';
+      else delivery='<button class="btn btn-ghost" disabled>Delivery link pending</button>';
+    }else{
+      delivery='<a class="btn btn-ghost" href="/account?returnTo='+encodeURIComponent(safeReturnPath())+'">Sign in for delivery →</a>';
+    }
     access.innerHTML='<div class="unlock-box"><span class="eyebrow">IN YOUR LIBRARY</span><div class="unlock-price"><strong>OWNED</strong></div>'+
-      '<p class="unlock-note">Ownership is verified by the backend entitlement state.</p>'+
-      (p.cults_url?'<a class="btn btn-light" href="'+esc(p.cults_url)+'" target="_blank" rel="noopener">Open on Cults →</a>':'<button class="btn btn-ghost" disabled>Delivery link pending</button>')+
-      '</div>';
+      '<p class="unlock-note">Ownership is verified by backend entitlement state. Hosting/download availability may be affected by legal or platform restrictions.</p>'+
+      delivery+
+      '<p class="download-license-note">Licensed to your account. Redistribution of the digital file is prohibited. Physical-print permissions, where applicable, are governed by the license attached to this product.</p></div>';
+    return;
+  }
+
+  if(p.disable_new_purchases){
+    access.innerHTML='<div class="unlock-box"><span class="eyebrow">MODEL ACCESS</span><div class="unlock-price"><strong>UNAVAILABLE</strong></div><p class="unlock-note">New unlocks are currently disabled for this model.</p></div>';
     return;
   }
 
@@ -124,9 +145,40 @@ async function performUnlock(productId,dialog){
     button.disabled=false;button.textContent='Unlock Model';
     return;
   }
+  if(data.status==='legal_acceptance_required'){
+    result.className='unlock-result error';
+    result.innerHTML='Current legal agreements must be accepted before this unlock. <a href="/account?returnTo='+encodeURIComponent(safeReturnPath())+'">Review agreements →</a>';
+    button.disabled=false;button.textContent='Review Agreements';
+    return;
+  }
+  if(data.status==='email_verification_required'){
+    result.className='unlock-result error';
+    result.innerHTML='Verify your email before unlocking models. <a href="/account?returnTo='+encodeURIComponent(safeReturnPath())+'">Open account →</a>';
+    button.disabled=false;button.textContent='Verification Required';
+    return;
+  }
+  if(data.status==='product_unavailable'){
+    result.className='unlock-result error';
+    result.textContent='This model is currently unavailable for new unlocks.';
+    button.disabled=true;button.textContent='Unavailable';
+    return;
+  }
   result.className='unlock-result error';
   result.textContent='Unlock could not be completed.';
   button.disabled=false;button.textContent='Try Again';
+}
+
+function renderRightsNotices(p){
+  const target=document.querySelector('#productRightsNotices');
+  const notices=[];
+  notices.push('<article class="rights-notice"><span class="eyebrow">DIGITAL FILE LICENSE</span><strong>'+(p.license_scope==='PHYSICAL_COMMERCIAL'?'Physical-print permission attached':'Personal use by default')+'</strong><p>Digital redistribution rights are never included. Do not resell, upload, share or redistribute STL/3MF/ZIP files or modified digital derivatives.</p><a href="/rights-of-use">View Rights of Use →</a></article>');
+  if(p.ip_class==='UNOFFICIAL_FAN_WORK'||p.fan_art_disclaimer){
+    notices.push('<article class="rights-notice warn"><span class="eyebrow">UNOFFICIAL FAN-CREATED WORK</span><strong>Not an official third-party product.</strong><p>Unofficial fan-created design. Not affiliated with, sponsored by, endorsed by or represented as an official product of any third-party rights holder. Third-party names, characters, trademarks and properties remain the property of their respective owners. Any license offered by CyberPop applies only to rights CyberPop is legally entitled to grant.</p><a href="/ip-policy">IP / Rights Holder Policy →</a></article>');
+  }
+  if(p.commercial_print_allowed||p.license_scope==='PHYSICAL_COMMERCIAL'){
+    notices.push('<article class="rights-notice"><span class="eyebrow">COMMERCIAL PHYSICAL PRINT PERMISSION</span><strong>Physical prints only.</strong><p>You manufacture and sell physical prints independently. You are responsible for manufacturing quality, materials, safety, labeling, taxes, marketplace compliance and any third-party rights applicable to your activity. This does not create an official third-party franchise license.</p><a href="/seller-license">Seller License Terms →</a></article>');
+  }
+  target.innerHTML=notices.join('');
 }
 
 async function load(){
@@ -146,7 +198,8 @@ async function load(){
   document.querySelector('#productEyebrow').textContent=p.collection_name||'MODEL';
   document.querySelector('#productName').textContent=p.public_title;
   document.querySelector('#productDescription').textContent=raw.data?.description||'CyberPop multipart collectible model.';
-  document.querySelector('#productTags').innerHTML='<span>'+(p.multipart?'MULTIPART':'MODEL')+'</span><span>'+(p.ams_required?'AMS':'NO AMS')+'</span>'+(p.height_mm?'<span>'+p.height_mm+' MM</span>':'')+(p.credit_price?'<span>'+Number(p.credit_price)+' C</span>':'');
+  document.querySelector('#productTags').innerHTML='<span>'+(p.multipart?'MULTIPART':'MODEL')+'</span><span>'+(p.ams_required?'AMS':'NO AMS')+'</span>'+(p.height_mm?'<span>'+p.height_mm+' MM</span>':'')+(p.credit_price?'<span>'+Number(p.credit_price)+' C</span>':'')+'<span>'+(p.license_scope==='PHYSICAL_COMMERCIAL'?'PHYSICAL PRINT PERMISSION':'PERSONAL LICENSE')+'</span>';
+  renderRightsNotices(p);
 
   const images=[...(g.data||[])];
   if(p.thumbnail_url&&!images.some(x=>x.image_url===p.thumbnail_url))images.unshift({image_url:p.thumbnail_url});

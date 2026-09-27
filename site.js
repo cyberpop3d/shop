@@ -32,15 +32,15 @@ export async function getSession(){
 }
 export async function ensureCustomerProfile(session){
   if(!session||!session.user||!session.user.email)return;
-  const meta=session.user.user_metadata||{};
-  const fallback=session.user.email.split('@')[0].replace(/[._-]+/g,' ').trim()||'Member';
-  const fullName=String(meta.full_name||meta.name||fallback).trim();
 
   const existing=await supabase.from('membership_customers').select('user_id').eq('user_id',session.user.id).maybeSingle();
   if(existing.error)throw existing.error;
   if(!existing.data){
     const created=await supabase.from('membership_customers').insert({
-      user_id:session.user.id,full_name:fullName,email:session.user.email,client_type:'professional'
+      user_id:session.user.id,
+      full_name:null,
+      email:session.user.email,
+      client_type:'professional'
     });
     if(created.error&&created.error.code!=='23505')throw created.error;
   }
@@ -50,7 +50,7 @@ export async function ensureCustomerProfile(session){
   if(!profileExisting.data){
     const profileCreated=await supabase.from('member_profiles').insert({
       user_id:session.user.id,
-      display_name:fullName
+      display_name:null
     });
     if(profileCreated.error&&profileCreated.error.code!=='23505')throw profileCreated.error;
   }
@@ -66,8 +66,20 @@ export async function googleProviderReady(){
 export async function signInGoogle(redirectPath='/account'){
   return supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+redirectPath}});
 }
-export async function sendMagicLink(email,redirectPath='/account'){
-  return supabase.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.origin+redirectPath}});
+export async function signInWithPassword(email,password){
+  return supabase.auth.signInWithPassword({email,password});
+}
+export async function signUpWithPassword(email,password,redirectPath='/account'){
+  return supabase.auth.signUp({
+    email,password,
+    options:{emailRedirectTo:location.origin+redirectPath}
+  });
+}
+export async function resendSignupConfirmation(email,redirectPath='/account'){
+  return supabase.auth.resend({
+    type:'signup',email,
+    options:{emailRedirectTo:location.origin+redirectPath}
+  });
 }
 export async function signOut(){
   await supabase.auth.signOut();
@@ -80,8 +92,8 @@ export async function getCreditSummary(){
   const row=Array.isArray(r.data)?r.data[0]:r.data;
   return {balance:Number(row?.balance||0),transaction_count:Number(row?.transaction_count||0)};
 }
-export function syncHeader(session,creditBalance=0){
-  const label=session&&session.user?session.user.email.split('@')[0]:'Account';
+export function syncHeader(session,creditBalance=0,handle=null){
+  const label=session&&session.user?(handle?'@'+handle:session.user.email.split('@')[0]):'Account';
   document.querySelectorAll('[data-account-label]').forEach(el=>el.textContent=label);
   const nav=document.querySelector('.site-nav');
   if(nav&&session){
@@ -100,13 +112,27 @@ export function syncHeader(session,creditBalance=0){
   const toggle=document.querySelector('.menu-toggle');
   if(toggle&&nav)toggle.onclick=()=>nav.classList.toggle('open');
 }
+export function ensureGlobalLegalFooter(){
+  const footer=document.querySelector('.footer');
+  if(!footer||footer.querySelector('.global-legal-footer')||footer.querySelector('a[href="/terms"]'))return;
+  const row=document.createElement('div');
+  row.className='site-shell global-legal-footer';
+  row.innerHTML='<div class="global-legal-links"><a href="/terms">Terms</a><a href="/rights-of-use">Rights of Use</a><a href="/privacy">Privacy</a><a href="/refund-policy">Refund Policy</a><a href="/ip-policy">IP / Rights Holder</a><a href="/rights-center">Rights Center</a><a href="/license-faq">License FAQ</a></div><p>CyberPop creates independent digital designs, including original works and unofficial fan-created interpretations. Third-party names and properties remain the property of their respective rights holders. Rights holders may contact <a href="mailto:rights@yontuk.com">rights@yontuk.com</a>.</p>';
+  footer.appendChild(row);
+}
 export async function initChrome(){
+  ensureGlobalLegalFooter();
   const session=await getSession();
   let balance=0;
+  let handle=null;
   if(session){
     await ensureCustomerProfile(session);
     try{balance=(await getCreditSummary()).balance}catch(error){console.warn('Credit summary unavailable',error)}
+    try{
+      const p=await supabase.from('member_profiles').select('handle').eq('user_id',session.user.id).maybeSingle();
+      if(!p.error)handle=p.data?.handle||null;
+    }catch(_){}
   }
-  syncHeader(session,balance);
+  syncHeader(session,balance,handle);
   return session;
 }

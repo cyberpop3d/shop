@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rights Center — CyberPop</title><link rel="stylesheet" href="/site.css"></head><body>
+<header class="site-header"><a class="brand-lockup" href="/">CYBERPOP</a><button class="menu-toggle">☰</button><nav class="site-nav"><a href="/">Shop</a><a href="/collections">Collections</a><a href="/library">Library</a><a href="/membership">Membership</a><a href="/account"><span data-account-label>Account</span></a></nav></header>
+<main class="site-shell legal-shell"><section class="legal-hero"><span class="eyebrow">INTELLECTUAL PROPERTY</span><h1>RIGHTS CENTER</h1><p>For rights holders, authorized representatives, piracy reports and unauthorized physical-sale reports.</p><div class="notice" style="margin-top:18px"><span>Rights-holder contact: <strong>rights@yontuk.com</strong></span></div></section>
+<section class="rights-center-grid">
+<div class="account-card"><span class="eyebrow">OUR PROCESS</span><h2>Review, verify, act.</h2><p>CyberPop does not claim ownership of third-party characters, trademarks, brands or fictional properties. A verified request may lead to legal review, suspension, takedown or a do-not-publish property block. Removal does not by itself constitute an admission of infringement or liability.</p><p>For piracy or unauthorized seller reports, CyberPop reviews the evidence before contacting a marketplace, hosting service, social platform or payment provider. Those third parties make their own enforcement decisions under their own policies.</p></div>
+<div class="account-card"><span class="eyebrow">SUBMIT A REPORT</span><h2>Rights & piracy report.</h2>
+<form id="rightsReportForm" class="profile-form">
+<label>Report type<select id="reportType" class="field"><option value="rights_holder">Rights holder / representative</option><option value="piracy">Digital piracy</option><option value="unauthorized_physical_sale">Unauthorized physical sale</option></select></label>
+<label>Name<input id="reporterName" class="field" required maxlength="120"></label>
+<label>Company / organization<input id="reportCompany" class="field" maxlength="160"></label>
+<label>Contact email<input id="reportEmail" class="field" type="email" required maxlength="200"></label>
+<label>Relevant IP / property<input id="reportIp" class="field" maxlength="200"></label>
+<label>CyberPop URL<input id="reportCyberpopUrl" class="field" type="url" placeholder="https://..."></label>
+<label class="profile-wide">External URL / evidence link<input id="reportExternalUrl" class="field" type="url" placeholder="https://..."></label>
+<label class="profile-wide">Explanation<textarea id="reportExplanation" class="field profile-textarea" required maxlength="4000"></textarea></label>
+<label id="authorityLabel" class="profile-wide legal-check"><input id="authorityConfirmed" type="checkbox"><span>I confirm that I am the rights holder or am authorized to submit this request on the rights holder’s behalf.</span></label>
+<div class="profile-wide profile-actions"><button class="btn btn-primary" type="submit">Submit report</button><span id="rightsReportStatus" class="small"></span></div>
+</form></div></section></main>
+<footer class="footer"><div class="site-shell footer-grid"><div><strong>CYBERPOP</strong></div><div><a href="/ip-policy">IP Policy</a></div><div><a href="mailto:rights@yontuk.com">rights@yontuk.com</a></div></div></footer><script type="module" src="/rights-center.js"></script></body></html>

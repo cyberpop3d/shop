@@ -5,107 +5,163 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#080808">
   <title>CyberPop Account</title>
-  <meta name="description" content="CyberPop member account and collection access.">
+  <meta name="description" content="CyberPop account, Library, credits and legal agreements.">
   <link rel="stylesheet" href="/site.css">
 </head>
 <body>
-  <header class="site-header">
-    <a class="brand-lockup" href="/">CYBERPOP</a>
-    <button class="menu-toggle" type="button" aria-label="Open navigation">☰</button>
-    <nav class="site-nav">
-      <a href="/">Shop</a>
-      <a href="/collections">Collections</a>
-      <a href="/library">Library</a>
-      <a href="/membership">Membership</a>
-      <a class="account-chip active" href="/account"><span data-account-label>Account</span> ↗</a>
-    </nav>
-  </header>
+<header class="site-header">
+  <a class="brand-lockup" href="/">CYBERPOP</a>
+  <button class="menu-toggle" type="button" aria-label="Open navigation">☰</button>
+  <nav class="site-nav">
+    <a href="/">Shop</a><a href="/collections">Collections</a><a href="/library">Library</a>
+    <a href="/membership">Membership</a>
+    <a class="account-chip active" href="/account"><span data-account-label>Account</span> ↗</a>
+  </nav>
+</header>
 
-  <main class="site-shell">
-    <section class="page-hero">
-      <span class="eyebrow">MEMBER ACCOUNT</span>
-      <div class="page-hero-row">
-        <div><h1>Your access, in one place.</h1><p class="section-copy">Sign in to see active membership status, unlocked months and account-specific collection access.</p></div>
-      </div>
-    </section>
+<datalist id="countryOptions"></datalist>
+<main class="site-shell">
+  <section class="page-hero">
+    <span class="eyebrow">MEMBER ACCOUNT</span>
+    <div class="page-hero-row"><div>
+      <h1>Your CyberPop identity.</h1>
+      <p class="section-copy">Your public username and private payment identity are separate. Legal name is not required to browse, favorite models or build a Library.</p>
+    </div></div>
+  </section>
 
-    <section class="section-tight account-layout">
-      <div id="authCard" class="auth-card">
-        <span class="eyebrow">SIGN IN</span>
-        <h2>Enter your library.</h2>
-        <p>Use Google or a secure email link. For consistent access, sign in with the same email you use for your CyberPop membership.</p>
-        <div id="authMethods" class="auth-methods">
-          <button id="googleButton" class="google-btn" type="button" disabled>Continue with Google</button>
-          <div class="auth-divider"><span>or</span></div>
-          <form id="emailForm" class="email-form">
-            <input id="emailInput" class="field" type="email" required autocomplete="email" placeholder="you@example.com">
-            <button class="btn btn-primary" type="submit">Send sign-in link</button>
-          </form>
+  <section class="section-tight account-layout">
+    <div id="authCard" class="auth-card">
+      <span class="eyebrow">ACCOUNT ACCESS</span>
+      <h2>Enter CyberPop.</h2>
+      <p>Continue with Google, or use a verified email and password.</p>
+      <div id="authMethods" class="auth-methods">
+        <button id="googleButton" class="google-btn" type="button" disabled>Continue with Google</button>
+        <div class="auth-divider"><span>or</span></div>
+        <div class="auth-mode-tabs">
+          <button type="button" class="auth-mode active" data-auth-mode="signin">Sign in</button>
+          <button type="button" class="auth-mode" data-auth-mode="signup">Create account</button>
         </div>
-        <div id="authStatus" class="notice" style="margin-top:14px"><span>Access is tied to your signed-in account.</span></div>
-      </div>
-
-      <div id="accountPanel" class="account-card">
-        <span class="eyebrow">ACCOUNT STATUS</span>
-        <h2 id="accountHeading">Not signed in</h2>
-        <p id="accountCopy">Sign in to load your member profile.</p>
-        <div id="accountSummary" class="account-summary" style="margin-top:22px">
-          <div class="skeleton"></div><div class="skeleton"></div>
-        </div>
-        <div id="signOutArea" style="margin-top:18px" hidden><button id="signOutButton" class="btn btn-ghost">Sign out</button></div>
-      </div>
-    </section>
-
-    <section class="section-tight" id="profileSection">
-      <div class="section-head">
-        <div><span class="eyebrow">PROFILE</span><h2 class="section-title">Your CyberPop profile.</h2></div>
-        <p class="section-copy">This profile belongs to the CyberPop library only. It does not change your billing identity or payment details.</p>
-      </div>
-      <div class="account-card">
-        <form id="profileForm" class="profile-form">
-          <label>Display name<input id="profileDisplayName" class="field" maxlength="80" placeholder="Display name"></label>
-          <label>Username<input id="profileHandle" class="field" maxlength="40" placeholder="@username"></label>
-          <label>Country<input id="profileCountry" class="field" maxlength="80" placeholder="Optional"></label>
-          <label>Primary printer<input id="profilePrinter" class="field" maxlength="120" placeholder="Optional"></label>
-          <label class="profile-wide">Bio<textarea id="profileBio" class="field profile-textarea" maxlength="280" placeholder="Optional short profile bio"></textarea></label>
-          <div class="profile-wide profile-actions"><button class="btn btn-primary" type="submit">Save profile</button><span id="profileStatus" class="small"></span></div>
+        <form id="emailForm" class="auth-email-form">
+          <input id="emailInput" class="field" type="email" required autocomplete="email" placeholder="Email address">
+          <input id="passwordInput" class="field" type="password" required minlength="8" autocomplete="current-password" placeholder="Password">
+          <input id="passwordConfirmInput" class="field" type="password" minlength="8" autocomplete="new-password" placeholder="Confirm password" hidden>
+          <button id="emailSubmitButton" class="btn btn-primary" type="submit">Sign in</button>
         </form>
       </div>
-    </section>
-
-    <section class="section-tight" id="credits">
-      <div class="section-head">
-        <div><span class="eyebrow">CREDITS</span><h2 class="section-title">Balance & history.</h2></div>
-        <p class="section-copy">Your visible balance is backend-derived. Credit history is an append-only ledger; corrections use new reversing entries rather than deleting history.</p>
-      </div>
-      <div class="account-card">
-        <div class="account-summary">
-          <div class="mini-card"><span>Current balance</span><strong id="creditBalanceLarge">0 C</strong></div>
-          <div class="mini-card"><span>Transactions</span><strong id="creditTransactionCount">0</strong></div>
-        </div>
-        <div id="creditHistory" class="credit-history" style="margin-top:18px"></div>
-      </div>
-    </section>
-
-    <section class="section-tight">
-      <div class="section-head">
-        <div><span class="eyebrow">MY COLLECTIONS</span><h2 class="section-title">Unlocked months.</h2></div>
-        <a class="btn btn-ghost" href="/library">Open personal library</a>
-      </div>
-      <div id="ownedCollections" class="collection-grid">
-        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="site-shell footer-grid">
-      <div><strong>CYBERPOP</strong><p>Designer collectibles built for 3D printing.</p></div>
-      <div><div class="footer-label">Account</div><div class="footer-links"><a href="/library">Library</a><a href="/#membership">Membership</a><span>Secure member access</span></div></div>
-      <div><div class="footer-label">Support</div><div class="footer-links"><span>Account access</span><span>Collection codes</span><span>Membership history</span></div></div>
+      <div id="authStatus" class="notice" style="margin-top:14px"><span>Your password is handled by Supabase Auth and is never stored in CyberPop application tables.</span></div>
     </div>
-  </footer>
 
-  <script type="module" src="/account.js"></script>
-</body>
-</html>
+    <div id="accountPanel" class="account-card">
+      <span class="eyebrow">ACCOUNT STATUS</span>
+      <h2 id="accountHeading">Not signed in</h2>
+      <p id="accountCopy">Sign in to load your account.</p>
+      <div id="accountSummary" class="account-summary" style="margin-top:22px">
+        <div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+      <div id="signOutArea" style="margin-top:18px" hidden><button id="signOutButton" class="btn btn-ghost">Sign out</button></div>
+    </div>
+  </section>
+
+  <section class="section-tight" id="onboardingSection" hidden>
+    <div class="section-head">
+      <div><span class="eyebrow">WELCOME TO CYBERPOP</span><h2 class="section-title">Finish your account.</h2></div>
+      <p class="section-copy">Choose your public username and private country/region. We do not ask for your legal name here.</p>
+    </div>
+    <div class="account-card">
+      <form id="onboardingForm" class="profile-form">
+        <label>Username
+          <input id="onboardingHandle" class="field" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" placeholder="@modelmaker" required>
+          <span class="field-help">3–24 characters. Letters, numbers and underscore. Usernames are case-insensitively unique.</span>
+        </label>
+        <label>Country / Region
+          <input id="onboardingCountry" class="field" list="countryOptions" autocomplete="off" placeholder="Search country / region" required>
+          <span class="field-help">PRIVATE — never displayed publicly.</span>
+        </label>
+        <div id="onboardingLegal" class="profile-wide legal-checks"></div>
+        <div class="profile-wide profile-actions">
+          <button id="completeOnboarding" class="btn btn-primary" type="submit">Create account</button>
+          <span id="onboardingStatus" class="small"></span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="section-tight" id="profileSection" hidden>
+    <div class="section-head">
+      <div><span class="eyebrow">PROFILE</span><h2 class="section-title">Account details.</h2></div>
+      <p class="section-copy">Username is your CyberPop identity. Country remains private and is not shown on public activity.</p>
+    </div>
+    <div class="account-card">
+      <form id="profileForm" class="profile-form">
+        <label>Username<input id="profileHandle" class="field" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" placeholder="@username"></label>
+        <label>Email<input id="profileEmail" class="field" disabled></label>
+        <label>Country / Region<input id="profileCountry" class="field" list="countryOptions" autocomplete="off" placeholder="Search country / region"><span class="field-help">PRIVATE — never displayed publicly.</span></label>
+        <label>Primary printer<input id="profilePrinter" class="field" maxlength="120" placeholder="Optional"></label>
+        <label class="profile-wide">Bio<textarea id="profileBio" class="field profile-textarea" maxlength="280" placeholder="Optional short profile bio"></textarea></label>
+        <div class="profile-wide profile-actions"><button class="btn btn-primary" type="submit">Save account</button><span id="profileStatus" class="small"></span></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="section-tight" id="credits" hidden>
+    <div class="section-head">
+      <div><span class="eyebrow">CREDITS</span><h2 class="section-title">Balance & history.</h2></div>
+      <p class="section-copy">Credits are closed-loop CyberPop platform usage units. They are not cash, transferable value or an investment product.</p>
+    </div>
+    <div class="account-card">
+      <div class="account-summary">
+        <div class="mini-card"><span>Current balance</span><strong id="creditBalanceLarge">0 C</strong></div>
+        <div class="mini-card"><span>Transactions</span><strong id="creditTransactionCount">0</strong></div>
+      </div>
+      <div id="creditHistory" class="credit-history" style="margin-top:18px"></div>
+    </div>
+  </section>
+
+  <section class="section-tight" id="legalSection" hidden>
+    <div class="section-head">
+      <div><span class="eyebrow">LEGAL AGREEMENTS</span><h2 class="section-title">Accepted versions.</h2></div>
+      <p class="section-copy">CyberPop records the specific legal document version accepted by your account rather than a generic “accepted=true” flag.</p>
+    </div>
+    <div id="legalAgreementList" class="account-card"></div>
+  </section>
+
+  <section class="section-tight" id="sellerLicenseSection" hidden>
+    <div class="section-head">
+      <div><span class="eyebrow">SELLER LICENSE</span><h2 class="section-title">Physical print permission.</h2></div>
+      <p class="section-copy">Digital redistribution is never included. Any physical-print permission covers only rights CyberPop is legally entitled to grant.</p>
+    </div>
+    <div id="sellerLicenseCard" class="account-card"></div>
+  </section>
+
+  <section class="section-tight" id="purchaseSection" hidden>
+    <div class="section-head">
+      <div><span class="eyebrow">PURCHASE HISTORY</span><h2 class="section-title">Payments.</h2></div>
+      <p class="section-copy">Payment identity is private and separate from your public CyberPop username.</p>
+    </div>
+    <div id="purchaseHistory" class="account-card"></div>
+  </section>
+
+  <section class="section-tight">
+    <div class="section-head">
+      <div><span class="eyebrow">MY COLLECTIONS</span><h2 class="section-title">Unlocked months.</h2></div>
+      <a class="btn btn-ghost" href="/library">Open personal library</a>
+    </div>
+    <div id="ownedCollections" class="collection-grid">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="site-shell footer-grid">
+    <div><strong>CYBERPOP</strong><p>Independent digital designs and 3D-printable collectibles.</p></div>
+    <div><div class="footer-label">Legal</div><div class="footer-links">
+      <a href="/terms">Terms</a><a href="/rights-of-use">Rights of Use</a><a href="/privacy">Privacy</a><a href="/refund-policy">Refund Policy</a>
+    </div></div>
+    <div><div class="footer-label">Rights & Support</div><div class="footer-links">
+      <a href="/ip-policy">IP / Rights Holder</a><a href="/rights-center">Rights Center</a><a href="/license-faq">License FAQ</a><a href="mailto:rights@yontuk.com">Contact</a>
+    </div></div>
+  </div>
+</footer>
+<script type="module" src="/account.js"></script>
+</body></html>
