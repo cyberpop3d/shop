@@ -70,6 +70,22 @@
         <div id="legalDocuments" class="stack"></div>
       </section>
 
+      <div class="section-label">Seller licenses</div>
+      <section class="panel">
+        <span class="eyebrow">PHYSICAL PRINT SELLERS</span><h2>Seller License status</h2>
+        <p class="small">Seller License covers physical-print permission only and never grants digital redistribution rights or third-party IP rights.</p>
+        <form id="sellerLicenseForm" class="form-grid">
+          <label>Customer<select id="sellerUser" required></select></label>
+          <label>Status<select id="sellerStatus"><option value="active">Active</option><option value="review">Review</option><option value="suspended">Suspended</option><option value="revoked">Revoked</option><option value="expired">Expired</option><option value="inactive">Inactive</option></select></label>
+          <label>Terms version<input id="sellerTermsVersion" placeholder="current seller terms version"></label>
+          <label>Expires at<input id="sellerExpires" type="date"></label>
+          <label class="wide">Admin note<input id="sellerNote" placeholder="optional"></label>
+          <button class="wide">Save Seller License</button>
+        </form>
+        <p id="sellerStatusLine" class="status-line"></p>
+        <div id="sellerLicenses" class="stack"></div>
+      </section>
+
       <div class="section-label">Audit</div>
       <section class="panel">
         <span class="eyebrow">LEGAL AUDIT LOG</span><h2>Recent admin actions</h2>
