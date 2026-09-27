@@ -39,7 +39,7 @@ async function loadAll(){
   const err=res.find(x=>x.error);if(err)throw err.error;
   collections=res[0].data||[];products=res[1].data||[];privateRows=res[2].data||[];
   const deliveryRows=res[3].data||[];
-  customers=res[5].data||[];entitlements=res[6].data||[];subscriptions=res[7].data||[];codes=res[8].data||[];plans=res[9].data||[];
+  customers=res[4].data||[];entitlements=res[5].data||[];subscriptions=res[6].data||[];codes=res[7].data||[];plans=res[8].data||[];
   products=products.map(p=>({...p,delivery:deliveryRows.find(d=>d.product_id===p.id)||null}));
   renderAll();
 }
