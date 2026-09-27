@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CyberPop Library Admin</title>
+  <link rel="stylesheet" href="/admin/library.css">
+</head>
+<body>
+  <header class="topbar">
+    <a href="/admin/">← Admin</a>
+    <strong>CYBERPOP LIBRARY CONTROL</strong>
+    <a href="/">Customer view</a>
+  </header>
+
+  <main class="shell">
+    <section class="wire-note"><strong>FOUNDATION ADMIN</strong><span>No payment provider is required for these controls.</span></section>
+
+    <section class="panel" id="loginPanel">
+      <span class="eyebrow">ADMIN AUTH</span>
+      <h1>Sign in</h1>
+      <form id="loginForm" class="inline-form">
+        <input id="loginEmail" type="email" required placeholder="admin email">
+        <button>Send sign-in link</button>
+      </form>
+      <p id="loginStatus" class="small"></p>
+    </section>
+
+    <div id="adminApp" hidden>
+      <section id="stats" class="stats"></section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div><span class="eyebrow">MONTHS</span><h2>Collection months</h2></div>
+          <button id="refresh" class="secondary">Refresh</button>
+        </div>
+        <form id="collectionForm" class="form-grid">
+          <label>Year<input id="collectionYear" type="number" min="2020" max="2100" value="2026" required></label>
+          <label>Month<select id="collectionMonth" required></select></label>
+          <label>Visibility<select id="collectionPublished"><option value="true">Published</option><option value="false">Draft</option></select></label>
+          <button>Add collection month</button>
+        </form>
+        <div id="collections" class="stack"></div>
+      </section>
+
+      <section class="panel">
+        <span class="eyebrow">CATALOG</span><h2>Add a model</h2>
+        <p class="small">Internal character names stay in the admin-only table. Customers only see “October Collection Product #1” style names.</p>
+        <form id="productForm" class="form-grid">
+          <label>Collection<select id="productCollection" required></select></label>
+          <label>Internal name<input id="productInternalName" required placeholder="Character name — admin only"></label>
+          <label>Product number<input id="productNumber" type="number" min="1" required></label>
+          <label>Thumbnail URL<input id="productThumbnail" type="url" placeholder="optional"></label>
+          <label>Cults product URL<input id="productCultsUrl" type="url" placeholder="optional"></label>
+          <label class="wide">Admin note<input id="productNote" placeholder="optional"></label>
+          <button class="wide">Add product · included by default</button>
+        </form>
+        <p id="productStatus" class="small"></p>
+      </section>
+
+      <section class="panel">
+        <div class="section-head"><div><span class="eyebrow">MODEL SETTINGS</span><h2>Membership inclusion</h2></div></div>
+        <div id="products" class="stack"></div>
+      </section>
+
+      <section class="panel">
+        <span class="eyebrow">ACCESS LAB</span><h2>Test membership rules without Payoneer</h2>
+        <div class="two-col">
+          <form id="monthlyAccessForm" class="form-grid">
+            <h3 class="wide">Monthly entitlement</h3>
+            <label>Customer<select id="monthlyCustomer" required></select></label>
+            <label>Collection<select id="monthlyCollection" required></select></label>
+            <button id="grantMonthly" type="submit">Grant month</button>
+            <button id="revokeMonthly" type="button" class="secondary">Revoke month</button>
+          </form>
+          <form id="annualAccessForm" class="form-grid">
+            <h3 class="wide">Annual entitlement</h3>
+            <label>Customer<select id="annualCustomer" required></select></label>
+            <label>Start month<input id="annualStart" type="month" value="2026-10" required></label>
+            <button type="submit">Grant 12 months</button>
+            <button id="revokeAnnual" type="button" class="secondary">Revoke annual</button>
+          </form>
+        </div>
+        <p id="accessStatus" class="small"></p>
+      </section>
+
+      <section class="panel">
+        <span class="eyebrow">CULTS DELIVERY</span><h2>Assign a collection code</h2>
+        <form id="codeForm" class="form-grid">
+          <label>Customer<select id="codeCustomer" required></select></label>
+          <label>Collection<select id="codeCollection" required></select></label>
+          <label>Cults code<input id="cultsCode" placeholder="OCT-XXXX"></label>
+          <label>Cults URL<input id="cultsUrl" type="url" placeholder="https://cults3d.com/..."></label>
+          <label class="wide">Note<input id="codeNote" placeholder="optional"></label>
+          <button class="wide">Save code</button>
+        </form>
+        <p id="codeStatus" class="small"></p>
+      </section>
+
+      <section class="panel">
+        <span class="eyebrow">PLANS</span><h2>Monthly / annual setup</h2>
+        <div id="plans" class="stack"></div>
+      </section>
+    </div>
+  </main>
+  <script type="module" src="/admin/library.js"></script>
+</body>
+</html>

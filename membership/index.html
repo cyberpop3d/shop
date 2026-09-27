@@ -1,110 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CyberPop Membership</title>
-  <meta name="description" content="CyberPop design membership and Payoneer payment request portal" />
-  <link rel="stylesheet" href="/membership/membership.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="refresh" content="0;url=/">
+  <title>CyberPop Library</title>
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="/">CYBERPOP</a>
-    <nav><a href="/">Shop</a><a href="/membership/" class="active">Membership</a></nav>
-  </header>
-
-  <main class="shell">
-    <section class="hero">
-      <div>
-        <span class="eyebrow">DIRECT DESIGN MEMBERSHIP</span>
-        <h1>Membership, billed directly through Payoneer.</h1>
-        <p>Choose a membership term, verify your account, and request billing. Your payment request is sent separately through Payoneer. Once confirmed, your access is activated here.</p>
-      </div>
-      <div class="flow">
-        <span>01 Request</span><span>02 Payoneer</span><span>03 Access</span>
-      </div>
-    </section>
-
-    <section class="notice">
-      <strong>Business / professional billing only.</strong>
-      <span>This portal records membership requests and access. Payoneer payment requests are sent manually and are not an automated consumer checkout.</span>
-    </section>
-
-    <section class="panel">
-      <div class="section-head">
-        <div><span class="eyebrow">PLANS</span><h2>Choose your term</h2></div>
-        <button id="refreshButton" class="ghost">Refresh</button>
-      </div>
-      <div id="plans" class="plan-grid"><p class="muted">Loading plans…</p></div>
-    </section>
-
-    <section class="grid-two">
-      <section class="panel" id="authPanel">
-        <span class="eyebrow">ACCOUNT</span>
-        <h2 id="authTitle">Verify your email</h2>
-        <p id="authCopy" class="muted">We use your verified email to match membership records and payment requests.</p>
-        <form id="loginForm">
-          <label>Email<input id="loginEmail" type="email" required autocomplete="email" placeholder="you@company.com"></label>
-          <button type="submit">Send sign-in link</button>
-        </form>
-        <div id="sessionBox" hidden>
-          <div class="session-row"><span id="sessionEmail"></span><button id="signOutButton" class="ghost" type="button">Sign out</button></div>
-        </div>
-        <div id="authStatus" class="status"></div>
-      </section>
-
-      <section class="panel" id="profilePanel" hidden>
-        <span class="eyebrow">BILLING PROFILE</span>
-        <h2>Client details</h2>
-        <p class="muted">Use the real name and business/professional details you want matched against the Payoneer request.</p>
-        <form id="profileForm">
-          <label>Full legal name<input id="fullName" required autocomplete="name"></label>
-          <label>Client type<select id="clientType"><option value="professional">Independent professional</option><option value="business">Business / company</option></select></label>
-          <label>Business / studio name <span class="optional">optional</span><input id="businessName" autocomplete="organization"></label>
-          <label>Country<input id="country" autocomplete="country-name"></label>
-          <button type="submit">Save billing profile</button>
-        </form>
-        <div id="profileStatus" class="status"></div>
-      </section>
-    </section>
-
-    <section class="panel" id="dashboardPanel" hidden>
-      <div class="section-head">
-        <div><span class="eyebrow">MY MEMBERSHIP</span><h2>Billing & access</h2></div>
-      </div>
-      <div class="dashboard-grid">
-        <div>
-          <h3>Payment requests</h3>
-          <div id="orders" class="stack"></div>
-        </div>
-        <div>
-          <h3>Active access</h3>
-          <div id="subscriptions" class="stack"></div>
-        </div>
-      </div>
-      <div>
-        <h3>Downloads & Cults access</h3>
-        <div id="access" class="stack"></div>
-      </div>
-    </section>
-  </main>
-
-  <dialog id="requestDialog">
-    <form method="dialog" class="dialog-card" id="requestForm">
-      <button class="dialog-x" value="cancel" aria-label="Close">×</button>
-      <span class="eyebrow">MEMBERSHIP REQUEST</span>
-      <h2 id="dialogPlanName">Plan</h2>
-      <div class="summary">
-        <div><span>Term</span><strong id="dialogTerm">—</strong></div>
-        <div><span>Amount</span><strong id="dialogAmount">—</strong></div>
-      </div>
-      <label>Requested start date<input id="requestedStartDate" type="date"></label>
-      <p class="muted">Submitting this creates a billing request in our system. We will send the actual Payoneer request separately.</p>
-      <button id="confirmRequestButton" type="submit">Request Payoneer billing</button>
-      <div id="requestStatus" class="status"></div>
-    </form>
-  </dialog>
-
-  <script type="module" src="/membership/membership.js"></script>
+  <p>Membership has moved to the CyberPop Library. <a href="/">Open library</a>.</p>
+  <script>location.replace('/');</script>
 </body>
 </html>
