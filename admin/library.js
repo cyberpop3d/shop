@@ -26,7 +26,7 @@ async function checkCultsConnection(){
   const badge=$('#cultsConnectionBadge'),button=$('#cultsSyncButton'),status=$('#cultsSyncStatus');
   badge.textContent='CHECKING';badge.className='badge warn';button.disabled=true;
   try{
-    const response=await fetch('/api/cults-sync?limit=1&offset=0',{cache:'no-store'});
+    const response=await fetch('/api/cults-sync?limit=1&offset=0',{cache:'no-store',headers:{Authorization:'Bearer '+session.access_token}});
     const data=await response.json();
     if(data.configured){
       badge.textContent=data.ok?'CONNECTED':'API ERROR';
@@ -47,7 +47,7 @@ async function syncFromCults(){
   const button=$('#cultsSyncButton'),status=$('#cultsSyncStatus');
   button.disabled=true;setSync('Cults sync…');status.textContent='Fetching latest designs from Cults…';
   try{
-    const response=await fetch('/api/cults-sync?limit=50&offset=0',{cache:'no-store'});
+    const response=await fetch('/api/cults-sync?limit=50&offset=0',{cache:'no-store',headers:{Authorization:'Bearer '+session.access_token}});
     const payload=await response.json();
     if(!payload.ok)throw new Error(payload.error||'Cults sync failed.');
     let created=0,updated=0,failed=0;
