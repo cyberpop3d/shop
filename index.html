@@ -1,246 +1,123 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CyberPop Shop</title>
-  <meta name="description" content="CyberPop playable collectible shop prototype" />
-  <link rel="stylesheet" href="/styles.css" />
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CyberPop Library</title>
+  <meta name="description" content="CyberPop member library wireframe">
+  <link rel="stylesheet" href="/library.css">
 </head>
 <body>
-  <div class="world-bg" aria-hidden="true">
-    <div class="bg-grid"></div>
-    <div class="glow glow-blue"></div>
-    <div class="glow glow-purple"></div>
-    <div class="glow glow-hot"></div>
-  </div>
-
-  <header class="rivals-nav">
-    <nav class="nav-tabs" aria-label="Main navigation">
-      <button class="mode-tab is-active" data-mode="drop">Drop Room</button>
-      <button class="mode-tab" data-mode="loot">Loot Crystal</button>
-      <button class="mode-tab" data-mode="rewards">Rewards</button>
-      <button class="mode-tab" data-mode="collection">Collection</button>
-      <button class="mode-tab" data-mode="studio">3D Studio</button>
-      <a class="mode-tab membership-tab" href="/membership/">Membership</a>
+  <header class="topbar">
+    <a class="brand" href="/">CYBERPOP</a>
+    <nav>
+      <a class="active" href="/">Library</a>
+      <a href="#membership">Membership</a>
+      <button id="accountJump" class="nav-button" type="button">Account</button>
     </nav>
-    <div class="nav-actions">
-      <button class="unit-chip" id="unitsButton"><span class="gem-dot"></span><strong id="unitCount">345</strong><span>Units</span></button>
-      <button class="unit-chip" data-mode-shortcut="collection"><strong id="ownedCount">3</strong><span>Owned</span></button>
-      <button class="cart-chip" id="cartButton">Cart <strong id="cartCount">0</strong></button>
-    </div>
   </header>
 
-  <main class="app-shell">
-    <section class="mode-screen is-active" data-screen="drop">
-      <section class="drop-board">
-        <section class="selected-command-row">
-          <section class="media-console">
-            <div class="media-toolbar">
-              <span class="micro-label" id="mediaModeLabel">Selected Collectible</span>
-              
-            </div>
-            <div class="media-triptych" id="mediaTriptych" aria-label="Selected collectible media"></div>
-            <div class="model-square" id="modelStage" hidden>
-              <model-viewer id="modelViewer" src="/models/sonya-blade.glb" alt="3D print preview" auto-rotate camera-controls shadow-intensity="1" camera-orbit="45deg 62deg 4.2m"></model-viewer>
-              <div class="model-actions">
-                <button class="preview-toggle" id="closePreview">Back to media</button>
-                <button class="buy-inline" id="modelBuyButton">BUY</button>
-              </div>
-            </div>
-          </section>
+  <main class="shell">
+    <section class="wire-note">
+      <strong>WIREFRAME / FOUNDATION</strong>
+      <span>Library, monthly access rules and admin controls are functional. Visual direction comes next.</span>
+    </section>
 
-          <aside class="buy-console" id="buyConsole">
-            <div class="buy-panel-top">
-              <span class="micro-label">Product Action</span>
-              
-            </div>
-            <p class="buy-idle-copy" id="buyIntro">Buying this product moves your loyalty progress forward. Digital or physical purchases may reward you differently, and the item will be added to your site collection for profile access and archiving.</p>
-            <div class="buy-expanded-area" id="buyExpandedArea">
-              <div class="buy-options" id="buyOptions" hidden>
-                <button class="choice-button" data-buy-type="stl">
-                  <b>STL FILE</b>
-                  <span>Digital access</span>
-                </button>
-                <button class="choice-button" data-buy-type="physical">
-                  <b>PHYSICAL PRODUCT</b>
-                  <span>Made-to-order print</span>
-                </button>
-              </div>
-              <div class="buy-detail" id="stlDetail" hidden>
-                <div class="price-line"><span>STL file</span><strong>$5</strong></div>
-                <p>Files will be available in your profile after checkout. Subscription access or bulk packs may lower the unit price.</p>
-                <div class="loyalty-mini"><span>After purchase</span><b>+12 XP · library access · profile points</b></div>
-                <button class="commit-button" data-complete="stl">Complete STL order</button>
-              </div>
-              <div class="buy-detail" id="physicalDetail" hidden>
-                <div class="size-row" aria-label="Physical size">
-                  <button data-size="15">15 cm</button>
-                  <button class="is-active" data-size="30">30 cm</button>
-                  <button data-size="40">40 cm</button>
-                </div>
-                <div class="price-line"><span id="physicalLabel">30 cm physical</span><strong id="physicalPrice">$62</strong></div>
-                <p>Made-to-order printed collectible. Size changes price, packaging and print preparation.</p>
-                <div class="loyalty-mini"><span>After purchase</span><b id="physicalXp">+28 XP · wheel progress · trophy points</b></div>
-                <button class="commit-button gold" data-complete="physical">Complete physical order</button>
-              </div>
-            </div>
-            <div class="action-head">
-              <button class="buy-main-button" id="buyMainButton">
-                <span>BUY</span>
-                <small>STL or physical</small>
-              </button>
-            </div>
-          </aside>
-        </section>
+    <section class="hero-grid">
+      <div class="hero panel">
+        <span class="eyebrow">MEMBER LIBRARY</span>
+        <h1>Your CyberPop collections, month by month.</h1>
+        <p>Monthly members unlock only the collection they paid for. Annual members automatically unlock each collection inside their active annual period.</p>
+        <div class="rule-row">
+          <span>MONTHLY = ONE PAID MONTH</span>
+          <span>ANNUAL = ACTIVE YEAR</span>
+          <span>NO PAYMENT = NO NEW MONTH</span>
+        </div>
+      </div>
 
-        <section class="roster-console">
-          <div class="roster-topline">
-            <h2 id="categoryTitle">View All</h2>
-            <div class="sort-box">
-              <span>Sort Roster</span>
-              <select id="sortSelect">
-                <option value="newest">Newest</option>
-                <option value="popular">Most popular</option>
-                <option value="price">Highest price</option>
-              </select>
-            </div>
-          </div>
-          <div class="roster-control-row">
-            <div class="category-track" id="categoryTrack"></div>
-          </div>
-          <div class="roster-scroll-zone">
-            <button class="roster-arrow roster-prev" id="rosterPrev" type="button" aria-label="Previous collectibles">‹</button>
-            <div class="fighter-roster" id="fighterRoster" aria-label="Collectible roster"></div>
-            <button class="roster-arrow roster-next" id="rosterNext" type="button" aria-label="Next collectibles">›</button>
-          </div>
-        </section>
+      <section class="panel account-panel" id="accountPanel">
+        <div class="section-head">
+          <div><span class="eyebrow">ACCOUNT</span><h2 id="accountTitle">Sign in</h2></div>
+          <span class="status-pill" id="memberState">GUEST</span>
+        </div>
+        <form id="loginForm">
+          <label>Email
+            <input id="loginEmail" type="email" required autocomplete="email" placeholder="you@example.com">
+          </label>
+          <button type="submit">Send secure sign-in link</button>
+        </form>
+        <div id="sessionBox" hidden>
+          <p class="session-email" id="sessionEmail"></p>
+          <button id="signOutButton" class="secondary" type="button">Sign out</button>
+        </div>
+        <p class="small" id="authStatus">Access is tied to the signed-in account.</p>
       </section>
     </section>
 
-    <section class="mode-screen" data-screen="loot">
-      <div class="loot-layout">
-        <div class="loot-intro">
-          <span class="micro-label dark">Spend site credit (units)</span>
-          <h2>Crystal Roll</h2>
-          <p>Spin the crystal and preview ring together. The roll slows down and reveals a collectible poster card.</p>
-          <div class="spin-cost"><input id="spinUnits" type="number" value="50" min="10" step="10" /><span>units</span></div>
-          <button class="commit-button" id="spinButton">Spin Crystal</button>
-        </div>
-        <div class="crystal-stage">
-          <div class="wheel-plate" aria-hidden="true"></div>
-          <div class="crystal-pointer">Selected zone</div>
-          <div class="preview-orbit" id="previewOrbit"></div>
-          <div class="crystal-3d" id="crystal3d"><span></span><i></i><b></b></div>
-          <div class="orbit-floor"></div>
-          <div class="orbit-ticker" id="orbitTicker">Ready</div>
-        </div>
-        <div class="unlock-card" id="unlockCard" hidden>
-          <span class="micro-label">Unlocked</span>
-          <span class="jackpot-result" id="unlockJackpot" hidden>100%</span>
-          <img id="unlockImage" src="/images/covers/sonya-blade.png" alt="Unlocked collectible" />
-          <h3 id="unlockName">Sonya Blade</h3>
-          <p id="unlockRarity">Rare collectible added to your shelf.</p>
-          <button id="viewCollection">View in My Collection</button>
-          <button class="ghost-mini" id="unlockStudio">Open 3D Studio</button>
-        </div>
+    <section class="panel" id="library">
+      <div class="section-head">
+        <div><span class="eyebrow">MY LIBRARY</span><h2>Collections</h2></div>
+        <span class="small">Locked months stay visible, but their access stays closed.</span>
+      </div>
+      <div id="collectionRail" class="collection-rail">
+        <div class="skeleton month-skeleton"></div>
+        <div class="skeleton month-skeleton"></div>
       </div>
     </section>
 
-    <section class="mode-screen" data-screen="rewards">
-      <div class="reward-page">
-        <div class="reward-poster">
-          <span>Monthly Track</span>
-          <h2>Reach checkpoints. Enter the monthly ranking. Claim the drops.</h2>
-          <p>Earn points through purchases, makes, studio plans and event actions.</p>
+    <section class="panel collection-detail" id="collectionDetail">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow" id="detailEyebrow">COLLECTION</span>
+          <h2 id="detailTitle">Select a month</h2>
         </div>
-        <div class="reward-status-row">
-          <div><b>230 XP</b><span>Current progress</span></div>
-          <div><b>70 XP</b><span>Next checkpoint</span></div>
-          <div><b>2 purchases</b><span>Estimated push</span></div>
+        <span class="status-pill" id="detailAccess">LOCKED</span>
+      </div>
+
+      <div id="codeBox" class="code-box" hidden>
+        <div>
+          <span class="eyebrow">COLLECTION ACCESS</span>
+          <strong id="codeValue">Code not assigned yet</strong>
+          <span class="small" id="codeNote"></span>
         </div>
-        <div class="reward-track-wrap"><div class="reward-track" id="rewardTrack"></div></div>
-        <p class="reward-note">Tap any checkpoint to inspect the reward as a collectible poster card.</p>
+        <a id="codeLink" class="button-link" href="#" target="_blank" rel="noopener" hidden>Open Cults</a>
+      </div>
+
+      <div id="lockedMessage" class="locked-message">
+        This collection is locked for this account. Access opens only after the matching monthly payment is approved, or while an annual membership covers this month.
+      </div>
+      <div id="productGrid" class="product-grid"></div>
+    </section>
+
+    <section class="panel" id="membership">
+      <div class="section-head">
+        <div><span class="eyebrow">MEMBERSHIP</span><h2>Billing model</h2></div>
+        <span class="small">Checkout intentionally not connected yet.</span>
+      </div>
+      <div class="plan-grid" id="planGrid">
+        <article class="plan-card">
+          <span>MONTHLY</span>
+          <h3>One collection month</h3>
+          <p>Payment approval grants exactly that month's library entitlement. The next month remains locked until its payment is approved.</p>
+          <strong>$22 / month</strong>
+          <button type="button" disabled>Payment connection later</button>
+        </article>
+        <article class="plan-card">
+          <span>ANNUAL</span>
+          <h3>Continuous annual access</h3>
+          <p>Every collection month inside the active annual period opens automatically. Annual pricing can be activated from admin once you set it.</p>
+          <strong id="annualPrice">PRICE NOT SET</strong>
+          <button type="button" disabled>Payment connection later</button>
+        </article>
       </div>
     </section>
 
-    <section class="mode-screen" data-screen="collection">
-      <div class="collection-page">
-        <div class="page-title-row collection-head">
-          <div><span class="micro-label dark">Collection Shelf</span><h2>All Collectibles</h2><p>Square listing covers, owned first, clean text and hover media reactions.</p></div>
-          <div class="collection-actions">
-            <label><span>Sort by</span><select id="collectionSort"><option value="owned">The ones I have</option><option value="newest">Newest</option><option value="popular">Popular</option></select></label>
-            <button class="commit-button" id="showAllCollection">Show all</button>
-            <button class="ghost-action" data-mode-shortcut="drop">Back to Drop Room</button>
-          </div>
-        </div>
-        <div class="collection-meta" id="collectionCount">0 shown</div>
-        <div class="collection-grid" id="collectionGrid"></div>
-      </div>
-    </section>
-
-    <section class="mode-screen" data-screen="studio">
-      <div class="studio-page">
-        <div class="studio-preview">
-          <span class="micro-label dark">3MF package loaded</span>
-          <img id="studioImage" src="/images/covers/sonya-blade.png" alt="Studio collectible cover" />
-          <div class="studio-title-line"><h2 id="studioName">Sonya Blade</h2><button class="ghost-action" id="openStudioPicker">Change character</button></div>
-          <p>Choose printable color groups and match them with your filament codes.</p>
-        </div>
-        <div class="studio-tools">
-          <h2>Color Plan</h2>
-          <p>Prototype UI for 3MF sublayer/color group planning. Real parsing can be connected later.</p>
-          <div class="studio-parts" id="studioParts"></div>
-        </div>
-      </div>
-    </section>
+    <footer>
+      <span>CYBERPOP / YONTUK</span>
+      <span>Library foundation v1</span>
+    </footer>
   </main>
 
-
-  <dialog class="unit-dialog" id="unitDialog">
-    <form method="dialog">
-      <button class="dialog-close" value="close">×</button>
-      <span class="micro-label dark">Unit Boost Board</span>
-      <h2>Earn more Units</h2>
-      <div class="mission-list">
-        <button type="button"><strong>Daily check-in</strong><span>+20 Units</span></button>
-        <button type="button"><strong>Upload a make</strong><span>+80 Units</span></button>
-        <button type="button"><strong>Tag CyberPop on Instagram</strong><span>+120 Units</span></button>
-        <button type="button"><strong>Open the mobile companion app</strong><span>+40 Units</span></button>
-        <button type="button"><strong>Complete a 3D Studio color plan</strong><span>+35 Units</span></button>
-      </div>
-    </form>
-  </dialog>
-
-  <dialog class="reward-dialog" id="rewardDialog">
-    <form method="dialog" class="reward-dialog-card">
-      <button class="dialog-close" id="closeRewardDialog" type="button">×</button>
-      <div class="reward-card-image"><img id="rewardModalImg" src="/images/covers/sonya-blade.png" alt="Reward preview" /></div>
-      <div class="reward-card-copy">
-        <span class="micro-label dark" id="rewardModalType">GIF</span>
-        <h2 id="rewardModalName">Sonya Blade GIF</h2>
-        <b id="rewardModalXp">300 XP checkpoint</b>
-        <p id="rewardModalDesc">Earn more points and claim this monthly reward.</p>
-      </div>
-    </form>
-  </dialog>
-
-  <dialog class="studio-picker-dialog" id="studioPickerDialog">
-    <form method="dialog" class="studio-picker-panel">
-      <button class="dialog-close" id="closeStudioPicker" type="button">×</button>
-      <span class="micro-label dark">Choose character</span>
-      <h2>Studio Shelf</h2>
-      <p>Owned characters appear first. Pick any square cover to edit its color plan.</p>
-      <div class="studio-picker-grid" id="studioPickerGrid"></div>
-    </form>
-  </dialog>
-
-  <div class="toast" id="toast" hidden>
-    <strong id="toastTitle">Order added</strong>
-    <span id="toastMessage">Access will be available in your profile.</span>
-  </div>
-
-  <script src="/app.js"></script>
+  <script type="module" src="/library.js"></script>
 </body>
 </html>
