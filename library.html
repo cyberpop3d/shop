@@ -33,6 +33,30 @@
       <div><strong>Checking your account…</strong><span> Collection access will update automatically.</span></div>
     </section>
 
+    <section class="section-tight" id="myModelsSection">
+      <div class="section-head">
+        <div><span class="eyebrow">MY MODELS</span><h2 class="section-title">Personal library.</h2></div>
+        <p class="section-copy">Search, filter, favorite and organize models here. File delivery can stay on Cults while CyberPop keeps the library experience.</p>
+      </div>
+      <div class="library-toolbar">
+        <input id="librarySearch" class="field library-search" type="search" placeholder="Search your library">
+        <div class="library-filters" id="libraryFilters">
+          <button class="filter-chip active" data-filter="all" type="button">All</button>
+          <button class="filter-chip" data-filter="owned" type="button">Owned</button>
+          <button class="filter-chip" data-filter="favorites" type="button">Favorites</button>
+          <button class="filter-chip" data-filter="locked" type="button">Locked</button>
+        </div>
+        <select id="librarySort" class="field library-sort">
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="az">A–Z</option>
+        </select>
+      </div>
+      <div id="modelLibraryGrid" class="library-model-grid">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+    </section>
+
     <section class="section-tight">
       <div class="section-head">
         <div><span class="eyebrow">COLLECTIONS</span><h2 class="section-title">Month by month.</h2></div>

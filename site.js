@@ -20,16 +20,28 @@ export async function getSession(){
 }
 export async function ensureCustomerProfile(session){
   if(!session||!session.user||!session.user.email)return;
-  const existing=await supabase.from('membership_customers').select('user_id').eq('user_id',session.user.id).maybeSingle();
-  if(existing.error)throw existing.error;
-  if(existing.data)return;
   const meta=session.user.user_metadata||{};
   const fallback=session.user.email.split('@')[0].replace(/[._-]+/g,' ').trim()||'Member';
   const fullName=String(meta.full_name||meta.name||fallback).trim();
-  const created=await supabase.from('membership_customers').insert({
-    user_id:session.user.id,full_name:fullName,email:session.user.email,client_type:'professional'
-  });
-  if(created.error&&created.error.code!=='23505')throw created.error;
+
+  const existing=await supabase.from('membership_customers').select('user_id').eq('user_id',session.user.id).maybeSingle();
+  if(existing.error)throw existing.error;
+  if(!existing.data){
+    const created=await supabase.from('membership_customers').insert({
+      user_id:session.user.id,full_name:fullName,email:session.user.email,client_type:'professional'
+    });
+    if(created.error&&created.error.code!=='23505')throw created.error;
+  }
+
+  const profileExisting=await supabase.from('member_profiles').select('user_id').eq('user_id',session.user.id).maybeSingle();
+  if(profileExisting.error)throw profileExisting.error;
+  if(!profileExisting.data){
+    const profileCreated=await supabase.from('member_profiles').insert({
+      user_id:session.user.id,
+      display_name:fullName
+    });
+    if(profileCreated.error&&profileCreated.error.code!=='23505')throw profileCreated.error;
+  }
 }
 export async function googleProviderReady(){
   try{

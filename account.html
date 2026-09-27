@@ -55,10 +55,27 @@
       </div>
     </section>
 
+    <section class="section-tight" id="profileSection">
+      <div class="section-head">
+        <div><span class="eyebrow">PROFILE</span><h2 class="section-title">Your CyberPop profile.</h2></div>
+        <p class="section-copy">This profile belongs to the CyberPop library only. It does not change your billing identity or payment details.</p>
+      </div>
+      <div class="account-card">
+        <form id="profileForm" class="profile-form">
+          <label>Display name<input id="profileDisplayName" class="field" maxlength="80" placeholder="Display name"></label>
+          <label>Username<input id="profileHandle" class="field" maxlength="40" placeholder="@username"></label>
+          <label>Country<input id="profileCountry" class="field" maxlength="80" placeholder="Optional"></label>
+          <label>Primary printer<input id="profilePrinter" class="field" maxlength="120" placeholder="Optional"></label>
+          <label class="profile-wide">Bio<textarea id="profileBio" class="field profile-textarea" maxlength="280" placeholder="Optional short profile bio"></textarea></label>
+          <div class="profile-wide profile-actions"><button class="btn btn-primary" type="submit">Save profile</button><span id="profileStatus" class="small"></span></div>
+        </form>
+      </div>
+    </section>
+
     <section class="section-tight">
       <div class="section-head">
         <div><span class="eyebrow">MY COLLECTIONS</span><h2 class="section-title">Unlocked months.</h2></div>
-        <a class="btn btn-ghost" href="/library">Browse full archive</a>
+        <a class="btn btn-ghost" href="/library">Open personal library</a>
       </div>
       <div id="ownedCollections" class="collection-grid">
         <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>

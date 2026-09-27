@@ -16,6 +16,7 @@ async function render(){
   const summary=document.querySelector('#accountSummary');
   const owned=document.querySelector('#ownedCollections');
 
+  document.querySelector('#profileSection').hidden=!session;
   if(!session){
     authMethods.hidden=false;
     document.querySelector('#accountHeading').textContent='Not signed in';
@@ -35,18 +36,27 @@ async function render(){
   const results=await Promise.all([
     supabase.from('membership_collection_overview').select('*').order('starts_on',{ascending:false}),
     supabase.from('membership_subscriptions').select('*,membership_plans(name,plan_type)').order('current_period_end',{ascending:false}),
-    supabase.from('membership_entitlements').select('*').eq('status','active')
+    supabase.from('membership_entitlements').select('*').eq('status','active'),
+    supabase.from('member_profiles').select('*').eq('user_id',session.user.id).maybeSingle(),
+    supabase.from('member_library_items').select('id,product_id,is_favorite')
   ]);
   const err=results.find(x=>x.error);if(err)throw err.error;
   const collections=results[0].data||[];
   const subscriptions=results[1].data||[];
   const entitlements=results[2].data||[];
+  const profile=results[3].data||{};
+  const libraryItems=results[4].data||[];
   const unlocked=collections.filter(c=>c.has_access);
   const annual=subscriptions.find(s=>s.status==='active'&&Number(s.billing_months)===12);
 
-  document.querySelector('#accountHeading').textContent=session.user.email;
+  document.querySelector('#accountHeading').textContent=profile.display_name||session.user.email;
+  document.querySelector('#profileDisplayName').value=profile.display_name||'';
+  document.querySelector('#profileHandle').value=profile.handle||'';
+  document.querySelector('#profileCountry').value=profile.country||'';
+  document.querySelector('#profilePrinter').value=profile.preferred_printer||'';
+  document.querySelector('#profileBio').value=profile.bio||'';
   document.querySelector('#accountCopy').textContent=annual?'Annual collection access is active.':'Collection access is currently handled month by month.';
-  summary.innerHTML='<div class="mini-card"><span>Membership</span><strong>'+(annual?'Annual active':'Monthly / individual months')+'</strong></div><div class="mini-card"><span>Unlocked collections</span><strong>'+unlocked.length+'</strong></div><div class="mini-card"><span>Month grants</span><strong>'+entitlements.length+'</strong></div><div class="mini-card"><span>Account</span><strong>Verified</strong></div>';
+  summary.innerHTML='<div class="mini-card"><span>Membership</span><strong>'+(annual?'Annual active':'Monthly / individual months')+'</strong></div><div class="mini-card"><span>Unlocked collections</span><strong>'+unlocked.length+'</strong></div><div class="mini-card"><span>Library items</span><strong>'+libraryItems.length+'</strong></div><div class="mini-card"><span>Account</span><strong>Verified</strong></div>';
   owned.innerHTML=unlocked.length?unlocked.map(collectionCard).join(''):stateMarkup('','No collection access yet','Your account is ready, but no monthly entitlement or active annual period is attached yet.');
 }
 
@@ -63,6 +73,27 @@ document.querySelector('#emailForm').addEventListener('submit',async e=>{
   const r=await sendMagicLink(document.querySelector('#emailInput').value.trim(),'/account');
   status.innerHTML='<span>'+esc(r.error?r.error.message:'Check your email for the secure sign-in link.')+'</span>';
 });
+document.querySelector('#profileForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const session=await getSession();
+  const status=document.querySelector('#profileStatus');
+  if(!session){status.textContent='Sign in first.';return}
+  status.textContent='Saving…';
+  const handle=document.querySelector('#profileHandle').value.trim().replace(/^@/,'')||null;
+  const row={
+    user_id:session.user.id,
+    display_name:document.querySelector('#profileDisplayName').value.trim()||null,
+    handle,
+    country:document.querySelector('#profileCountry').value.trim()||null,
+    preferred_printer:document.querySelector('#profilePrinter').value.trim()||null,
+    bio:document.querySelector('#profileBio').value.trim()||null,
+    updated_at:new Date().toISOString()
+  };
+  const r=await supabase.from('member_profiles').upsert(row,{onConflict:'user_id'});
+  status.textContent=r.error?r.error.message:'Profile updated.';
+  if(!r.error)setTimeout(()=>status.textContent='',2400);
+});
+
 document.querySelector('#signOutButton').addEventListener('click',async()=>{
   await signOut();
   location.reload();
