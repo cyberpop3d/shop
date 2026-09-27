@@ -1,4 +1,4 @@
-import { supabase,initChrome,getSession,getCreditSummary,stateMarkup,esc } from '/site.js';
+import { supabase,initChrome,getSession,getCreditSummary,stateMarkup,loadingMarkup,friendlyError,showToast,setButtonBusy,esc } from '/site.js';
 
 const slug=new URLSearchParams(location.search).get('slug');
 let currentProduct=null;
@@ -22,17 +22,17 @@ async function toggleFavorite(productId,button){
   const session=await getSession();
   if(!session){location.href='/account?returnTo='+encodeURIComponent(safeReturnPath());return}
   const existing=await supabase.from('member_favorites').select('product_id').eq('product_id',productId).maybeSingle();
-  if(existing.error){console.error(existing.error);return}
+  if(existing.error){console.error(existing.error);showToast('Favorite state could not be loaded.','error');return}
   if(existing.data){
     const r=await supabase.from('member_favorites').delete().eq('product_id',productId);
-    if(r.error)return console.error(r.error);
+    if(r.error){console.error(r.error);showToast('Favorite could not be updated.','error');return}
     button.textContent='♡ Favorite';
-    button.dataset.active='false';
+    button.dataset.active='false';showToast('Removed from favorites.');
   }else{
     const r=await supabase.from('member_favorites').insert({user_id:session.user.id,product_id:productId});
-    if(r.error)return console.error(r.error);
+    if(r.error){console.error(r.error);showToast('Favorite could not be updated.','error');return}
     button.textContent='♥ Favorited';
-    button.dataset.active='true';
+    button.dataset.active='true';showToast('Added to favorites.');
   }
 }
 
@@ -117,12 +117,12 @@ function openUnlockDialog(p,summary){
 async function performUnlock(productId,dialog){
   const button=document.querySelector('#confirmUnlock');
   const result=document.querySelector('#dialogUnlockResult');
-  button.disabled=true;button.textContent='Processing…';result.textContent='';
+  setButtonBusy(button,true,'Processing…');result.textContent='';
   const r=await supabase.rpc('unlock_product_with_credits',{p_product_id:productId});
   if(r.error){
     result.className='unlock-result error';
     result.textContent=r.error.message;
-    button.disabled=false;button.textContent='Try Again';
+    setButtonBusy(button,false);button.textContent='Try Again';
     return;
   }
   const data=r.data||{};
@@ -142,19 +142,19 @@ async function performUnlock(productId,dialog){
   if(data.status==='insufficient_credits'){
     result.className='unlock-result error';
     result.textContent='Insufficient credits. You need '+Number(data.needed||0)+' more C.';
-    button.disabled=false;button.textContent='Unlock Model';
+    setButtonBusy(button,false);button.textContent='Unlock Model';
     return;
   }
   if(data.status==='legal_acceptance_required'){
     result.className='unlock-result error';
     result.innerHTML='Current legal agreements must be accepted before this unlock. <a href="/account?returnTo='+encodeURIComponent(safeReturnPath())+'">Review agreements →</a>';
-    button.disabled=false;button.textContent='Review Agreements';
+    setButtonBusy(button,false);button.textContent='Review Agreements';
     return;
   }
   if(data.status==='email_verification_required'){
     result.className='unlock-result error';
     result.innerHTML='Verify your email before unlocking models. <a href="/account?returnTo='+encodeURIComponent(safeReturnPath())+'">Open account →</a>';
-    button.disabled=false;button.textContent='Verification Required';
+    setButtonBusy(button,false);button.textContent='Verification Required';
     return;
   }
   if(data.status==='product_unavailable'){
@@ -165,7 +165,7 @@ async function performUnlock(productId,dialog){
   }
   result.className='unlock-result error';
   result.textContent='Unlock could not be completed.';
-  button.disabled=false;button.textContent='Try Again';
+  setButtonBusy(button,false);button.textContent='Try Again';
 }
 
 function renderRightsNotices(p){
@@ -183,6 +183,7 @@ function renderRightsNotices(p){
 
 async function load(){
   currentSession=await initChrome();
+  document.querySelector('#relatedGrid').innerHTML=loadingMarkup(6,'card');
   const v=await supabase.from('membership_library_products').select('*').eq('slug',slug).maybeSingle();
   if(v.error)throw v.error;
   if(!v.data)throw new Error('Model not found.');
@@ -227,4 +228,4 @@ async function load(){
   const related=await supabase.from('membership_library_products').select('*').eq('collection_id',p.collection_id).neq('id',p.id).limit(6);
   document.querySelector('#relatedGrid').innerHTML=(related.data||[]).map(card).join('')||stateMarkup('','No related models','More models from this collection will appear here.');
 }
-load().catch(e=>{console.error(e);document.querySelector('#productDetail').innerHTML=stateMarkup('error','Model unavailable',e.message)});
+load().catch(e=>{console.error(e);document.querySelector('#productDetail').innerHTML=stateMarkup('error','Model unavailable',friendlyError(e,'This model could not be loaded.'),{href:'/collections',label:'Browse collections'});document.querySelector('#productRightsNotices').innerHTML='';document.querySelector('#relatedGrid').innerHTML='';});
