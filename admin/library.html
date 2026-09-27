@@ -96,6 +96,19 @@
 
       <section class="panel">
         <div class="section-head"><div><span class="eyebrow">MODEL SETTINGS</span><h2>Catalog, license & legal state</h2><p class="small">IP class, license scope, subscription access and takedown controls drive customer-facing behavior automatically.</p></div><a class="secondary" href="/admin/rights">Open Rights & Legal →</a></div>
+        <div class="admin-toolbar">
+          <input id="productAdminSearch" type="search" placeholder="Search public title, internal name, collection or property key…">
+          <select id="productAdminFilter">
+            <option value="all">All products</option>
+            <option value="published">Published</option>
+            <option value="draft">Hidden / draft</option>
+            <option value="legal">Legal review / takedown</option>
+            <option value="fan">Unofficial fan work</option>
+            <option value="commercial">Physical commercial</option>
+            <option value="missing">Missing setup</option>
+          </select>
+          <span id="productAdminCount" class="admin-count"></span>
+        </div>
         <div id="products" class="stack"></div>
       </section>
 
