@@ -30,6 +30,16 @@ export async function ensureCustomerProfile(session){
     user_id:session.user.id,full_name:fullName,email:session.user.email,client_type:'professional'
   });
   if(created.error&&created.error.code!=='23505')throw created.error;
+
+  const profileExisting=await supabase.from('member_profiles').select('user_id').eq('user_id',session.user.id).maybeSingle();
+  if(profileExisting.error)throw profileExisting.error;
+  if(!profileExisting.data){
+    const profileCreated=await supabase.from('member_profiles').insert({
+      user_id:session.user.id,
+      display_name:fullName
+    });
+    if(profileCreated.error&&profileCreated.error.code!=='23505')throw profileCreated.error;
+  }
 }
 export async function googleProviderReady(){
   try{
