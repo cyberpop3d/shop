@@ -3,128 +3,121 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>CyberPop Library</title>
-  <meta name="description" content="CyberPop member library wireframe">
-  <link rel="stylesheet" href="/library.css">
+  <meta name="theme-color" content="#080808">
+  <title>CyberPop — 3D Printable Collectibles</title>
+  <meta name="description" content="CyberPop monthly 3D printable collectible drops, member library and commercial printing access.">
+  <link rel="stylesheet" href="/site.css">
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="/">CYBERPOP</a>
-    <nav>
-      <a class="active" href="/">Library</a>
+  <header class="site-header">
+    <a class="brand-lockup" href="/"><i></i><span>CYBERPOP</span></a>
+    <button class="menu-toggle" type="button" aria-label="Open navigation">☰</button>
+    <nav class="site-nav">
+      <a class="active" href="/">Home</a>
+      <a href="/library">Library</a>
       <a href="#membership">Membership</a>
-      <button id="accountJump" class="nav-button" type="button">Account</button>
+      <a class="account-chip" href="/account"><span data-account-label>Account</span> ↗</a>
     </nav>
   </header>
 
-  <main class="shell">
-    <section class="wire-note">
-      <strong>WIREFRAME / FOUNDATION</strong>
-      <span>Library, monthly access rules and admin controls are functional. Visual direction comes next.</span>
-    </section>
-
-    <section class="hero-grid">
-      <div class="hero panel">
-        <span class="eyebrow">MEMBER LIBRARY</span>
-        <h1>Your CyberPop collections, month by month.</h1>
-        <p>Monthly members unlock only the collection they paid for. Annual members automatically unlock each collection inside their active annual period.</p>
-        <div class="rule-row">
-          <span>MONTHLY = ONE PAID MONTH</span>
-          <span>ANNUAL = ACTIVE YEAR</span>
-          <span>NO PAYMENT = NO NEW MONTH</span>
+  <main>
+    <section class="site-shell hero">
+      <div class="hero-copy">
+        <span class="eyebrow">3D PRINTABLE COLLECTIBLES</span>
+        <h1 class="display">PRINT THE COLLECTION.</h1>
+        <p>Premium multipart figures built around clean color separation, readable forms and practical FDM assembly. New collections arrive month by month.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/library">Enter member library <span>↗</span></a>
+          <a class="btn btn-ghost" href="#membership">View membership</a>
         </div>
       </div>
-
-      <section class="panel account-panel" id="accountPanel">
-        <div class="section-head">
-          <div><span class="eyebrow">ACCOUNT</span><h2 id="accountTitle">Sign in</h2></div>
-          <span class="status-pill" id="memberState">GUEST</span>
-        </div>
-        <div id="authMethods" class="auth-methods">
-          <button id="googleSignInButton" class="google-button" type="button" disabled>
-            <span class="google-mark" aria-hidden="true">G</span>
-            <span>Continue with Google</span>
-          </button>
-          <div class="auth-divider"><span>or</span></div>
-          <form id="loginForm">
-            <label>Email
-              <input id="loginEmail" type="email" required autocomplete="email" placeholder="you@example.com">
-            </label>
-            <button type="submit">Send secure sign-in link</button>
-          </form>
-        </div>
-        <div id="sessionBox" hidden>
-          <p class="session-email" id="sessionEmail"></p>
-          <button id="signOutButton" class="secondary" type="button">Sign out</button>
-        </div>
-        <p class="small" id="authStatus">Access is tied to the signed-in account.</p>
-      </section>
+      <div class="hero-art" aria-label="CyberPop model showcase">
+        <figure class="art-card a"><img src="/images/covers/cammy.png" alt="CyberPop collectible sculpt" loading="eager"></figure>
+        <figure class="art-card b"><img src="/images/covers/johnny-cage.png" alt="CyberPop collectible sculpt" loading="eager"></figure>
+        <figure class="art-card c"><img src="/images/covers/gouken.png" alt="CyberPop collectible sculpt" loading="eager"></figure>
+        <div class="hero-badge"><strong>NO AMS</strong><span>Multipart by design</span></div>
+      </div>
     </section>
 
-    <section class="panel" id="library">
+    <div class="feature-strip">
+      <div class="site-shell feature-track">
+        <div class="feature"><strong>MULTIPART FDM</strong><span>Separated for practical color printing.</span></div>
+        <div class="feature"><strong>MONTHLY DROPS</strong><span>Collections organized month by month.</span></div>
+        <div class="feature"><strong>MEMBER LIBRARY</strong><span>Your unlocked months stay in one place.</span></div>
+        <div class="feature"><strong>COMMERCIAL RIGHTS</strong><span>Physical-print rights for active eligible tiers.</span></div>
+      </div>
+    </div>
+
+    <section class="site-shell section" id="latest">
       <div class="section-head">
-        <div><span class="eyebrow">MY LIBRARY</span><h2>Collections</h2></div>
-        <span class="small">Locked months stay visible, but their access stays closed.</span>
+        <div><span class="eyebrow">LATEST DROP</span><h2 class="section-title">The current collection.</h2></div>
+        <a class="btn btn-ghost" href="/library">Browse archive</a>
       </div>
-      <div id="collectionRail" class="collection-rail">
-        <div class="skeleton month-skeleton"></div>
-        <div class="skeleton month-skeleton"></div>
+      <div id="latestCollection" class="skeleton"></div>
+    </section>
+
+    <section class="site-shell section">
+      <div class="section-head">
+        <div><span class="eyebrow">THE SYSTEM</span><h2 class="section-title">Built like a collection, not a file dump.</h2></div>
+        <p class="section-copy">Your account keeps each month visible. Monthly access opens the month you paid for; annual access continuously covers the collection months inside the active annual period.</p>
+      </div>
+      <div class="steps">
+        <article class="step"><strong>01</strong><h3>Join</h3><p>Choose monthly or annual access when checkout goes live.</p></article>
+        <article class="step"><strong>02</strong><h3>Unlock</h3><p>Your eligible collection months open automatically inside the library.</p></article>
+        <article class="step"><strong>03</strong><h3>Print</h3><p>Open the product delivery links and keep your collection organized by month.</p></article>
       </div>
     </section>
 
-    <section class="panel collection-detail" id="collectionDetail">
+    <section class="site-shell section" id="membership">
       <div class="section-head">
-        <div>
-          <span class="eyebrow" id="detailEyebrow">COLLECTION</span>
-          <h2 id="detailTitle">Select a month</h2>
-        </div>
-        <span class="status-pill" id="detailAccess">LOCKED</span>
+        <div><span class="eyebrow">MEMBERSHIP</span><h2 class="section-title">Pick your access rhythm.</h2></div>
+        <p class="section-copy">The access engine is live. Checkout is intentionally being connected after the membership experience is finalized.</p>
       </div>
-
-      <div id="codeBox" class="code-box" hidden>
-        <div>
-          <span class="eyebrow">COLLECTION ACCESS</span>
-          <strong id="codeValue">Code not assigned yet</strong>
-          <span class="small" id="codeNote"></span>
-        </div>
-        <a id="codeLink" class="button-link" href="#" target="_blank" rel="noopener" hidden>Open Cults</a>
-      </div>
-
-      <div id="lockedMessage" class="locked-message">
-        This collection is locked for this account. Access opens only after the matching monthly payment is approved, or while an annual membership covers this month.
-      </div>
-      <div id="productGrid" class="product-grid"></div>
-    </section>
-
-    <section class="panel" id="membership">
-      <div class="section-head">
-        <div><span class="eyebrow">MEMBERSHIP</span><h2>Billing model</h2></div>
-        <span class="small">Checkout intentionally not connected yet.</span>
-      </div>
-      <div class="plan-grid" id="planGrid">
-        <article class="plan-card">
-          <span>MONTHLY</span>
-          <h3>One collection month</h3>
-          <p>Payment approval grants exactly that month's library entitlement. The next month remains locked until its payment is approved.</p>
-          <strong>$22 / month</strong>
-          <button type="button" disabled>Payment connection later</button>
+      <div class="pricing-grid">
+        <article class="price-card featured">
+          <div>
+            <span class="eyebrow">MONTHLY</span>
+            <h3>One active collection month.</h3>
+          </div>
+          <div class="price-line"><strong id="monthlyPrice">$22</strong><span>/ month</span></div>
+          <ul class="price-list"><li>The paid month is unlocked.</li><li>Past unlocked months remain visible.</li><li>Next month waits for its own payment approval.</li></ul>
+          <a class="btn btn-dark" href="/account">Create / open account</a>
         </article>
-        <article class="plan-card">
-          <span>ANNUAL</span>
-          <h3>Continuous annual access</h3>
-          <p>Every collection month inside the active annual period opens automatically. Annual pricing can be activated from admin once you set it.</p>
-          <strong id="annualPrice">PRICE NOT SET</strong>
-          <button type="button" disabled>Payment connection later</button>
+        <article class="price-card">
+          <div>
+            <span class="eyebrow">ANNUAL</span>
+            <h3>Continuous 12-month access.</h3>
+          </div>
+          <div class="price-line"><strong id="annualPrice">Soon</strong><span id="annualSuffix"></span></div>
+          <ul class="price-list"><li>Every covered collection month unlocks automatically.</li><li>One account, one continuous library period.</li><li>Annual pricing is activated from admin when finalized.</li></ul>
+          <a class="btn btn-ghost" href="/account">Open account</a>
         </article>
       </div>
     </section>
 
-    <footer>
-      <span>CYBERPOP / YONTUK</span>
-      <span>Library foundation v1</span>
-    </footer>
+    <section class="site-shell section-tight">
+      <div class="collection-feature">
+        <div class="collection-copy">
+          <div><span class="eyebrow">CYBERPOP LIBRARY</span><h3>Every drop. One clean archive.</h3></div>
+          <div><p>See locked and unlocked months at a glance, enter each collection, access delivery links, and keep monthly codes in one account.</p><a class="btn btn-dark" href="/library">Open library ↗</a></div>
+        </div>
+        <div class="collection-art">
+          <div class="collection-art-grid">
+            <img src="/images/covers/bison.webp" alt="" loading="lazy"><img src="/images/covers/guile.webp" alt="" loading="lazy">
+            <img src="/images/covers/magik.webp" alt="" loading="lazy"><img src="/images/covers/juri.webp" alt="" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <script type="module" src="/library.js"></script>
+  <footer class="footer">
+    <div class="site-shell footer-grid">
+      <div><strong>CYBERPOP</strong><p>Designer collectibles built for 3D printing.</p></div>
+      <div><div class="footer-label">Explore</div><div class="footer-links"><a href="/library">Library</a><a href="#membership">Membership</a><a href="/account">Account</a></div></div>
+      <div><div class="footer-label">Studio</div><div class="footer-links"><span>Yontuk Studio</span><span>Digital STL releases</span><span>Worldwide access</span></div></div>
+    </div>
+  </footer>
+  <script type="module" src="/home.js"></script>
 </body>
 </html>

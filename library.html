@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080808">
+  <title>CyberPop Library</title>
+  <meta name="description" content="Browse CyberPop monthly collections and your member access.">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand-lockup" href="/"><i></i><span>CYBERPOP</span></a>
+    <button class="menu-toggle" type="button" aria-label="Open navigation">☰</button>
+    <nav class="site-nav">
+      <a href="/">Home</a>
+      <a class="active" href="/library">Library</a>
+      <a href="/#membership">Membership</a>
+      <a class="account-chip" href="/account"><span data-account-label>Account</span> ↗</a>
+    </nav>
+  </header>
+
+  <main class="site-shell">
+    <section class="page-hero">
+      <span class="eyebrow">MEMBER ARCHIVE</span>
+      <div class="page-hero-row">
+        <div><h1>Your collection lives here.</h1><p class="section-copy">Every published month remains visible. Your account decides which collections are open and which are still locked.</p></div>
+        <a class="btn btn-ghost" href="/account" id="libraryAccountCta">Open account</a>
+      </div>
+    </section>
+
+    <section id="libraryNotice" class="notice accent">
+      <div><strong>Checking your account…</strong><span> Collection access will update automatically.</span></div>
+    </section>
+
+    <section class="section-tight">
+      <div class="section-head">
+        <div><span class="eyebrow">COLLECTIONS</span><h2 class="section-title">Month by month.</h2></div>
+        <p class="section-copy">Locked collections stay visible so the archive always feels complete. Open a month to see its published product cards.</p>
+      </div>
+      <div id="collectionGrid" class="collection-grid">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="site-shell footer-grid">
+      <div><strong>CYBERPOP</strong><p>Designer collectibles built for 3D printing.</p></div>
+      <div><div class="footer-label">Explore</div><div class="footer-links"><a href="/">Home</a><a href="/#membership">Membership</a><a href="/account">Account</a></div></div>
+      <div><div class="footer-label">Library</div><div class="footer-links"><span>Monthly archive</span><span>Member access</span><span>Collection delivery</span></div></div>
+    </div>
+  </footer>
+
+  <script type="module" src="/library-page.js"></script>
+</body>
+</html>

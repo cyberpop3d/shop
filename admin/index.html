@@ -3,22 +3,41 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090909">
   <title>CyberPop Admin</title>
-  <style>
-    *{box-sizing:border-box}body{margin:0;background:#efefec;color:#171717;font-family:Inter,Arial,sans-serif}
-    main{width:min(980px,calc(100vw - 30px));margin:50px auto}h1{font-size:clamp(44px,8vw,90px);letter-spacing:-.055em;line-height:.9;margin:10px 0 30px}
-    .eyebrow{font-size:11px;letter-spacing:.15em;font-weight:900;color:#73736d}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.card{background:white;border:1px solid #d5d5cf;border-radius:16px;padding:22px;text-decoration:none;color:inherit}.card:hover{outline:2px solid #222}.card h2{margin:0 0 8px}.card p{margin:0;color:#6b6b66;line-height:1.5}.back{display:inline-block;margin-top:20px;color:#555}@media(max-width:650px){.grid{grid-template-columns:1fr}}
-  </style>
+  <link rel="stylesheet" href="/admin/library.css">
 </head>
 <body>
-<main>
-  <span class="eyebrow">CYBERPOP / ADMIN</span>
-  <h1>Control center</h1>
-  <div class="grid">
-    <a class="card" href="/admin/library.html"><h2>Library & Access</h2><p>Collections, products, inclusion switches, monthly/yearly test access and Cults codes.</p></a>
-    <a class="card" href="/admin/memberships.html"><h2>Legacy Billing Panel</h2><p>Existing manual billing prototype kept available while Payoneer is not connected.</p></a>
-  </div>
-  <a class="back" href="/">← Customer library</a>
-</main>
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <a class="admin-brand" href="/admin/"><i></i><span>CYBERPOP</span></a>
+    <div class="admin-kicker">Workspace</div>
+    <nav class="admin-nav">
+      <a class="active" href="/admin/">Overview</a>
+      <a href="/admin/library">Library & Access</a>
+      <a href="/admin/memberships">Legacy Billing</a>
+      <a href="/">Customer site ↗</a>
+    </nav>
+    <div class="admin-sidebar-foot">Internal control surface<br>Yontuk Studio / CyberPop</div>
+  </aside>
+  <main class="admin-content">
+    <header class="admin-top">
+      <div><span class="eyebrow">OPERATIONS</span><h1>Control center.</h1></div>
+      <div class="admin-actions"><a class="admin-btn secondary" href="/">Customer view ↗</a></div>
+    </header>
+    <div class="admin-callout"><span>Customer-facing UI and entitlement engine are separated from admin controls.</span><strong>PRODUCTION</strong></div>
+    <div class="section-label">Main tools</div>
+    <section class="control-grid">
+      <a class="control-card" href="/admin/library">
+        <div><span class="eyebrow">PRIMARY</span><h2>Library & Access</h2><p>Create monthly collections, add models, control membership inclusion, grant access and assign delivery codes.</p></div>
+        <span class="control-arrow">↗</span>
+      </a>
+      <a class="control-card" href="/admin/memberships">
+        <div><span class="eyebrow">LEGACY / FALLBACK</span><h2>Billing Panel</h2><p>Keep the existing manual billing prototype available while payment automation is still disconnected.</p></div>
+        <span class="control-arrow">↗</span>
+      </a>
+    </section>
+  </main>
+</div>
 </body>
 </html>

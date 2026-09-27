@@ -11,6 +11,12 @@ $('#collectionMonth').innerHTML=monthNames.map((m,i)=>'<option value="'+(i+1)+'"
 $('#collectionMonth').value='10';
 
 function setText(sel,msg){$(sel).textContent=msg||''}
+function notify(msg,type='success'){
+  const toast=$('#adminToast');if(!toast)return;
+  toast.textContent=msg||'';toast.className='toast '+(type==='error'?'error ':'')+'show';
+  clearTimeout(notify._t);notify._t=setTimeout(()=>toast.className='toast',2600);
+}
+function setSync(msg){const el=$('#syncState');if(el)el.textContent=msg||'Ready'}
 function firstDay(ym){return ym+'-01'}
 function addMonths(dateStr,n){const d=new Date(dateStr+'T12:00:00Z');d.setUTCMonth(d.getUTCMonth()+n);return d.toISOString().slice(0,10)}
 function customerName(id){const c=customers.find(x=>x.user_id===id);return c?(c.full_name||c.email):id}
@@ -25,6 +31,7 @@ async function ensureAdmin(){
 }
 
 async function loadAll(){
+  setSync('Syncing…');
   const res=await Promise.all([
     supabase.from('membership_collections').select('*').order('starts_on',{ascending:false}),
     supabase.from('membership_products').select('*').order('collection_id').order('product_number'),
@@ -41,7 +48,7 @@ async function loadAll(){
   const deliveryRows=res[3].data||[];
   customers=res[4].data||[];entitlements=res[5].data||[];subscriptions=res[6].data||[];codes=res[7].data||[];plans=res[8].data||[];
   products=products.map(p=>({...p,delivery:deliveryRows.find(d=>d.product_id===p.id)||null}));
-  renderAll();
+  renderAll();setSync('Synced');
 }
 
 function renderAll(){
@@ -57,7 +64,8 @@ function renderStats(){
 }
 function renderCollections(){
   $('#collections').innerHTML=collections.map(c=>{
-    return '<article class="record"><div class="record-head"><div><h3>'+esc(c.display_name)+'</h3><p>'+esc(c.slug)+' · starts '+esc(c.starts_on)+'</p></div><span class="badge '+(c.is_published?'on':'')+'">'+(c.is_published?'PUBLISHED':'DRAFT')+'</span></div>'+
+    const count=products.filter(p=>p.collection_id===c.id).length;
+    return '<article class="record"><div class="record-head"><div><h3>'+esc(c.display_name)+'</h3><p>'+esc(c.slug)+' · '+count+' model'+(count===1?'':'s')+' · starts '+esc(c.starts_on)+'</p></div><span class="badge '+(c.is_published?'on':'warn')+'">'+(c.is_published?'PUBLISHED':'DRAFT')+'</span></div>'+
       '<div class="actions"><button data-publish-collection="'+c.id+'" class="secondary">'+(c.is_published?'Make draft':'Publish')+'</button></div></article>';
   }).join('')||'<p class="small">No collections.</p>';
   document.querySelectorAll('[data-publish-collection]').forEach(b=>b.onclick=()=>toggleCollection(b.dataset.publishCollection));
@@ -65,7 +73,8 @@ function renderCollections(){
 function renderProducts(){
   $('#products').innerHTML=products.map(p=>{
     const priv=privateRows.find(x=>x.product_id===p.id);
-    return '<article class="record"><div class="record-head"><div><h3>'+esc(p.public_title)+'</h3><p>Admin name: <strong>'+esc(priv?priv.internal_name:'—')+'</strong> · '+esc(collectionName(p.collection_id))+'</p></div>'+
+    const thumb=p.thumbnail_url?'<div class="record-thumb"><img src="'+esc(p.thumbnail_url)+'" alt=""></div>':'<div class="record-thumb empty">CP</div>';
+    return '<article class="record"><div class="record-head"><div class="record-main">'+thumb+'<div><h3>'+esc(p.public_title)+'</h3><p>Admin name: <strong>'+esc(priv?priv.internal_name:'—')+'</strong> · '+esc(collectionName(p.collection_id))+'</p></div></div>'+
       '<div><span class="badge '+(p.is_included?'on':'')+'">'+(p.is_included?'INCLUDED':'EXCLUDED')+'</span> <span class="badge '+(p.is_published?'on':'')+'">'+(p.is_published?'VISIBLE':'HIDDEN')+'</span></div></div>'+
       '<div class="actions"><button data-toggle-included="'+p.id+'">'+(p.is_included?'Exclude from membership':'Include in membership')+'</button><button data-toggle-published="'+p.id+'" class="secondary">'+(p.is_published?'Hide product':'Show product')+'</button></div></article>';
   }).join('')||'<p class="small">No models added yet.</p>';
@@ -93,13 +102,13 @@ function renderPlans(){
 async function toggleCollection(id){
   const c=collections.find(x=>x.id===id);if(!c)return;
   const r=await supabase.from('membership_collections').update({is_published:!c.is_published}).eq('id',id);
-  if(r.error)return alert(r.error.message);await loadAll();
+  if(r.error){notify(r.error.message,'error');return}notify('Collection visibility updated.');await loadAll();
 }
 async function toggleProduct(id,field){
   const p=products.find(x=>x.id===id);if(!p)return;
   const patch={};patch[field]=!p[field];
   const r=await supabase.from('membership_products').update(patch).eq('id',id);
-  if(r.error)return alert(r.error.message);await loadAll();
+  if(r.error){notify(r.error.message,'error');return}notify('Product settings updated.');await loadAll();
 }
 
 $('#collectionForm').addEventListener('submit',async e=>{
@@ -108,7 +117,7 @@ $('#collectionForm').addEventListener('submit',async e=>{
   const mm=String(month).padStart(2,'0'),starts=year+'-'+mm+'-01';
   const row={year,month,slug:year+'-'+mm,display_name:monthNames[month-1]+' '+year,starts_on:starts,is_published:$('#collectionPublished').value==='true'};
   const r=await supabase.from('membership_collections').insert(row);
-  if(r.error)return alert(r.error.message);await loadAll();
+  if(r.error){notify(r.error.message,'error');return}notify('Collection month created.');await loadAll();
 });
 
 $('#productForm').addEventListener('submit',async e=>{
@@ -123,7 +132,7 @@ $('#productForm').addEventListener('submit',async e=>{
     const delivery=await supabase.from('membership_product_delivery').insert({product_id:p.data.id,cults_url:deliveryUrl});
     if(delivery.error){await supabase.from('membership_products').delete().eq('id',p.data.id);setText('#productStatus',delivery.error.message);return}
   }
-  e.target.reset();setText('#productStatus','Product added and included by default.');await loadAll();
+  e.target.reset();setText('#productStatus','Product added and included by default.');notify('Product added to the collection.');await loadAll();
 });
 
 $('#monthlyAccessForm').addEventListener('submit',async e=>{
@@ -161,7 +170,7 @@ $('#codeForm').addEventListener('submit',async e=>{
 async function savePlan(id){
   const patch={name:document.querySelector('[data-plan-name="'+id+'"]').value.trim(),amount:Number(document.querySelector('[data-plan-amount="'+id+'"]').value),is_active:document.querySelector('[data-plan-active="'+id+'"]').value==='true'};
   const r=await supabase.from('membership_plans').update(patch).eq('id',id);
-  if(r.error)return alert(r.error.message);await loadAll();
+  if(r.error){notify(r.error.message,'error');return}notify('Plan updated.');await loadAll();
 }
 
 $('#loginForm').addEventListener('submit',async e=>{
@@ -171,5 +180,5 @@ $('#loginForm').addEventListener('submit',async e=>{
 });
 $('#refresh').onclick=loadAll;
 supabase.auth.onAuthStateChange(()=>setTimeout(init,0));
-async function init(){if(await ensureAdmin())loadAll().catch(e=>alert(e.message))}
+async function init(){if(await ensureAdmin())loadAll().catch(e=>{setSync('Error');notify(e.message,'error')})}
 init();

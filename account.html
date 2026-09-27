@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080808">
+  <title>CyberPop Account</title>
+  <meta name="description" content="CyberPop member account and collection access.">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand-lockup" href="/"><i></i><span>CYBERPOP</span></a>
+    <button class="menu-toggle" type="button" aria-label="Open navigation">☰</button>
+    <nav class="site-nav">
+      <a href="/">Home</a>
+      <a href="/library">Library</a>
+      <a href="/#membership">Membership</a>
+      <a class="account-chip active" href="/account"><span data-account-label>Account</span> ↗</a>
+    </nav>
+  </header>
+
+  <main class="site-shell">
+    <section class="page-hero">
+      <span class="eyebrow">MEMBER ACCOUNT</span>
+      <div class="page-hero-row">
+        <div><h1>Your access, in one place.</h1><p class="section-copy">Sign in to see active membership status, unlocked months and account-specific collection access.</p></div>
+      </div>
+    </section>
+
+    <section class="section-tight account-layout">
+      <div id="authCard" class="auth-card">
+        <span class="eyebrow">SIGN IN</span>
+        <h2>Enter your library.</h2>
+        <p>Use Google or a secure email link. For consistent access, sign in with the same email you use for your CyberPop membership.</p>
+        <div id="authMethods" class="auth-methods">
+          <button id="googleButton" class="google-btn" type="button" disabled>Continue with Google</button>
+          <div class="auth-divider"><span>or</span></div>
+          <form id="emailForm" class="email-form">
+            <input id="emailInput" class="field" type="email" required autocomplete="email" placeholder="you@example.com">
+            <button class="btn btn-primary" type="submit">Send sign-in link</button>
+          </form>
+        </div>
+        <div id="authStatus" class="notice" style="margin-top:14px"><span>Access is tied to your signed-in account.</span></div>
+      </div>
+
+      <div id="accountPanel" class="account-card">
+        <span class="eyebrow">ACCOUNT STATUS</span>
+        <h2 id="accountHeading">Not signed in</h2>
+        <p id="accountCopy">Sign in to load your member profile.</p>
+        <div id="accountSummary" class="account-summary" style="margin-top:22px">
+          <div class="skeleton"></div><div class="skeleton"></div>
+        </div>
+        <div id="signOutArea" style="margin-top:18px" hidden><button id="signOutButton" class="btn btn-ghost">Sign out</button></div>
+      </div>
+    </section>
+
+    <section class="section-tight">
+      <div class="section-head">
+        <div><span class="eyebrow">MY COLLECTIONS</span><h2 class="section-title">Unlocked months.</h2></div>
+        <a class="btn btn-ghost" href="/library">Browse full archive</a>
+      </div>
+      <div id="ownedCollections" class="collection-grid">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="site-shell footer-grid">
+      <div><strong>CYBERPOP</strong><p>Designer collectibles built for 3D printing.</p></div>
+      <div><div class="footer-label">Account</div><div class="footer-links"><a href="/library">Library</a><a href="/#membership">Membership</a><span>Secure member access</span></div></div>
+      <div><div class="footer-label">Support</div><div class="footer-links"><span>Account access</span><span>Collection codes</span><span>Membership history</span></div></div>
+    </div>
+  </footer>
+
+  <script type="module" src="/account.js"></script>
+</body>
+</html>

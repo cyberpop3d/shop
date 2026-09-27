@@ -3,36 +3,48 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090909">
   <title>CyberPop Library Admin</title>
   <link rel="stylesheet" href="/admin/library.css">
 </head>
 <body>
-  <header class="topbar">
-    <a href="/admin/">← Admin</a>
-    <strong>CYBERPOP LIBRARY CONTROL</strong>
-    <a href="/">Customer view</a>
-  </header>
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <a class="admin-brand" href="/admin/"><i></i><span>CYBERPOP</span></a>
+    <div class="admin-kicker">Workspace</div>
+    <nav class="admin-nav">
+      <a href="/admin/">Overview</a>
+      <a class="active" href="/admin/library">Library & Access</a>
+      <a href="/admin/memberships">Legacy Billing</a>
+      <a href="/">Customer site ↗</a>
+    </nav>
+    <div class="admin-sidebar-foot">Entitlement-aware content management.</div>
+  </aside>
 
-  <main class="shell">
-    <section class="wire-note"><strong>FOUNDATION ADMIN</strong><span>No payment provider is required for these controls.</span></section>
+  <main class="admin-content">
+    <header class="admin-top">
+      <div><span class="eyebrow">LIBRARY OPERATIONS</span><h1>Collections & access.</h1></div>
+      <div class="admin-actions"><span id="syncState" class="sync-state">Ready</span><button id="refresh" class="secondary">Refresh</button></div>
+    </header>
 
     <section class="panel" id="loginPanel">
       <span class="eyebrow">ADMIN AUTH</span>
-      <h1>Sign in</h1>
+      <h2>Sign in to continue.</h2>
+      <p class="small">Only accounts listed in the admin authorization table can open these controls.</p>
       <form id="loginForm" class="inline-form">
         <input id="loginEmail" type="email" required placeholder="admin email">
         <button>Send sign-in link</button>
       </form>
-      <p id="loginStatus" class="small"></p>
+      <p id="loginStatus" class="status-line"></p>
     </section>
 
     <div id="adminApp" hidden>
       <section id="stats" class="stats"></section>
 
+      <div class="section-label">Content</div>
       <section class="panel">
         <div class="section-head">
-          <div><span class="eyebrow">MONTHS</span><h2>Collection months</h2></div>
-          <button id="refresh" class="secondary">Refresh</button>
+          <div><span class="eyebrow">COLLECTION MONTHS</span><h2>Archive structure</h2><p class="small">Create the month first, then attach products to it.</p></div>
         </div>
         <form id="collectionForm" class="form-grid">
           <label>Year<input id="collectionYear" type="number" min="2020" max="2100" value="2026" required></label>
@@ -45,7 +57,7 @@
 
       <section class="panel">
         <span class="eyebrow">CATALOG</span><h2>Add a model</h2>
-        <p class="small">Internal character names stay in the admin-only table. Customers only see “October Collection Product #1” style names.</p>
+        <p class="small">Internal character names stay admin-only. Public names are generated automatically as “Month Collection Product #N”.</p>
         <form id="productForm" class="form-grid">
           <label>Collection<select id="productCollection" required></select></label>
           <label>Internal name<input id="productInternalName" required placeholder="Character name — admin only"></label>
@@ -55,16 +67,18 @@
           <label class="wide">Admin note<input id="productNote" placeholder="optional"></label>
           <button class="wide">Add product · included by default</button>
         </form>
-        <p id="productStatus" class="small"></p>
+        <p id="productStatus" class="status-line"></p>
       </section>
 
       <section class="panel">
-        <div class="section-head"><div><span class="eyebrow">MODEL SETTINGS</span><h2>Membership inclusion</h2></div></div>
+        <div class="section-head"><div><span class="eyebrow">MODEL SETTINGS</span><h2>Membership inclusion</h2><p class="small">Control customer visibility and membership eligibility independently.</p></div></div>
         <div id="products" class="stack"></div>
       </section>
 
+      <div class="section-label">Access</div>
       <section class="panel">
-        <span class="eyebrow">ACCESS LAB</span><h2>Test membership rules without Payoneer</h2>
+        <span class="eyebrow">ACCESS LAB</span><h2>Membership grants</h2>
+        <p class="small">Use manual grants while Payoneer automation is disconnected.</p>
         <div class="two-col">
           <form id="monthlyAccessForm" class="form-grid">
             <h3 class="wide">Monthly entitlement</h3>
@@ -81,11 +95,11 @@
             <button id="revokeAnnual" type="button" class="secondary">Revoke annual</button>
           </form>
         </div>
-        <p id="accessStatus" class="small"></p>
+        <p id="accessStatus" class="status-line"></p>
       </section>
 
       <section class="panel">
-        <span class="eyebrow">CULTS DELIVERY</span><h2>Assign a collection code</h2>
+        <span class="eyebrow">CULTS DELIVERY</span><h2>Collection access code</h2>
         <form id="codeForm" class="form-grid">
           <label>Customer<select id="codeCustomer" required></select></label>
           <label>Collection<select id="codeCollection" required></select></label>
@@ -94,15 +108,19 @@
           <label class="wide">Note<input id="codeNote" placeholder="optional"></label>
           <button class="wide">Save code</button>
         </form>
-        <p id="codeStatus" class="small"></p>
+        <p id="codeStatus" class="status-line"></p>
       </section>
 
+      <div class="section-label">Commercial setup</div>
       <section class="panel">
-        <span class="eyebrow">PLANS</span><h2>Monthly / annual setup</h2>
+        <span class="eyebrow">PLANS</span><h2>Monthly / annual pricing</h2>
+        <p class="small">This controls what the customer-facing site displays. Payment buttons remain disconnected until the gateway is ready.</p>
         <div id="plans" class="stack"></div>
       </section>
     </div>
   </main>
-  <script type="module" src="/admin/library.js"></script>
+</div>
+<div id="adminToast" class="toast"></div>
+<script type="module" src="/admin/library.js"></script>
 </body>
 </html>
