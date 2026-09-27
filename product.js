@@ -39,9 +39,22 @@ async function toggleFavorite(productId,button){
 async function renderAccess(p){
   const access=document.querySelector('#productAccess');
   if(p.has_access){
-    const delivery=p.disable_new_downloads
-      ? '<button class="btn btn-ghost" disabled>Downloads currently unavailable</button>'
-      : (p.cults_url?'<a class="btn btn-light" href="'+esc(p.cults_url)+'" target="_blank" rel="noopener">Open on Cults →</a>':'<button class="btn btn-ghost" disabled>Delivery link pending</button>');
+    let delivery='';
+    if(p.disable_new_downloads){
+      delivery='<button class="btn btn-ghost" disabled>Downloads currently unavailable</button>';
+    }else if(p.cults_url){
+      delivery='<a class="btn btn-light" href="'+esc(p.cults_url)+'" target="_blank" rel="noopener">Open on Cults →</a>';
+    }else if(currentSession){
+      const [missing,emailOk]=await Promise.all([
+        supabase.rpc('get_my_missing_legal_requirements',{p_scope:'download'}),
+        Promise.resolve(Boolean(currentSession.user.email_confirmed_at))
+      ]);
+      if(!emailOk)delivery='<a class="btn btn-ghost" href="/account?returnTo='+encodeURIComponent(safeReturnPath())+'">Verify email to download →</a>';
+      else if(!missing.error&&(missing.data||[]).length)delivery='<a class="btn btn-ghost" href="/account?returnTo='+encodeURIComponent(safeReturnPath())+'">Review download agreements →</a>';
+      else delivery='<button class="btn btn-ghost" disabled>Delivery link pending</button>';
+    }else{
+      delivery='<a class="btn btn-ghost" href="/account?returnTo='+encodeURIComponent(safeReturnPath())+'">Sign in for delivery →</a>';
+    }
     access.innerHTML='<div class="unlock-box"><span class="eyebrow">IN YOUR LIBRARY</span><div class="unlock-price"><strong>OWNED</strong></div>'+
       '<p class="unlock-note">Ownership is verified by backend entitlement state. Hosting/download availability may be affected by legal or platform restrictions.</p>'+
       delivery+
