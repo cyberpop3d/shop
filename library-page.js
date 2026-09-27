@@ -1,4 +1,4 @@
-import { supabase,initChrome,monthLabel,stateMarkup,esc } from '/site.js';
+import { supabase,initChrome,getSiteMediaSlots,setMediaImage,monthLabel,stateMarkup,esc } from '/site.js';
 
 let session=null,collections=[],products=[],libraryItems=[],activeFilter='all',searchTerm='',sortMode='newest';
 
@@ -85,6 +85,8 @@ async function toggleFavorite(productId){
 
 async function loadLibrary(){
   session=await initChrome();
+  const slots=await getSiteMediaSlots();
+  setMediaImage(document.querySelector('#libraryHero'),slots.library_hero?.asset_url,'LIBRARY HERO · 1920 × 640');
   const notice=document.querySelector('#libraryNotice');
   const cta=document.querySelector('#libraryAccountCta');
   if(session){
