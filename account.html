@@ -19,6 +19,7 @@
   </nav>
 </header>
 
+<datalist id="countryOptions"></datalist>
 <main class="site-shell">
   <section class="page-hero">
     <span class="eyebrow">MEMBER ACCOUNT</span>
@@ -73,7 +74,7 @@
           <span class="field-help">3–24 characters. Letters, numbers and underscore. Usernames are case-insensitively unique.</span>
         </label>
         <label>Country / Region
-          <select id="onboardingCountry" class="field" required><option value="">Choose country / region</option></select>
+          <input id="onboardingCountry" class="field" list="countryOptions" autocomplete="off" placeholder="Search country / region" required>
           <span class="field-help">PRIVATE — never displayed publicly.</span>
         </label>
         <div id="onboardingLegal" class="profile-wide legal-checks"></div>
@@ -94,7 +95,7 @@
       <form id="profileForm" class="profile-form">
         <label>Username<input id="profileHandle" class="field" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" placeholder="@username"></label>
         <label>Email<input id="profileEmail" class="field" disabled></label>
-        <label>Country / Region<select id="profileCountry" class="field"><option value="">Choose country / region</option></select><span class="field-help">PRIVATE — never displayed publicly.</span></label>
+        <label>Country / Region<input id="profileCountry" class="field" list="countryOptions" autocomplete="off" placeholder="Search country / region"><span class="field-help">PRIVATE — never displayed publicly.</span></label>
         <label>Primary printer<input id="profilePrinter" class="field" maxlength="120" placeholder="Optional"></label>
         <label class="profile-wide">Bio<textarea id="profileBio" class="field profile-textarea" maxlength="280" placeholder="Optional short profile bio"></textarea></label>
         <div class="profile-wide profile-actions"><button class="btn btn-primary" type="submit">Save account</button><span id="profileStatus" class="small"></span></div>
