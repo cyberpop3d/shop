@@ -14,30 +14,69 @@
     <div class="admin-kicker">Workspace</div>
     <nav class="admin-nav">
       <a class="active" href="/admin/">Overview</a>
-      <a href="/admin/library">Library & Access</a>\n      <a href="/admin/media">Media Manager</a>
+      <a href="/admin/library">Library & Access</a>
+      <a href="/admin/media">Media Manager</a>
+      <a href="/admin/rights">Rights & Legal</a>
       <a href="/admin/memberships">Legacy Billing</a>
       <a href="/">Customer site ↗</a>
     </nav>
     <div class="admin-sidebar-foot">Internal control surface<br>Yontuk Studio / CyberPop</div>
   </aside>
+
   <main class="admin-content">
     <header class="admin-top">
       <div><span class="eyebrow">OPERATIONS</span><h1>Control center.</h1></div>
-      <div class="admin-actions"><a class="admin-btn secondary" href="/">Customer view ↗</a></div>
+      <div class="admin-actions"><span id="dashboardSync" class="sync-state">Ready</span><button id="dashboardRefresh" class="secondary">Refresh</button><a class="admin-btn secondary" href="/">Customer view ↗</a></div>
     </header>
-    <div class="admin-callout"><span>Customer-facing UI and entitlement engine are separated from admin controls.</span><strong>PRODUCTION</strong></div>
-    <div class="section-label">Main tools</div>
-    <section class="control-grid">
-      <a class="control-card" href="/admin/library">
-        <div><span class="eyebrow">PRIMARY</span><h2>Library & Access</h2><p>Create monthly collections, add models, control membership inclusion, grant access and assign delivery codes.</p></div>
-        <span class="control-arrow">↗</span>
-      </a>
-      <a class="control-card" href="/admin/memberships">
-        <div><span class="eyebrow">LEGACY / FALLBACK</span><h2>Billing Panel</h2><p>Keep the existing manual billing prototype available while payment automation is still disconnected.</p></div>
-        <span class="control-arrow">↗</span>
-      </a>
+
+    <section class="panel" id="dashboardLoginPanel">
+      <span class="eyebrow">ADMIN AUTH</span>
+      <h2>Sign in to continue.</h2>
+      <p class="small">The admin overview is protected by the same authorization table as catalog, media and legal operations.</p>
+      <form id="dashboardLoginForm" class="inline-form"><input id="dashboardLoginEmail" type="email" required placeholder="admin email"><button>Send sign-in link</button></form>
+      <p id="dashboardLoginStatus" class="status-line"></p>
     </section>
+
+    <div id="dashboardApp" hidden>
+      <div class="admin-callout">
+        <span><strong>PRE-PAYMENT BUILD.</strong> Customer accounts, Library, Credits, rights and catalog systems can be completed now. Real-money checkout remains deliberately disabled until the company/payment provider is connected.</span>
+        <span class="badge warn">PAYMENTS OFF</span>
+      </div>
+
+      <div class="section-label">Live snapshot</div>
+      <section id="dashboardStats" class="stats">
+        <div class="admin-skeleton"></div><div class="admin-skeleton"></div><div class="admin-skeleton"></div><div class="admin-skeleton"></div>
+      </section>
+
+      <div class="section-label">Launch readiness</div>
+      <section class="panel">
+        <div class="section-head"><div><span class="eyebrow">PRE-PAYMENT CHECKLIST</span><h2>What is ready now.</h2><p class="small">This checklist tracks everything that can be finalized before Payoneer exists.</p></div></div>
+        <div id="readinessGrid" class="readiness-grid"></div>
+      </section>
+
+      <div class="section-label">Main tools</div>
+      <section class="control-grid control-grid-four">
+        <a class="control-card" href="/admin/library"><div><span class="eyebrow">CATALOG</span><h2>Library & Access</h2><p>Collections, models, credit prices, entitlements, Cults sync and member access.</p></div><span class="control-arrow">↗</span></a>
+        <a class="control-card" href="/admin/media"><div><span class="eyebrow">VISUALS</span><h2>Media Manager</h2><p>Hero, banner, collection, thumbnail and gallery assets with fixed target ratios.</p></div><span class="control-arrow">↗</span></a>
+        <a class="control-card" href="/admin/rights"><div><span class="eyebrow">COMPLIANCE</span><h2>Rights & Legal</h2><p>Legal versions, takedowns, IP blocklist, reports and Seller Licenses.</p></div><span class="control-arrow">↗</span></a>
+        <a class="control-card" href="/admin/memberships"><div><span class="eyebrow">FALLBACK</span><h2>Legacy Billing</h2><p>Manual billing prototype kept available until the real provider is connected.</p></div><span class="control-arrow">↗</span></a>
+      </section>
+
+      <div class="section-label">Operational health</div>
+      <section class="panel">
+        <div class="section-head"><div><span class="eyebrow">SYSTEM STATUS</span><h2>Connected surfaces.</h2></div></div>
+        <div id="systemHealth" class="health-list"></div>
+      </section>
+
+      <div class="section-label">Attention</div>
+      <section class="two-col">
+        <div class="panel"><span class="eyebrow">RIGHTS QUEUE</span><h2>Open reports</h2><div id="dashboardRights" class="stack"></div></div>
+        <div class="panel"><span class="eyebrow">CATALOG QUALITY</span><h2>Incomplete models</h2><div id="dashboardCatalogIssues" class="stack"></div></div>
+      </section>
+    </div>
   </main>
 </div>
+<div id="adminToast" class="toast"></div>
+<script type="module" src="/admin/dashboard.js"></script>
 </body>
 </html>

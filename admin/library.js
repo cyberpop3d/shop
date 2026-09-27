@@ -6,6 +6,7 @@ const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
 let session=null,collections=[],products=[],privateRows=[],customers=[],entitlements=[],subscriptions=[],codes=[],plans=[],creditAccounts=[];
+let productSearch='',productFilter='all';
 
 $('#collectionMonth').innerHTML=monthNames.map((m,i)=>'<option value="'+(i+1)+'">'+m+'</option>').join('');
 $('#collectionMonth').value='10';
@@ -125,8 +126,22 @@ function renderCollections(){
   }).join('')||'<p class="small">No collections.</p>';
   document.querySelectorAll('[data-publish-collection]').forEach(b=>b.onclick=()=>toggleCollection(b.dataset.publishCollection));
 }
+function productMatchesAdminFilter(p){
+  const priv=privateRows.find(x=>x.product_id===p.id);
+  const haystack=[p.public_title,priv?.internal_name,collectionName(p.collection_id),priv?.rights_property_key].filter(Boolean).join(' ').toLowerCase();
+  if(productSearch&&!haystack.includes(productSearch))return false;
+  if(productFilter==='published')return p.is_published&&p.legal_status==='ACTIVE'&&p.takedown_state==='NONE';
+  if(productFilter==='draft')return !p.is_published;
+  if(productFilter==='legal')return p.legal_status!=='ACTIVE'||p.takedown_state!=='NONE';
+  if(productFilter==='fan')return p.ip_class==='UNOFFICIAL_FAN_WORK';
+  if(productFilter==='commercial')return p.license_scope==='PHYSICAL_COMMERCIAL'||p.commercial_print_allowed;
+  if(productFilter==='missing')return !p.thumbnail_url||!p.credit_price||!priv?.internal_name;
+  return true;
+}
 function renderProducts(){
-  $('#products').innerHTML=products.map(p=>{
+  const visible=products.filter(productMatchesAdminFilter);
+  $('#productAdminCount').textContent=visible.length+' / '+products.length+' products';
+  $('#products').innerHTML=visible.map(p=>{
     const priv=privateRows.find(x=>x.product_id===p.id);
     const thumb=p.thumbnail_url?'<div class="record-thumb"><img src="'+esc(p.thumbnail_url)+'" alt=""></div>':'<div class="record-thumb empty">CP</div>';
     const legalWarn=p.legal_status!=='ACTIVE'||p.takedown_state!=='NONE';
@@ -143,7 +158,7 @@ function renderProducts(){
         '<label>License terms version<input data-license-version="'+p.id+'" value="'+esc(p.license_terms_version||'')+'" placeholder="optional"></label>'+
       '</div>'+
       '<div class="actions"><button data-save-rights="'+p.id+'">Save product rights</button><button data-toggle-included="'+p.id+'" class="secondary">'+(p.is_included?'Exclude membership':'Include membership')+'</button><button data-legal-action="HIDE" data-product-id="'+p.id+'" class="secondary">Hide</button><button data-legal-action="LEGAL_REVIEW" data-product-id="'+p.id+'" class="secondary">Legal review</button><button data-legal-action="TAKEDOWN" data-product-id="'+p.id+'" class="danger">Takedown</button><button data-legal-action="DISCONTINUE" data-product-id="'+p.id+'" class="secondary">Discontinue</button><button data-legal-action="DISABLE_DOWNLOADS" data-product-id="'+p.id+'" class="secondary">Disable downloads</button><button data-legal-action="ACTIVATE" data-product-id="'+p.id+'" class="secondary">Activate</button></div></article>';
-  }).join('')||'<p class="small">No models added yet.</p>';
+  }).join('')||'<div class="admin-empty"><strong>No products match this view.</strong><span>Change the search or filter to see more catalog items.</span></div>';
   document.querySelectorAll('[data-toggle-included]').forEach(b=>b.onclick=()=>toggleProduct(b.dataset.toggleIncluded,'is_included'));
   document.querySelectorAll('[data-save-rights]').forEach(b=>b.onclick=()=>saveProductRights(b.dataset.saveRights));
   document.querySelectorAll('[data-legal-action]').forEach(b=>b.onclick=()=>runLegalAction(b.dataset.productId,b.dataset.legalAction));
@@ -321,6 +336,8 @@ $('#loginForm').addEventListener('submit',async e=>{
   const r=await supabase.auth.signInWithOtp({email:$('#loginEmail').value.trim(),options:{emailRedirectTo:location.origin+'/admin/library.html'}});
   setText('#loginStatus',r.error?r.error.message:'Check your email for the admin sign-in link.');
 });
+$('#productAdminSearch').addEventListener('input',e=>{productSearch=e.target.value.trim().toLowerCase();renderProducts()});
+$('#productAdminFilter').addEventListener('change',e=>{productFilter=e.target.value;renderProducts()});
 $('#refresh').onclick=loadAll;
 $('#cultsCheckButton').onclick=checkCultsConnection;
 $('#cultsSyncButton').onclick=syncFromCults;

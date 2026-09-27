@@ -11,9 +11,52 @@ export function monthLabel(date){
 export function money(amount,currency='USD'){
   return new Intl.NumberFormat('en-US',{style:'currency',currency,maximumFractionDigits:0}).format(Number(amount||0));
 }
-export function stateMarkup(type,title,copy){
-  return '<div class="state-card '+esc(type||'')+'"><strong>'+esc(title)+'</strong><p>'+esc(copy)+'</p></div>';
+export function stateMarkup(type,title,copy,action=null){
+  const kind=type||'empty';
+  const icons={empty:'◇',error:'!',locked:'⌁',success:'✓',maintenance:'◌',auth:'↗'};
+  const icon=icons[kind]||'◇';
+  const actionHtml=action&&action.href&&action.label
+    ? '<a class="state-action" href="'+esc(action.href)+'">'+esc(action.label)+' →</a>'
+    : '';
+  return '<div class="state-card '+esc(kind)+'"><div class="state-icon">'+esc(icon)+'</div><div class="state-copy"><strong>'+esc(title)+'</strong><p>'+esc(copy)+'</p>'+actionHtml+'</div></div>';
 }
+export function loadingMarkup(count=4,variant='card'){
+  const total=Math.max(1,Math.min(12,Number(count)||1));
+  return Array.from({length:total},()=>'<div class="skeleton skeleton-'+esc(variant)+'"><span></span></div>').join('');
+}
+export function friendlyError(error,fallback='Something went wrong.'){
+  const raw=String(error?.message||error||'').toLowerCase();
+  if(!raw)return fallback;
+  if(raw.includes('failed to fetch')||raw.includes('network'))return 'Network connection interrupted. Try again.';
+  if(raw.includes('jwt')||raw.includes('session'))return 'Your session needs to be refreshed. Sign in again.';
+  if(raw.includes('permission')||raw.includes('row-level')||raw.includes('rls'))return 'This action is not available for this account.';
+  return fallback;
+}
+export function showToast(message,type='success'){
+  let host=document.querySelector('.site-toast');
+  if(!host){host=document.createElement('div');host.className='site-toast';document.body.appendChild(host)}
+  host.textContent=message;
+  host.className='site-toast '+esc(type)+' show';
+  clearTimeout(showToast._timer);
+  showToast._timer=setTimeout(()=>host.className='site-toast',2800);
+}
+export function setButtonBusy(button,busy,label='Working…'){
+  if(!button)return;
+  if(busy){
+    if(!button.dataset.originalLabel)button.dataset.originalLabel=button.textContent;
+    button.disabled=true;button.classList.add('is-busy');button.textContent=label;
+  }else{
+    button.disabled=false;button.classList.remove('is-busy');
+    if(button.dataset.originalLabel){button.textContent=button.dataset.originalLabel;delete button.dataset.originalLabel}
+  }
+}
+export function ensureNetworkState(){
+  let pill=document.querySelector('.network-state');
+  if(!pill){pill=document.createElement('div');pill.className='network-state';pill.textContent='Offline';document.body.appendChild(pill)}
+  const sync=()=>pill.classList.toggle('show',!navigator.onLine);
+  window.addEventListener('online',sync);window.addEventListener('offline',sync);sync();
+}
+
 export async function getSiteMediaSlots(){
   const r=await supabase.from('site_media_slots').select('*');
   if(r.error)throw r.error;
@@ -122,6 +165,7 @@ export function ensureGlobalLegalFooter(){
 }
 export async function initChrome(){
   ensureGlobalLegalFooter();
+  ensureNetworkState();
   const session=await getSession();
   let balance=0;
   let handle=null;
@@ -134,5 +178,6 @@ export async function initChrome(){
     }catch(_){}
   }
   syncHeader(session,balance,handle);
+  requestAnimationFrame(()=>document.body.classList.add('page-ready'));
   return session;
 }

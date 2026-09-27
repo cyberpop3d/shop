@@ -1,4 +1,4 @@
-import { supabase,initChrome,getSiteMediaSlots,setMediaImage,monthLabel,stateMarkup,esc } from '/site.js';
+import { supabase,initChrome,getSiteMediaSlots,setMediaImage,monthLabel,stateMarkup,loadingMarkup,friendlyError,showToast,esc } from '/site.js';
 
 let session=null,collections=[],products=[],favorites=[],activeFilter='all',searchTerm='',sortMode='newest';
 
@@ -45,11 +45,12 @@ function filteredProducts(){
 function renderModels(){
   const grid=document.querySelector('#modelLibraryGrid');
   if(!session){
-    grid.innerHTML=stateMarkup('','Sign in to open your Library','Ownership is loaded from your verified account entitlements.');
+    grid.innerHTML=stateMarkup('auth','Sign in to open your Library','Ownership is loaded from your verified account entitlements.',{href:'/account?returnTo=%2Flibrary',label:'Sign in'});
     return;
   }
   const rows=filteredProducts();
-  grid.innerHTML=rows.length?rows.map(modelCard).join(''):stateMarkup('','Library empty','Unlock a model or receive collection access and it will appear here automatically.');
+  document.querySelector('#libraryModelMeta').textContent=products.length+' owned models · '+favorites.length+' favorites';
+  grid.innerHTML=rows.length?rows.map(modelCard).join(''):stateMarkup('empty',activeFilter==='favorites'?'No favorites yet':'Library empty',activeFilter==='favorites'?'Favorite an owned model and it will appear here.':'Unlock a model or receive collection access and it will appear here automatically.',{href:'/collections',label:'Browse collections'});
   document.querySelectorAll('[data-favorite]').forEach(btn=>btn.onclick=()=>toggleFavorite(btn.dataset.favorite));
 }
 
@@ -57,18 +58,19 @@ async function toggleFavorite(productId){
   if(!session)return;
   if(isFavorite(productId)){
     const r=await supabase.from('member_favorites').delete().eq('product_id',productId);
-    if(r.error)return alert(r.error.message);
-    favorites=favorites.filter(x=>x.product_id!==productId);
+    if(r.error){showToast('Favorite could not be updated.','error');return}
+    favorites=favorites.filter(x=>x.product_id!==productId);showToast('Removed from favorites.');
   }else{
     const r=await supabase.from('member_favorites').insert({user_id:session.user.id,product_id:productId});
-    if(r.error)return alert(r.error.message);
-    favorites.push({user_id:session.user.id,product_id:productId});
+    if(r.error){showToast('Favorite could not be updated.','error');return}
+    favorites.push({user_id:session.user.id,product_id:productId});showToast('Added to favorites.');
   }
   renderModels();
 }
 
 async function loadLibrary(){
   session=await initChrome();
+  document.querySelector('#modelLibraryGrid').innerHTML=loadingMarkup(8,'card');
   const slots=await getSiteMediaSlots();
   setMediaImage(document.querySelector('#libraryHero'),slots.library_hero?.asset_url,'LIBRARY HERO · 1920 × 640');
   const notice=document.querySelector('#libraryNotice');
@@ -115,5 +117,5 @@ document.querySelectorAll('[data-filter]').forEach(btn=>btn.addEventListener('cl
 loadLibrary().catch(err=>{
   console.error(err);
   document.querySelector('#collectionGrid').innerHTML='';
-  document.querySelector('#modelLibraryGrid').innerHTML=stateMarkup('error','Library unavailable','Your verified ownership could not be loaded right now.');
+  document.querySelector('#modelLibraryGrid').innerHTML=stateMarkup('error','Library unavailable',friendlyError(err,'Your verified ownership could not be loaded right now.'),{href:'/library',label:'Retry'});
 });
