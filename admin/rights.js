@@ -3,7 +3,7 @@ import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '/supabase-config.js';
 const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-let session=null,reports=[],blocklist=[],legalDocs=[],audit=[];
+let session=null,reports=[],blocklist=[],legalDocs=[],audit=[],customers=[],sellerLicenses=[];
 
 function setText(sel,msg){$(sel).textContent=msg||''}
 function notify(msg,type='success'){const t=$('#adminToast');t.textContent=msg;t.className='toast '+(type==='error'?'error ':'')+'show';clearTimeout(notify._t);notify._t=setTimeout(()=>t.className='toast',2600)}
@@ -23,10 +23,12 @@ async function loadAll(){
     supabase.from('rights_reports').select('*').order('created_at',{ascending:false}),
     supabase.from('ip_property_blocklist').select('*').order('created_at',{ascending:false}),
     supabase.from('legal_documents').select('*').order('document_type').order('created_at',{ascending:false}),
-    supabase.from('legal_admin_audit').select('*').order('created_at',{ascending:false}).limit(80)
+    supabase.from('legal_admin_audit').select('*').order('created_at',{ascending:false}).limit(80),
+    supabase.from('membership_customers').select('user_id,email,full_name').order('email'),
+    supabase.from('seller_licenses').select('*').order('created_at',{ascending:false})
   ]);
   const err=res.find(x=>x.error);if(err)throw err.error;
-  reports=res[0].data||[];blocklist=res[1].data||[];legalDocs=res[2].data||[];audit=res[3].data||[];
+  reports=res[0].data||[];blocklist=res[1].data||[];legalDocs=res[2].data||[];audit=res[3].data||[];customers=res[4].data||[];sellerLicenses=res[5].data||[];
   render();setSync('Synced');
 }
 function render(){
@@ -34,9 +36,9 @@ function render(){
     ['OPEN REPORTS',reports.filter(r=>!['closed','rejected'].includes(r.status)).length],
     ['VERIFIED',reports.filter(r=>r.status==='verified').length],
     ['BLOCKED PROPERTIES',blocklist.filter(b=>b.is_active).length],
-    ['CURRENT LEGAL DOCS',legalDocs.filter(d=>d.is_current&&d.status==='published').length]
+    ['ACTIVE SELLERS',sellerLicenses.filter(s=>s.status==='active').length]
   ].map(x=>'<div class="stat"><span>'+x[0]+'</span><strong>'+x[1]+'</strong></div>').join('');
-  renderReports();renderBlocklist();renderLegal();renderAudit();renderReportOptions();
+  renderReports();renderBlocklist();renderLegal();renderSellerLicenses();renderAudit();renderReportOptions();
 }
 function renderReportOptions(){
   $('#blockSourceReport').innerHTML='<option value="">No linked report</option>'+reports.map(r=>'<option value="'+r.id+'">'+esc(r.report_type)+' · '+esc(r.relevant_ip||r.contact_email)+'</option>').join('');
@@ -119,6 +121,15 @@ async function publishLegal(id){
   if(r.error)return notify(r.error.message,'error');
   notify('Legal version published as current.');await loadAll();
 }
+function renderSellerLicenses(){
+  $('#sellerUser').innerHTML=customers.map(c=>'<option value="'+c.user_id+'">'+esc(c.email)+(c.full_name?' · '+esc(c.full_name):'')+'</option>').join('');
+  const currentSellerTerms=legalDocs.find(d=>d.document_type==='seller_license_terms'&&d.is_current&&d.status==='published');
+  if(currentSellerTerms&&!$('#sellerTermsVersion').value)$('#sellerTermsVersion').value=currentSellerTerms.version;
+  $('#sellerLicenses').innerHTML=sellerLicenses.length?sellerLicenses.map(s=>{
+    const c=customers.find(x=>x.user_id===s.user_id);
+    return '<article class="record"><div class="record-head"><div><h3>'+esc(c?.email||s.user_id)+'</h3><p>Terms: '+esc(s.terms_version||'—')+(s.expires_at?' · expires '+esc(s.expires_at):'')+'</p></div><span class="badge '+(s.status==='active'?'on':'warn')+'">'+esc(s.status)+'</span></div><p>'+esc(s.admin_note||'')+'</p></article>';
+  }).join(''):'<p class="small">No Seller Licenses configured.</p>';
+}
 function renderAudit(){
   $('#auditLog').innerHTML=audit.length?audit.map(a=>'<article class="record"><div class="record-head"><div><h3>'+esc(a.action_type)+'</h3><p>'+new Date(a.created_at).toLocaleString()+' · '+esc(a.target_type)+' · '+esc(a.target_id||'—')+'</p></div></div><p>'+esc(JSON.stringify(a.details||{}))+'</p></article>').join(''):'<p class="small">No legal admin actions yet.</p>';
 }
@@ -133,6 +144,29 @@ $('#blockPropertyForm').addEventListener('submit',async e=>{
   if(r.error){setText('#blockStatus',r.error.message);return}
   e.target.reset();setText('#blockStatus','Property blocked. Matching models moved to legal review.');await loadAll();
 });
+$('#sellerLicenseForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const status=$('#sellerStatus').value;
+  const now=new Date().toISOString();
+  const row={
+    user_id:$('#sellerUser').value,status,scope:'PHYSICAL_PRINTS_ONLY',
+    terms_version:$('#sellerTermsVersion').value.trim()||null,
+    activated_at:status==='active'?now:null,
+    expires_at:$('#sellerExpires').value||null,
+    suspended_at:status==='suspended'?now:null,
+    revoked_at:status==='revoked'?now:null,
+    admin_note:$('#sellerNote').value.trim()||null,
+    updated_at:now
+  };
+  const r=await supabase.from('seller_licenses').upsert(row,{onConflict:'user_id'});
+  if(r.error){setText('#sellerStatusLine',r.error.message);return}
+  await supabase.from('legal_admin_audit').insert({
+    admin_user_id:session.user.id,action_type:'UPDATE_SELLER_LICENSE',target_type:'user',target_id:row.user_id,
+    details:{status:row.status,terms_version:row.terms_version,expires_at:row.expires_at}
+  });
+  setText('#sellerStatusLine','Seller License updated.');notify('Seller License updated.');await loadAll();
+});
+
 $('#newLegalForm').addEventListener('submit',async e=>{
   e.preventDefault();setText('#legalCreateStatus','Creating draft…');
   const row={
