@@ -41,6 +41,23 @@
     <div id="adminApp" hidden>
       <section id="stats" class="stats"></section>
 
+      <div class="section-label">Catalog source</div>
+      <section class="panel">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">CULTS API</span>
+            <h2>Sync your Cults catalog</h2>
+            <p class="small">Pull your own Cults models, thumbnails and publication dates into CyberPop. Files stay on Cults; customer download actions redirect there.</p>
+          </div>
+          <span id="cultsConnectionBadge" class="badge warn">CHECKING</span>
+        </div>
+        <div class="actions">
+          <button id="cultsSyncButton" type="button" disabled>Sync latest 50 models</button>
+          <button id="cultsCheckButton" type="button" class="secondary">Check connection</button>
+        </div>
+        <p id="cultsSyncStatus" class="status-line">Cults credentials are stored server-side only.</p>
+      </section>
+
       <div class="section-label">Content</div>
       <section class="panel">
         <div class="section-head">
