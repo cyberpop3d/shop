@@ -4,12 +4,29 @@ import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '/supabase-config.js';
 const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-let session=null,collections=[],products=[],codes=[],subscriptions=[],plans=[],selectedId=null;
+let session=null,collections=[],products=[],codes=[],subscriptions=[],plans=[],selectedId=null,googleReady=false;
 
 function monthLabel(date){
   return new Intl.DateTimeFormat('en-US',{month:'long',year:'numeric'}).format(new Date(date+'T12:00:00'));
 }
 function setStatus(text){$('#authStatus').textContent=text}
+
+async function loadAuthProviders(){
+  try{
+    const response=await fetch(SUPABASE_URL+'/auth/v1/settings',{
+      headers:{apikey:SUPABASE_PUBLISHABLE_KEY}
+    });
+    if(!response.ok)throw new Error('Auth settings unavailable');
+    const settings=await response.json();
+    googleReady=Boolean(settings&&settings.external&&settings.external.google);
+  }catch(error){
+    console.warn(error);
+    googleReady=false;
+  }
+  const button=$('#googleSignInButton');
+  button.disabled=!googleReady;
+  button.title=googleReady?'Sign in with Google':'Google OAuth provider setup is pending';
+}
 
 async function loadPublic(){
   const results=await Promise.all([
@@ -111,6 +128,7 @@ function renderDetail(){
   }).join('')||'<div class="empty">No products have been added to this month yet.</div>';
 }
 async function refresh(){
+  await loadAuthProviders();
   const auth=await supabase.auth.getSession();
   session=auth.data.session;
   await loadPublic();
@@ -120,6 +138,7 @@ async function refresh(){
   renderAccount();renderPlans();renderCollections();renderDetail();
 }
 $('#googleSignInButton').addEventListener('click',async()=>{
+  if(!googleReady){setStatus('Google sign-in is not configured yet.');return}
   setStatus('Opening Google sign-in…');
   const result=await supabase.auth.signInWithOAuth({
     provider:'google',
