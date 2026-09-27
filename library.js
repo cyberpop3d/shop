@@ -4,12 +4,29 @@ import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '/supabase-config.js';
 const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-let session=null,collections=[],products=[],codes=[],subscriptions=[],plans=[],selectedId=null;
+let session=null,collections=[],products=[],codes=[],subscriptions=[],plans=[],selectedId=null,googleReady=false;
 
 function monthLabel(date){
   return new Intl.DateTimeFormat('en-US',{month:'long',year:'numeric'}).format(new Date(date+'T12:00:00'));
 }
 function setStatus(text){$('#authStatus').textContent=text}
+
+async function loadAuthProviders(){
+  try{
+    const response=await fetch(SUPABASE_URL+'/auth/v1/settings',{
+      headers:{apikey:SUPABASE_PUBLISHABLE_KEY}
+    });
+    if(!response.ok)throw new Error('Auth settings unavailable');
+    const settings=await response.json();
+    googleReady=Boolean(settings&&settings.external&&settings.external.google);
+  }catch(error){
+    console.warn(error);
+    googleReady=false;
+  }
+  const button=$('#googleSignInButton');
+  button.disabled=!googleReady;
+  button.title=googleReady?'Sign in with Google':'Google OAuth provider setup is pending';
+}
 
 async function loadPublic(){
   const results=await Promise.all([
@@ -24,6 +41,24 @@ async function loadPublic(){
   products=p.data||[];
   plans=pl.data||[];
 }
+async function ensureCustomerProfile(){
+  if(!session||!session.user||!session.user.email)return;
+  const existing=await supabase.from('membership_customers').select('user_id').eq('user_id',session.user.id).maybeSingle();
+  if(existing.error)throw existing.error;
+  if(existing.data)return;
+
+  const meta=session.user.user_metadata||{};
+  const fallback=session.user.email.split('@')[0].replace(/[._-]+/g,' ').trim()||'Member';
+  const fullName=String(meta.full_name||meta.name||fallback).trim();
+  const created=await supabase.from('membership_customers').insert({
+    user_id:session.user.id,
+    full_name:fullName,
+    email:session.user.email,
+    client_type:'professional'
+  });
+  if(created.error&&created.error.code!=='23505')throw created.error;
+}
+
 async function loadPrivate(){
   if(!session){codes=[];subscriptions=[];return}
   const results=await Promise.all([
@@ -35,7 +70,7 @@ async function loadPrivate(){
 }
 function renderAccount(){
   const logged=!!session;
-  $('#loginForm').hidden=logged;
+  $('#authMethods').hidden=logged;
   $('#sessionBox').hidden=!logged;
   $('#accountTitle').textContent=logged?'Signed in':'Sign in';
   $('#memberState').textContent=logged?'MEMBER ACCOUNT':'GUEST';
@@ -93,13 +128,25 @@ function renderDetail(){
   }).join('')||'<div class="empty">No products have been added to this month yet.</div>';
 }
 async function refresh(){
+  await loadAuthProviders();
   const auth=await supabase.auth.getSession();
   session=auth.data.session;
   await loadPublic();
+  if(session)await ensureCustomerProfile();
   await loadPrivate();
   if(!selectedId&&collections.length)selectedId=collections[0].id;
   renderAccount();renderPlans();renderCollections();renderDetail();
 }
+$('#googleSignInButton').addEventListener('click',async()=>{
+  if(!googleReady){setStatus('Google sign-in is not configured yet.');return}
+  setStatus('Opening Google sign-in…');
+  const result=await supabase.auth.signInWithOAuth({
+    provider:'google',
+    options:{redirectTo:location.origin+'/'}
+  });
+  if(result.error)setStatus(result.error.message);
+});
+
 $('#loginForm').addEventListener('submit',async e=>{
   e.preventDefault();
   setStatus('Sending sign-in link…');

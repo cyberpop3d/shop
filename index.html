@@ -40,12 +40,19 @@
           <div><span class="eyebrow">ACCOUNT</span><h2 id="accountTitle">Sign in</h2></div>
           <span class="status-pill" id="memberState">GUEST</span>
         </div>
-        <form id="loginForm">
-          <label>Email
-            <input id="loginEmail" type="email" required autocomplete="email" placeholder="you@example.com">
-          </label>
-          <button type="submit">Send secure sign-in link</button>
-        </form>
+        <div id="authMethods" class="auth-methods">
+          <button id="googleSignInButton" class="google-button" type="button" disabled>
+            <span class="google-mark" aria-hidden="true">G</span>
+            <span>Continue with Google</span>
+          </button>
+          <div class="auth-divider"><span>or</span></div>
+          <form id="loginForm">
+            <label>Email
+              <input id="loginEmail" type="email" required autocomplete="email" placeholder="you@example.com">
+            </label>
+            <button type="submit">Send secure sign-in link</button>
+          </form>
+        </div>
         <div id="sessionBox" hidden>
           <p class="session-email" id="sessionEmail"></p>
           <button id="signOutButton" class="secondary" type="button">Sign out</button>
