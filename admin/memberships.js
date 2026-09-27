@@ -19,8 +19,8 @@ async function ensureAdmin(){
 
 async function loadAll(){
   const [ordersRes,subsRes,plansRes]=await Promise.all([
-    supabase.from('membership_orders').select('*,membership_plans(name),membership_customers!membership_orders_user_id_fkey(full_name,email,business_name)').order('created_at',{ascending:false}),
-    supabase.from('membership_subscriptions').select('*,membership_plans(name),membership_customers!membership_subscriptions_user_id_fkey(full_name,email,business_name)').order('next_payment_due',{ascending:true}),
+    supabase.from('membership_orders').select('*,membership_plans(name),membership_customers!membership_orders_customer_fkey(full_name,email,business_name)').order('created_at',{ascending:false}),
+    supabase.from('membership_subscriptions').select('*,membership_plans(name),membership_customers!membership_subscriptions_customer_fkey(full_name,email,business_name)').order('next_payment_due',{ascending:true}),
     supabase.from('membership_plans').select('*').order('sort_order')
   ]);
   if(ordersRes.error) console.error(ordersRes.error);
