@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CyberPop Membership Admin</title>
+  <link rel="stylesheet" href="/admin/memberships.css" />
+</head>
+<body>
+  <header class="topbar"><a href="/admin/">← Admin</a><strong>MEMBERSHIP CONTROL</strong><a href="/membership/">Customer view</a></header>
+  <main>
+    <section class="hero"><span>CYBERPOP / YONTUK</span><h1>Payoneer Membership Control</h1><p>Track billing requests, activate paid terms, schedule renewals, and deliver Cults codes or direct links.</p></section>
+
+    <section class="panel" id="loginPanel">
+      <h2>Admin sign-in</h2>
+      <form id="loginForm"><label>Email<input id="loginEmail" type="email" required></label><button>Send sign-in link</button></form>
+      <div id="loginStatus" class="status"></div>
+    </section>
+
+    <div id="adminApp" hidden>
+      <section class="stats" id="stats"></section>
+
+      <section class="panel">
+        <div class="head"><div><span class="eyebrow">PAYONEER</span><h2>Payment requests</h2></div><button id="refresh" class="ghost">Refresh</button></div>
+        <div id="orders" class="stack"></div>
+      </section>
+
+      <section class="panel">
+        <span class="eyebrow">RENEWALS</span><h2>Active memberships</h2>
+        <div id="subscriptions" class="stack"></div>
+      </section>
+
+      <section class="panel">
+        <span class="eyebrow">DELIVERY</span><h2>Add Cults code or direct download</h2>
+        <form id="accessForm" class="form-grid">
+          <label>Subscription<select id="accessSubscription" required></select></label>
+          <label>Period label<input id="accessPeriod" required placeholder="October 2026"></label>
+          <label>Cults code<input id="accessCode" placeholder="OCT-XXXX"></label>
+          <label>Cults URL<input id="accessCultsUrl" type="url" placeholder="https://cults3d.com/..."></label>
+          <label>Direct download URL<input id="accessDownloadUrl" type="url" placeholder="https://..."></label>
+          <label class="wide">Note<input id="accessNote" placeholder="October collection"></label>
+          <button class="wide">Save access</button>
+        </form>
+        <div id="accessStatus" class="status"></div>
+      </section>
+
+      <section class="panel">
+        <span class="eyebrow">PLANS</span><h2>Pricing & terms</h2>
+        <div id="plans" class="stack"></div>
+      </section>
+    </div>
+  </main>
+  <script type="module" src="/admin/memberships.js"></script>
+</body>
+</html>
