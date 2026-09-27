@@ -47,7 +47,7 @@ function renderAll(){
 function renderStats(){
   const included=products.filter(p=>p.is_included&&p.is_published).length;
   const monthly=entitlements.filter(e=>e.status==='active').length;
-  const annual=subscriptions.filter(s=>s.status==='active'&&s.membership_plans&&s.membership_plans.plan_type==='annual').length;
+  const annual=subscriptions.filter(s=>s.status==='active'&&Number(s.billing_months)===12).length;
   $('#stats').innerHTML=[
     ['COLLECTION MONTHS',collections.length],['INCLUDED MODELS',included],['MONTH GRANTS',monthly],['ANNUAL MEMBERS',annual]
   ].map(x=>'<div class="stat"><span>'+x[0]+'</span><strong>'+x[1]+'</strong></div>').join('');
@@ -77,7 +77,7 @@ function renderSelects(){
   ['#monthlyCustomer','#annualCustomer','#codeCustomer'].forEach(s=>$(s).innerHTML=customerOptions);
 }
 function renderPlans(){
-  const rows=plans.filter(p=>p.plan_type==='monthly'||p.plan_type==='annual');
+  const rows=plans.filter(p=>p.slug==='monthly'||p.slug==='annual');
   $('#plans').innerHTML=rows.map(p=>'<article class="record plan-edit">'+
     '<label>Name<input data-plan-name="'+p.id+'" value="'+esc(p.name)+'"></label>'+
     '<label>Type<input value="'+esc(p.plan_type)+'" disabled></label>'+
@@ -131,14 +131,14 @@ $('#revokeMonthly').onclick=async()=>{
 
 $('#annualAccessForm').addEventListener('submit',async e=>{
   e.preventDefault();
-  const plan=plans.find(p=>p.plan_type==='annual');if(!plan){setText('#accessStatus','Annual plan is missing.');return}
+  const plan=plans.find(p=>p.slug==='annual');if(!plan){setText('#accessStatus','Annual plan is missing.');return}
   const start=firstDay($('#annualStart').value),end=addMonths(start,12);
   const row={user_id:$('#annualCustomer').value,plan_id:plan.id,status:'active',billing_months:12,current_period_start:start,current_period_end:end,next_payment_due:end,auto_renew:true,cancel_at_period_end:false};
   const r=await supabase.from('membership_subscriptions').upsert(row,{onConflict:'user_id,plan_id'});
   setText('#accessStatus',r.error?r.error.message:'Annual access granted for 12 collection months.');if(!r.error)await loadAll();
 });
 $('#revokeAnnual').onclick=async()=>{
-  const plan=plans.find(p=>p.plan_type==='annual');if(!plan)return;
+  const plan=plans.find(p=>p.slug==='annual');if(!plan)return;
   const r=await supabase.from('membership_subscriptions').update({status:'canceled',auto_renew:false,next_payment_due:null}).eq('user_id',$('#annualCustomer').value).eq('plan_id',plan.id);
   setText('#accessStatus',r.error?r.error.message:'Annual access revoked.');if(!r.error)await loadAll();
 };
