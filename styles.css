@@ -757,3 +757,5 @@ button { cursor: pointer; }
   .selected-command-row { grid-template-columns: 1fr; }
   .buy-console { min-height: 300px; }
 }
+
+.membership-tab{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap;}
