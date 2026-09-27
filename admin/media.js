@@ -60,10 +60,14 @@ function siteSlotCard(s){
     '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif" data-site-file="'+esc(s.slot_key)+'"></label>'+(s.asset_url?'<button class="ghost" data-site-remove="'+esc(s.slot_key)+'">Remove</button>':'')+'</div></div></article>';
 }
 function collectionCard(c){
-  return '<article class="media-admin-card">'+preview(c.cover_image_url,c.display_name)+
-    '<div class="media-admin-copy"><div class="record-head"><div><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name)+'</h3></div><span class="badge">32:15</span></div>'+
-    '<p>Collection cover + collection detail hero.</p><div class="media-spec"><strong>1920 × 900 px</strong><span>Off-ratio images remain centered on black.</span></div>'+
-    '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif" data-collection-file="'+c.id+'"></label>'+(c.cover_image_url?'<button class="ghost" data-collection-remove="'+c.id+'">Remove</button>':'')+'</div></div></article>';
+  return '<article class="media-admin-card">'+preview(c.cover_image_url,c.display_name+' card')+
+    '<div class="media-admin-copy"><div class="record-head"><div><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name)+' · Card</h3></div><span class="badge">4:3</span></div>'+
+    '<p>Collection grid/card artwork.</p><div class="media-spec"><strong>1200 × 900 px</strong><span>Off-ratio images remain centered on black.</span></div>'+
+    '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif" data-collection-cover="'+c.id+'"></label>'+(c.cover_image_url?'<button class="ghost" data-collection-cover-remove="'+c.id+'">Remove</button>':'')+'</div></div></article>'+
+    '<article class="media-admin-card">'+preview(c.hero_image_url,c.display_name+' hero')+
+    '<div class="media-admin-copy"><div class="record-head"><div><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name)+' · Hero</h3></div><span class="badge">32:15</span></div>'+
+    '<p>Wide artwork for the collection detail header.</p><div class="media-spec"><strong>1920 × 900 px</strong><span>Off-ratio images remain centered on black.</span></div>'+
+    '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif" data-collection-hero="'+c.id+'"></label>'+(c.hero_image_url?'<button class="ghost" data-collection-hero-remove="'+c.id+'">Remove</button>':'')+'</div></div></article>';
 }
 function productName(p){const priv=privateRows.find(x=>x.product_id===p.id);return priv?.internal_name||p.public_title}
 function renderProductEditor(){
@@ -88,11 +92,12 @@ function render(){
   $('#mediaProductSelect').innerHTML=products.map(p=>'<option value="'+p.id+'">'+esc(productName(p))+' · '+esc(p.public_title)+'</option>').join('');
   document.querySelectorAll('[data-site-file]').forEach(input=>input.onchange=e=>uploadSiteSlot(input.dataset.siteFile,e.target.files[0]));
   document.querySelectorAll('[data-site-remove]').forEach(btn=>btn.onclick=()=>removeSiteSlot(btn.dataset.siteRemove));
-  document.querySelectorAll('[data-collection-file]').forEach(input=>input.onchange=e=>uploadCollection(btnSafe(input.dataset.collectionFile),e.target.files[0]));
-  document.querySelectorAll('[data-collection-remove]').forEach(btn=>btn.onclick=()=>removeCollection(btn.dataset.collectionRemove));
+  document.querySelectorAll('[data-collection-cover]').forEach(input=>input.onchange=e=>uploadCollectionCover(input.dataset.collectionCover,e.target.files[0]));
+  document.querySelectorAll('[data-collection-cover-remove]').forEach(btn=>btn.onclick=()=>removeCollectionCover(btn.dataset.collectionCoverRemove));
+  document.querySelectorAll('[data-collection-hero]').forEach(input=>input.onchange=e=>uploadCollectionHero(input.dataset.collectionHero,e.target.files[0]));
+  document.querySelectorAll('[data-collection-hero-remove]').forEach(btn=>btn.onclick=()=>removeCollectionHero(btn.dataset.collectionHeroRemove));
   renderProductEditor();
 }
-function btnSafe(v){return v}
 async function load(){
   const res=await Promise.all([
     supabase.from('site_media_slots').select('*').order('page_name').order('slot_key'),
@@ -121,19 +126,33 @@ async function removeSiteSlot(key){
   const r=await supabase.from('site_media_slots').update({asset_url:null,storage_path:null,original_width:null,original_height:null,file_name:null,updated_by:session.user.id,updated_at:new Date().toISOString()}).eq('slot_key',key);
   if(r.error)return toast(r.error.message,'error');await removePath(slot.storage_path);toast('Image removed.');await load();
 }
-async function uploadCollection(id,file){
+async function uploadCollectionCover(id,file){
   if(!file)return;const c=collections.find(x=>x.id===id);if(!c)return;
   try{
-    const path='collections/'+id+'/'+Date.now()+'-'+safeName(file.name);
+    const path='collections/'+id+'/cover/'+Date.now()+'-'+safeName(file.name);
     const up=await uploadImage(file,path);
     const r=await supabase.from('membership_collections').update({cover_image_url:up.url,cover_storage_path:up.path,updated_at:new Date().toISOString()}).eq('id',id);
-    if(r.error)throw r.error;await removePath(c.cover_storage_path);toast('Collection cover updated.');await load();
+    if(r.error)throw r.error;await removePath(c.cover_storage_path);toast('Collection card image updated.');await load();
   }catch(e){toast(e.message,'error')}
 }
-async function removeCollection(id){
+async function removeCollectionCover(id){
   const c=collections.find(x=>x.id===id);if(!c)return;
   const r=await supabase.from('membership_collections').update({cover_image_url:null,cover_storage_path:null,updated_at:new Date().toISOString()}).eq('id',id);
-  if(r.error)return toast(r.error.message,'error');await removePath(c.cover_storage_path);toast('Collection cover removed.');await load();
+  if(r.error)return toast(r.error.message,'error');await removePath(c.cover_storage_path);toast('Collection card image removed.');await load();
+}
+async function uploadCollectionHero(id,file){
+  if(!file)return;const c=collections.find(x=>x.id===id);if(!c)return;
+  try{
+    const path='collections/'+id+'/hero/'+Date.now()+'-'+safeName(file.name);
+    const up=await uploadImage(file,path);
+    const r=await supabase.from('membership_collections').update({hero_image_url:up.url,hero_storage_path:up.path,updated_at:new Date().toISOString()}).eq('id',id);
+    if(r.error)throw r.error;await removePath(c.hero_storage_path);toast('Collection hero updated.');await load();
+  }catch(e){toast(e.message,'error')}
+}
+async function removeCollectionHero(id){
+  const c=collections.find(x=>x.id===id);if(!c)return;
+  const r=await supabase.from('membership_collections').update({hero_image_url:null,hero_storage_path:null,updated_at:new Date().toISOString()}).eq('id',id);
+  if(r.error)return toast(r.error.message,'error');await removePath(c.hero_storage_path);toast('Collection hero removed.');await load();
 }
 async function uploadProductThumb(id,file){
   if(!file)return;const p=products.find(x=>x.id===id);if(!p)return;
