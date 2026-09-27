@@ -41,7 +41,7 @@ function renderAccount(){
   $('#memberState').textContent=logged?'MEMBER ACCOUNT':'GUEST';
   $('#sessionEmail').textContent=session&&session.user?session.user.email:'';
   if(logged){
-    const annual=subscriptions.find(s=>s.status==='active'&&s.membership_plans&&s.membership_plans.plan_type==='annual');
+    const annual=subscriptions.find(s=>s.status==='active'&&Number(s.billing_months)===12);
     setStatus(annual?'Annual access is active.':'Monthly access is granted collection by collection.');
   }
 }
