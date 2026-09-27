@@ -16,10 +16,20 @@ function countryOptions(){
   const display=new Intl.DisplayNames(['en'],{type:'region'});
   return ISO_CODES.map(code=>({code,name:display.of(code)||code})).sort((a,b)=>a.name.localeCompare(b.name));
 }
+const COUNTRIES=countryOptions();
 function populateCountries(){
-  const options='<option value="">Choose country / region</option>'+countryOptions().map(x=>'<option value="'+x.code+'">'+esc(x.name)+'</option>').join('');
-  document.querySelector('#onboardingCountry').innerHTML=options;
-  document.querySelector('#profileCountry').innerHTML=options;
+  document.querySelector('#countryOptions').innerHTML=COUNTRIES.map(x=>'<option value="'+esc(x.name)+'">'+x.code+'</option>').join('');
+}
+function countryDisplay(code){
+  const row=COUNTRIES.find(x=>x.code===code);return row?row.name:(code||'');
+}
+function countryCodeFromInput(value){
+  const v=String(value||'').trim();
+  const upper=v.toUpperCase();
+  const byCode=COUNTRIES.find(x=>x.code===upper);
+  if(byCode)return byCode.code;
+  const byName=COUNTRIES.find(x=>x.name.toLowerCase()===v.toLowerCase());
+  return byName?byName.code:null;
 }
 function collectionCard(c){
   return '<a class="collection-tile" href="/collection?slug='+encodeURIComponent(c.slug)+'"><div class="collection-tile-media"><div class="media-placeholder"><span>COLLECTION</span></div></div><div class="collection-tile-copy"><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(monthLabel(c.starts_on))+'</h3><p>'+Number(c.product_count||0)+' models · access active</p></div></a>';
@@ -165,7 +175,7 @@ async function render(){
   document.querySelector('#onboardingSection').hidden=!needsOnboarding;
   if(needsOnboarding){
     document.querySelector('#onboardingHandle').value=currentProfile.handle||'';
-    document.querySelector('#onboardingCountry').value=currentProfile.country_code||'';
+    document.querySelector('#onboardingCountry').value=countryDisplay(currentProfile.country_code);
     renderOnboardingLegal();
   }
 
@@ -182,7 +192,7 @@ async function render(){
 
   document.querySelector('#profileHandle').value=currentProfile.handle||'';
   document.querySelector('#profileEmail').value=activeSession.user.email||'';
-  document.querySelector('#profileCountry').value=currentProfile.country_code||'';
+  document.querySelector('#profileCountry').value=countryDisplay(currentProfile.country_code);
   document.querySelector('#profilePrinter').value=currentProfile.preferred_printer||'';
   document.querySelector('#profileBio').value=currentProfile.bio||'';
 
@@ -248,7 +258,8 @@ document.querySelector('#onboardingForm').addEventListener('submit',async e=>{
   }
 
   const handle=document.querySelector('#onboardingHandle').value.trim().replace(/^@/,'');
-  const country=document.querySelector('#onboardingCountry').value;
+  const country=countryCodeFromInput(document.querySelector('#onboardingCountry').value);
+  if(!country){status.textContent='Choose a valid country / region from the list.';return}
   const p=await supabase.from('member_profiles').update({
     handle,country_code:country,onboarding_completed_at:new Date().toISOString(),updated_at:new Date().toISOString()
   }).eq('user_id',session.user.id);
@@ -266,11 +277,12 @@ document.querySelector('#profileForm').addEventListener('submit',async e=>{
   const handle=document.querySelector('#profileHandle').value.trim().replace(/^@/,'')||null;
   const row={
     handle,
-    country_code:document.querySelector('#profileCountry').value||null,
+    country_code:document.querySelector('#profileCountry').value?countryCodeFromInput(document.querySelector('#profileCountry').value):null,
     preferred_printer:document.querySelector('#profilePrinter').value.trim()||null,
     bio:document.querySelector('#profileBio').value.trim()||null,
     updated_at:new Date().toISOString()
   };
+  if(document.querySelector('#profileCountry').value&&!row.country_code){status.textContent='Choose a valid country / region from the list.';return}
   const r=await supabase.from('member_profiles').update(row).eq('user_id',session.user.id);
   status.textContent=r.error?r.error.message:'Account updated.';
   if(!r.error)setTimeout(()=>render(),300);
