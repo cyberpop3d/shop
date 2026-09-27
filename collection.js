@@ -1,61 +1,6 @@
-import { supabase,initChrome,monthLabel,stateMarkup,esc } from '/site.js';
-
-const params=new URLSearchParams(location.search);
-const slug=params.get('slug');
-
-function productCard(p,collectionOpen){
-  const open=Boolean(collectionOpen&&p.has_access);
-  const media=p.thumbnail_url?'<div class="product-card-media"><img src="'+esc(p.thumbnail_url)+'" alt="'+esc(p.public_title)+'" loading="lazy"><span class="product-lock">'+(open?'OPEN':'LOCKED')+'</span></div>':'<div class="product-card-media placeholder"><span class="product-lock">'+(open?'OPEN':'LOCKED')+'</span></div>';
-  let action='<button class="btn btn-ghost" disabled>'+(open?'Delivery pending':'Locked')+'</button>';
-  if(open&&p.cults_url)action='<a class="btn btn-primary" href="'+esc(p.cults_url)+'" target="_blank" rel="noopener">Open product ↗</a>';
-  if(open&&p.download_url)action='<a class="btn btn-primary" href="'+esc(p.download_url)+'" target="_blank" rel="noopener">Download ↗</a>';
-  return '<article class="product-card">'+media+'<div class="product-card-copy"><h3>'+esc(p.public_title)+'</h3><p>'+(open?'Included in your collection access.':'Sign in with eligible access to open delivery.')+'</p>'+action+'</div></article>';
-}
-
-async function loadCollection(){
-  const session=await initChrome();
-  const overview=await supabase.from('membership_collection_overview').select('*').order('starts_on',{ascending:false});
-  if(overview.error)throw overview.error;
-  const collections=overview.data||[];
-  const c=(slug?collections.find(x=>x.slug===slug):collections[0]);
-  if(!c){
-    document.querySelector('#collectionHero').className='';
-    document.querySelector('#collectionHero').innerHTML=stateMarkup('error','Collection not found','This collection does not exist or is not published.');
-    document.querySelector('#productGrid').innerHTML='';
-    return;
-  }
-
-  document.title=monthLabel(c.starts_on)+' — CyberPop';
-  const open=Boolean(c.has_access);
-  const hero=document.querySelector('#collectionHero');
-  hero.className='collection-hero';
-  hero.innerHTML='<div><span class="eyebrow">'+esc(c.slug)+'</span><h1>'+esc(monthLabel(c.starts_on))+'</h1><p>'+Number(c.product_count||0)+' published products. '+(open?'This collection is unlocked for your account.':'This month is visible in the archive but currently locked for your account.')+'</p><div class="collection-meta"><span>'+Number(c.product_count||0)+' models</span><span>'+(open?'Unlocked':'Locked')+'</span><span>Multipart FDM</span></div></div><div class="collection-number">'+String(c.month).padStart(2,'0')+'</div>';
-
-  const productsResult=await supabase.from('membership_library_products').select('*').eq('collection_id',c.id).order('sort_order').order('product_number');
-  if(productsResult.error)throw productsResult.error;
-  const products=productsResult.data||[];
-  const grid=document.querySelector('#productGrid');
-  grid.innerHTML=products.length?products.map(p=>productCard(p,open)).join(''):stateMarkup('','Collection preparing','No published models have been added to this collection yet.');
-
-  if(open){
-    const area=document.querySelector('#accessArea');
-    area.hidden=false;
-    let code=null;
-    if(session){
-      const r=await supabase.from('membership_collection_codes').select('*').eq('collection_id',c.id).eq('is_active',true).maybeSingle();
-      if(!r.error)code=r.data;
-    }
-    const target=document.querySelector('#accessCode');
-    target.innerHTML='<div><span class="eyebrow">COLLECTION ACCESS</span><div class="code-value">'+esc(code&&code.cults_code?code.cults_code:'ACCESS ACTIVE')+'</div><div class="section-copy" style="font-size:12px">'+esc(code&&code.note?code.note:'Your account is authorized for this collection.')+'</div></div>'+(code&&code.cults_url?'<a class="btn btn-light" href="'+esc(code.cults_url)+'" target="_blank" rel="noopener">Open Cults ↗</a>':'');
-  }else{
-    const area=document.querySelector('#accessArea');
-    area.hidden=false;
-    area.innerHTML='<div class="notice accent"><div><strong>'+(session?'This month is locked.':'Sign in to check access.')+'</strong><span> '+(session?'A matching monthly entitlement or active annual period is required.':'Your member account may already own this collection.')+'</span></div><a class="btn btn-primary" href="/account">'+(session?'Manage account':'Sign in')+'</a></div>';
-  }
-}
-loadCollection().catch(err=>{
-  console.error(err);
-  document.querySelector('#collectionHero').className='';
-  document.querySelector('#collectionHero').innerHTML=stateMarkup('error','Collection unavailable','This collection could not be loaded right now.');
-  document.querySelector('#productGrid').innerHTML='';
-});
+import { supabase,initChrome,setMediaImage,stateMarkup,esc } from '/site.js';
+const slug=new URLSearchParams(location.search).get('slug');let session=null,collection=null,products=[],filter='all',sort='newest';
+function card(p){const media=p.thumbnail_url?'<img src="'+esc(p.thumbnail_url)+'" alt="'+esc(p.public_title)+'" loading="lazy">':'<div class="media-placeholder"><span>1200 × 1400</span></div>';return '<a class="store-product-card" href="/product?slug='+encodeURIComponent(p.slug||'')+'"><div class="store-product-media">'+media+'<span class="store-product-badge" style="'+(p.has_access?'':'background:#d7d7d7')+'">'+(p.has_access?'OWNED':'LOCKED')+'</span></div><div class="store-product-body"><h3>'+esc(p.public_title)+'</h3><p>'+esc(p.collection_name||'Collection')+'<br>Multipart · '+(p.ams_required?'AMS':'No AMS')+(p.height_mm?' · '+p.height_mm+' mm':'')+'</p></div></a>'}
+function render(){let rows=[...products];if(filter==='owned')rows=rows.filter(x=>x.has_access);if(filter==='locked')rows=rows.filter(x=>!x.has_access);rows.sort((a,b)=>sort==='az'?String(a.public_title).localeCompare(String(b.public_title)):sort==='oldest'?Number(a.product_number)-Number(b.product_number):Number(b.product_number)-Number(a.product_number));document.querySelector('#productGrid').innerHTML=rows.length?rows.map(card).join(''):stateMarkup('','No models found','Nothing matches this filter.')}
+async function load(){session=await initChrome();const [cRes,oRes]=await Promise.all([supabase.from('membership_collections').select('*').eq('slug',slug).eq('is_published',true).maybeSingle(),supabase.from('membership_collection_overview').select('*').eq('slug',slug).maybeSingle()]);if(cRes.error)throw cRes.error;if(!cRes.data)throw new Error('Collection not found.');collection={...cRes.data,...(oRes.data||{})};document.title=collection.display_name+' — CyberPop';setMediaImage(document.querySelector('#collectionHero'),collection.hero_image_url||collection.cover_image_url,'COLLECTION HERO · 1920 × 900');document.querySelector('#collectionCrumb').textContent='COLLECTIONS / '+collection.slug;document.querySelector('#collectionTitle').textContent=collection.display_name.toUpperCase();document.querySelector('#collectionDescription').textContent=collection.description||'A CyberPop monthly collectible collection.';document.querySelector('#collectionMeta').innerHTML='<span>'+Number(collection.product_count||0)+' MODELS</span><span>MULTIPART</span><span>'+(collection.has_access?'ACCESS ACTIVE':'ARCHIVE')+'</span>';const pRes=await supabase.from('membership_library_products').select('*').eq('collection_id',collection.id).order('product_number');if(pRes.error)throw pRes.error;products=pRes.data||[];render();const area=document.querySelector('#accessArea');area.hidden=false;area.innerHTML=collection.has_access?'<div class="notice"><div><strong>Collection access active.</strong><span> Open any model to continue to its delivery source.</span></div><a class="btn btn-light" href="/library">Open Library →</a></div>':'<div class="notice accent"><div><strong>This collection is not unlocked.</strong><span> Membership/payment logic can activate it later without changing this UI.</span></div><a class="btn btn-light" href="/membership">View Membership →</a></div>'}
+document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));render()});document.querySelector('#collectionSort').onchange=e=>{sort=e.target.value;render()};load().catch(e=>{console.error(e);document.querySelector('#productGrid').innerHTML=stateMarkup('error','Collection unavailable',e.message)});
