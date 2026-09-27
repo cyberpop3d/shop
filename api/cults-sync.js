@@ -7,6 +7,42 @@ module.exports = async function handler(req,res){
 
   const username=process.env.CULTS_USERNAME;
   const apiKey=process.env.CULTS_API_KEY;
+  const authHeader=req.headers.authorization||'';
+  const accessToken=authHeader.startsWith('Bearer ')?authHeader.slice(7):'';
+
+  if(!accessToken){
+    res.status(401).json({ok:false,error:'Admin sign-in required.'});
+    return;
+  }
+
+  try{
+    const userResponse=await fetch('https://wdtbanucnxnwbruwcgmv.supabase.co/auth/v1/user',{
+      headers:{
+        'Authorization':'Bearer '+accessToken,
+        'apikey':'sb_publishable_pKtNNmvdA3__Eh0KZnb2FA_3saYRIp1'
+      }
+    });
+    const user=await userResponse.json().catch(()=>null);
+    if(!userResponse.ok||!user||!user.id){
+      res.status(401).json({ok:false,error:'Invalid admin session.'});
+      return;
+    }
+
+    const adminResponse=await fetch('https://wdtbanucnxnwbruwcgmv.supabase.co/rest/v1/sales_admin_users?select=user_id&user_id=eq.'+encodeURIComponent(user.id),{
+      headers:{
+        'Authorization':'Bearer '+accessToken,
+        'apikey':'sb_publishable_pKtNNmvdA3__Eh0KZnb2FA_3saYRIp1'
+      }
+    });
+    const adminRows=await adminResponse.json().catch(()=>[]);
+    if(!adminResponse.ok||!Array.isArray(adminRows)||adminRows.length===0){
+      res.status(403).json({ok:false,error:'Admin authorization required.'});
+      return;
+    }
+  }catch(error){
+    res.status(401).json({ok:false,error:'Could not validate admin session.'});
+    return;
+  }
 
   if(!username||!apiKey){
     res.status(503).json({
