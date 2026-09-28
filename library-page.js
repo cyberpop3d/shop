@@ -1,6 +1,6 @@
 import { supabase,initChrome,getSiteMediaSlots,setMediaImage,monthLabel,stateMarkup,loadingMarkup,friendlyError,showToast,esc } from '/site.js';
 
-let session=null,collections=[],products=[],favorites=[],customDeliverables=[],activeFilter='all',searchTerm='',sortMode='newest';
+let session=null,collections=[],products=[],favorites=[],customDeliverables=[],productCodes=[],activeFilter='all',searchTerm='',sortMode='newest';
 
 function collectionCard(c){
   const open=Boolean(c.has_access);
@@ -12,16 +12,21 @@ function isFavorite(productId){return favorites.some(x=>x.product_id===productId
 
 function modelCard(p){
   const favorite=isFavorite(p.id);
+  const code=productCodes.find(x=>x.product_id===p.id&&x.is_active!==false);
   const media=p.thumbnail_url
     ? '<div class="library-model-media"><img src="'+esc(p.thumbnail_url)+'" alt="'+esc(p.public_title)+'" loading="lazy"></div>'
     : '<div class="library-model-media placeholder"><div class="media-placeholder"><span>1200 × 1400</span></div></div>';
-  const primary=p.cults_url
-    ? '<a class="library-action" href="'+esc(p.cults_url)+'" target="_blank" rel="noopener">Open on Cults ↗</a>'
+  const cultsUrl=code?.cults_url||p.cults_url||null;
+  const primary=cultsUrl
+    ? '<a class="library-action" href="'+esc(cultsUrl)+'" target="_blank" rel="noopener">Open on Cults ↗</a>'
     : '<a class="library-action muted-action" href="/product?slug='+encodeURIComponent(p.slug||'')+'">Open model</a>';
+  const codeRow=code
+    ? '<div class="cults-code-row"><span>CULTS CODE</span><code>'+esc(code.cults_code)+'</code><button type="button" data-copy-code="'+esc(code.cults_code)+'">Copy</button></div>'
+    : '';
   return '<article class="library-model-card" data-product-id="'+p.id+'">'+media+
     '<div class="library-model-copy"><div class="library-model-top"><span class="badge open">OWNED</span><button class="favorite-btn '+(favorite?'active':'')+'" data-favorite="'+p.id+'" type="button" aria-label="Favorite">'+(favorite?'★':'☆')+'</button></div>'+
     '<h3><a href="/product?slug='+encodeURIComponent(p.slug||'')+'">'+esc(p.public_title)+'</a></h3><p>'+esc(p.collection_name||'Collection')+' · v'+esc(p.version||'1.0')+'</p>'+
-    '<div class="library-model-actions">'+primary+'</div></div></article>';
+    codeRow+'<div class="library-model-actions">'+primary+'</div></div></article>';
 }
 
 function customDeliveryCard(d){
@@ -73,6 +78,10 @@ function renderModels(){
   document.querySelector('#libraryModelMeta').textContent=products.length+' owned models · '+favorites.length+' favorites';
   grid.innerHTML=rows.length?rows.map(modelCard).join(''):stateMarkup('empty',activeFilter==='favorites'?'No favorites yet':'Library empty',activeFilter==='favorites'?'Favorite an owned model and it will appear here.':'Unlock a model or receive collection access and it will appear here automatically.',{href:'/collections',label:'Browse collections'});
   document.querySelectorAll('[data-favorite]').forEach(btn=>btn.onclick=()=>toggleFavorite(btn.dataset.favorite));
+  document.querySelectorAll('[data-copy-code]').forEach(btn=>btn.onclick=async()=>{
+    try{await navigator.clipboard.writeText(btn.dataset.copyCode);showToast('Cults3D code copied.')}
+    catch(_){showToast('Copy the code manually.','error')}
+  });
 }
 
 async function toggleFavorite(productId){
@@ -117,7 +126,8 @@ async function loadLibrary(){
     supabase.from('member_favorites').select('*'),
     supabase.from('membership_collection_overview').select('*').order('starts_on',{ascending:false}),
     supabase.from('membership_collections').select('*').eq('is_published',true),
-    supabase.from('custom_deliverables').select('*').eq('is_active',true).order('created_at',{ascending:false})
+    supabase.from('custom_deliverables').select('*').eq('is_active',true).order('created_at',{ascending:false}),
+    supabase.from('membership_product_codes').select('*').eq('is_active',true).order('created_at',{ascending:false})
   ]);
   const err=results.find(x=>x.error);if(err)throw err.error;
 
@@ -125,6 +135,7 @@ async function loadLibrary(){
   favorites=results[1].data||[];
   const overview=results[2].data||[],rawCollections=results[3].data||[];
   customDeliverables=results[4].data||[];
+  productCodes=results[5].data||[];
   collections=overview.map(c=>({...c,...(rawCollections.find(x=>x.id===c.id)||{})}));
 
   document.querySelector('#collectionGrid').innerHTML=collections.length?collections.map(collectionCard).join(''):stateMarkup('','No collection months yet','Published monthly drops will appear here automatically.');
