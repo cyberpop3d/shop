@@ -54,12 +54,24 @@ function render(){
         '<label style="grid-column:span 2">Admin note<input data-admin-note="'+r.id+'" value="'+esc(r.admin_note||'')+'"></label>'+
       '</div>'+
       '<div class="actions"><button data-save-request="'+r.id+'">Save request</button>'+payment+
+        (!r.user_id?'<button class="secondary" data-link-account="'+r.id+'">Link matching account</button>':'')+
         '<a class="secondary admin-btn" href="/admin/library">Open Library & Access →</a>'+
         '<a class="secondary admin-btn" href="mailto:'+encodeURIComponent(r.email)+'">Email customer ↗</a>'+
       '</div>'+
     '</article>';
   }).join('')||'<div class="admin-empty"><strong>No requests match this view.</strong><span>Change the search or status filter.</span></div>';
   document.querySelectorAll('[data-save-request]').forEach(b=>b.onclick=()=>saveRequest(b.dataset.saveRequest));
+  document.querySelectorAll('[data-link-account]').forEach(b=>b.onclick=()=>linkMatchingAccount(b.dataset.linkAccount));
+}
+async function linkMatchingAccount(id){
+  const row=rows.find(x=>x.id===id);if(!row)return;
+  const found=await supabase.from('membership_customers').select('user_id,email').ilike('email',row.email).limit(2);
+  if(found.error){notify(found.error.message,'error');return}
+  if(!found.data?.length){notify('No CyberPop account with this email yet.','error');return}
+  if(found.data.length>1){notify('More than one matching account found. Review manually.','error');return}
+  const r=await supabase.from('service_requests').update({user_id:found.data[0].user_id,updated_at:new Date().toISOString()}).eq('id',id);
+  if(r.error){notify(r.error.message,'error');return}
+  notify('Request linked to the matching CyberPop account.');await load();
 }
 async function saveRequest(id){
   const patch={
