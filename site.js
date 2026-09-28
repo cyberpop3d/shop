@@ -171,6 +171,9 @@ export async function initChrome(){
   let handle=null;
   if(session){
     await ensureCustomerProfile(session);
+    if(session.user.email_confirmed_at){
+      try{await supabase.rpc('link_my_service_requests')}catch(error){console.warn('Request linking unavailable',error)}
+    }
     try{balance=(await getCreditSummary()).balance}catch(error){console.warn('Credit summary unavailable',error)}
     try{
       const p=await supabase.from('member_profiles').select('handle').eq('user_id',session.user.id).maybeSingle();
