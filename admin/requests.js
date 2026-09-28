@@ -1,0 +1,102 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.117.1';
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '/supabase-config.js';
+
+const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+let session=null,rows=[],searchTerm='',filter='open';
+
+function notify(msg,type='success'){
+  const toast=$('#adminToast');toast.textContent=msg;toast.className='toast '+(type==='error'?'error ':'')+'show';
+  clearTimeout(notify._t);notify._t=setTimeout(()=>toast.className='toast',2600);
+}
+function setSync(v){$('#requestSync').textContent=v}
+function isOpen(status){return !['fulfilled','declined','cancelled'].includes(status)}
+function filtered(){
+  return rows.filter(r=>{
+    if(filter==='open'&&!isOpen(r.status))return false;
+    if(filter!=='open'&&filter!=='all'&&r.status!==filter)return false;
+    if(searchTerm){
+      const hay=[r.request_code,r.first_name,r.last_name,r.email,r.subject,r.brief,r.country_code].filter(Boolean).join(' ').toLowerCase();
+      if(!hay.includes(searchTerm))return false;
+    }
+    return true;
+  });
+}
+function option(value,label,current){return '<option value="'+value+'" '+(value===current?'selected':'')+'>'+label+'</option>'}
+function renderStats(){
+  const open=rows.filter(r=>isOpen(r.status)).length;
+  const awaiting=rows.filter(r=>['quoted','payment_requested'].includes(r.status)).length;
+  const paid=rows.filter(r=>['paid','in_progress'].includes(r.status)).length;
+  const fulfilled=rows.filter(r=>r.status==='fulfilled').length;
+  $('#requestStats').innerHTML=[
+    ['OPEN',open],['AWAITING PAYMENT',awaiting],['PAID / ACTIVE',paid],['FULFILLED',fulfilled]
+  ].map(x=>'<div class="stat"><span>'+x[0]+'</span><strong>'+x[1]+'</strong></div>').join('');
+}
+function render(){
+  const visible=filtered();
+  $('#requestCount').textContent=visible.length+' / '+rows.length+' requests';
+  $('#requestRows').innerHTML=visible.map(r=>{
+    const linked=r.user_id?'<span class="badge on">ACCOUNT LINKED</span>':'<span class="badge warn">NO ACCOUNT YET</span>';
+    const payment=r.payoneer_payment_url?'<a class="secondary admin-btn" href="'+esc(r.payoneer_payment_url)+'" target="_blank" rel="noopener">Open payment link ↗</a>':'';
+    return '<article class="record" data-request="'+r.id+'">'+
+      '<div class="record-head"><div><span class="eyebrow">'+esc(r.request_code)+'</span><h3>'+esc(r.first_name+' '+r.last_name)+'</h3><p>'+esc(r.email)+' · '+esc(r.country_code)+' · '+esc(r.request_type)+'</p></div><div>'+linked+' <span class="badge '+(isOpen(r.status)?'warn':'on')+'">'+esc(r.status.toUpperCase())+'</span></div></div>'+
+      '<div><strong>'+esc(r.subject||'No subject')+'</strong><p style="white-space:pre-wrap;margin-top:7px">'+esc(r.brief)+'</p></div>'+
+      '<div class="rights-admin-grid">'+
+        '<label>Status<select data-status="'+r.id+'">'+
+          option('submitted','Submitted',r.status)+option('reviewing','Reviewing',r.status)+option('quoted','Quoted',r.status)+option('payment_requested','Payment requested',r.status)+option('paid','Paid',r.status)+option('in_progress','In progress',r.status)+option('fulfilled','Fulfilled',r.status)+option('declined','Declined',r.status)+option('cancelled','Cancelled',r.status)+
+        '</select></label>'+
+        '<label>Quote<input data-quote="'+r.id+'" type="number" min="0" step=".01" value="'+(r.quote_amount??'')+'" placeholder="150"></label>'+
+        '<label>Currency<input data-currency="'+r.id+'" maxlength="3" value="'+esc(r.currency||'USD')+'"></label>'+
+        '<label>Payoneer payment URL<input data-payment-url="'+r.id+'" type="url" value="'+esc(r.payoneer_payment_url||'')+'" placeholder="https://..."></label>'+
+        '<label>Payment reference<input data-payment-ref="'+r.id+'" value="'+esc(r.payment_reference||'')+'"></label>'+
+        '<label>Invoice reference<input data-invoice-ref="'+r.id+'" value="'+esc(r.invoice_reference||'')+'"></label>'+
+        '<label style="grid-column:span 2">Admin note<input data-admin-note="'+r.id+'" value="'+esc(r.admin_note||'')+'"></label>'+
+      '</div>'+
+      '<div class="actions"><button data-save-request="'+r.id+'">Save request</button>'+payment+
+        '<a class="secondary admin-btn" href="/admin/library">Open Library & Access →</a>'+
+        '<a class="secondary admin-btn" href="mailto:'+encodeURIComponent(r.email)+'">Email customer ↗</a>'+
+      '</div>'+
+    '</article>';
+  }).join('')||'<div class="admin-empty"><strong>No requests match this view.</strong><span>Change the search or status filter.</span></div>';
+  document.querySelectorAll('[data-save-request]').forEach(b=>b.onclick=()=>saveRequest(b.dataset.saveRequest));
+}
+async function saveRequest(id){
+  const patch={
+    status:document.querySelector('[data-status="'+id+'"]').value,
+    quote_amount:document.querySelector('[data-quote="'+id+'"]').value?Number(document.querySelector('[data-quote="'+id+'"]').value):null,
+    currency:document.querySelector('[data-currency="'+id+'"]').value.trim().toUpperCase()||'USD',
+    payoneer_payment_url:document.querySelector('[data-payment-url="'+id+'"]').value.trim()||null,
+    payment_reference:document.querySelector('[data-payment-ref="'+id+'"]').value.trim()||null,
+    invoice_reference:document.querySelector('[data-invoice-ref="'+id+'"]').value.trim()||null,
+    admin_note:document.querySelector('[data-admin-note="'+id+'"]').value.trim()||null,
+    updated_at:new Date().toISOString()
+  };
+  const r=await supabase.from('service_requests').update(patch).eq('id',id);
+  if(r.error){notify(r.error.message,'error');return}
+  notify('Request updated.');await load();
+}
+async function ensureAdmin(){
+  const auth=await supabase.auth.getSession();session=auth.data.session;
+  if(!session){$('#requestLoginPanel').hidden=false;$('#requestAdminApp').hidden=true;return false}
+  const check=await supabase.from('sales_admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle();
+  if(check.error||!check.data){$('#requestLoginPanel').hidden=false;$('#requestAdminApp').hidden=true;$('#requestLoginStatus').textContent='This account is not authorized for admin.';return false}
+  $('#requestLoginPanel').hidden=true;$('#requestAdminApp').hidden=false;return true;
+}
+async function load(){
+  setSync('Syncing…');
+  const r=await supabase.from('service_requests').select('*').order('created_at',{ascending:false});
+  if(r.error)throw r.error;
+  rows=r.data||[];renderStats();render();setSync('Synced');
+}
+$('#requestLoginForm').addEventListener('submit',async e=>{
+  e.preventDefault();$('#requestLoginStatus').textContent='Sending sign-in link…';
+  const r=await supabase.auth.signInWithOtp({email:$('#requestLoginEmail').value.trim(),options:{emailRedirectTo:location.origin+'/admin/requests'}});
+  $('#requestLoginStatus').textContent=r.error?r.error.message:'Check your email for the admin sign-in link.';
+});
+$('#requestSearch').addEventListener('input',e=>{searchTerm=e.target.value.trim().toLowerCase();render()});
+$('#requestFilter').addEventListener('change',e=>{filter=e.target.value;render()});
+$('#requestRefresh').onclick=load;
+supabase.auth.onAuthStateChange(()=>setTimeout(init,0));
+async function init(){if(await ensureAdmin())load().catch(e=>{setSync('Error');notify(e.message,'error')})}
+init();
