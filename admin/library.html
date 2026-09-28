@@ -149,6 +149,38 @@
       </section>
 
       <section class="panel">
+        <span class="eyebrow">DIRECT MODEL ACCESS</span><h2>Grant a model to one account</h2>
+        <p class="small">Use this for gifts, manual purchases, support unlocks, or any individual model that should appear permanently in a customer's Library.</p>
+        <form id="productGrantForm" class="form-grid">
+          <label>Customer<select id="productGrantCustomer" required></select></label>
+          <label>Model<select id="productGrantProduct" required></select></label>
+          <label>Reason<select id="productGrantSource"><option value="manual_grant">Manual grant</option><option value="promotion">Gift / promotion</option><option value="purchase">Paid purchase</option></select></label>
+          <label>Reference<input id="productGrantReference" placeholder="invoice / request / note"></label>
+          <button type="submit">Grant model</button>
+          <button id="revokeProductGrant" type="button" class="secondary">Revoke model</button>
+        </form>
+        <p id="productGrantStatus" class="status-line"></p>
+      </section>
+
+      <section class="panel">
+        <span class="eyebrow">CUSTOM DELIVERY</span><h2>Deliver a private custom design</h2>
+        <p class="small">Private files created for one customer. They are visible only in that customer's Library and in admin.</p>
+        <form id="customDeliveryForm" class="form-grid">
+          <label>Customer<select id="customCustomer" required></select></label>
+          <label>Title<input id="customTitle" required placeholder="Custom mascot head — final"></label>
+          <label>Delivery URL<input id="customDownloadUrl" type="url" placeholder="secure file / Drive / Cults URL"></label>
+          <label>Thumbnail URL<input id="customThumbnailUrl" type="url" placeholder="optional"></label>
+          <label>Type<select id="customSourceKind"><option value="custom_order">Custom order</option><option value="purchase">Purchase</option><option value="gift">Gift</option><option value="support">Support delivery</option></select></label>
+          <label>Reference<input id="customReference" placeholder="invoice / request ID"></label>
+          <label class="wide">Description<input id="customDescription" placeholder="customer-visible note"></label>
+          <label class="wide">Admin note<input id="customAdminNote" placeholder="internal only"></label>
+          <button class="wide" type="submit">Add private delivery</button>
+        </form>
+        <p id="customDeliveryStatus" class="status-line"></p>
+        <div id="customDeliverables" class="stack"></div>
+      </section>
+
+      <section class="panel">
         <span class="eyebrow">CULTS DELIVERY</span><h2>Collection access code</h2>
         <form id="codeForm" class="form-grid">
           <label>Customer<select id="codeCustomer" required></select></label>
