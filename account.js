@@ -100,6 +100,21 @@ function renderLegalHistory(docs,acceptances){
   const accept=document.querySelector('#acceptActionLegal');
   if(accept)accept.onclick=acceptRequiredActionLegal;
 }
+function renderServiceRequests(rows){
+  const target=document.querySelector('#serviceRequestHistory');
+  if(!rows.length){
+    target.innerHTML=stateMarkup('','No requests yet','Submit a custom design or access request and it will appear here.',{href:'/request',label:'Create request'});
+    return;
+  }
+  target.innerHTML='<div class="legal-version-list">'+rows.map(r=>{
+    const quote=r.quote_amount!=null?Number(r.quote_amount).toFixed(2)+' '+esc(r.currency||'USD'):'Quote pending';
+    const payment=r.payoneer_payment_url&&['payment_requested','paid','in_progress','fulfilled'].includes(r.status)
+      ? '<a href="'+esc(r.payoneer_payment_url)+'" target="_blank" rel="noopener">Payment link ↗</a>'
+      : '<span>'+esc(quote)+'</span>';
+    return '<div class="legal-version-row"><div><strong>'+esc(r.request_code)+' · '+esc(r.subject||r.request_type)+'</strong><span>'+new Date(r.created_at).toLocaleDateString()+' · '+esc(r.status.replaceAll('_',' ').toUpperCase())+'</span></div><div>'+payment+'</div><a href="/request">New request →</a></div>';
+  }).join('')+'</div>';
+}
+
 function renderPayments(rows){
   const target=document.querySelector('#purchaseHistory');
   if(!rows.length){target.innerHTML=stateMarkup('','No payments yet','Verified Payoneer transactions will appear here when checkout is connected.');return}
@@ -159,7 +174,7 @@ async function render(){
   const owned=document.querySelector('#ownedCollections');
   const returnTo=safeReturnTo();
 
-  ['#profileSection','#credits','#legalSection','#sellerLicenseSection','#purchaseSection'].forEach(s=>document.querySelector(s).hidden=!activeSession);
+  ['#profileSection','#credits','#legalSection','#sellerLicenseSection','#purchaseSection','#serviceRequestSection'].forEach(s=>document.querySelector(s).hidden=!activeSession);
   if(!activeSession){
     document.querySelector('#onboardingSection').hidden=true;
     authMethods.hidden=false;
@@ -187,7 +202,8 @@ async function render(){
     supabase.from('legal_documents').select('*').eq('status','published').order('document_type'),
     supabase.from('legal_acceptances').select('*').order('accepted_at',{ascending:false}),
     supabase.from('seller_licenses').select('*').eq('user_id',activeSession.user.id).maybeSingle(),
-    supabase.from('payments').select('*').order('created_at',{ascending:false}).limit(30)
+    supabase.from('payments').select('*').order('created_at',{ascending:false}).limit(30),
+    supabase.from('service_requests').select('*').eq('user_id',activeSession.user.id).order('created_at',{ascending:false}).limit(50)
   ]);
   const err=results.find(x=>x&&x.error);if(err)throw err.error;
 
@@ -201,6 +217,7 @@ async function render(){
   const acceptances=results[7].data||[];
   const sellerLicense=results[8].data||null;
   const payments=results[9].data||[];
+  const serviceRequests=results[10].data||[];
   await loadLegalState();
 
   const needsOnboarding=!onboardingComplete();
@@ -234,6 +251,7 @@ async function render(){
   renderLegalHistory(legalDocs,acceptances);
   renderSellerLicense(sellerLicense);
   renderPayments(payments);
+  renderServiceRequests(serviceRequests);
 
   owned.innerHTML=unlocked.length?unlocked.map(collectionCard).join(''):stateMarkup('','No collection access yet','Permanent product unlocks can still appear in your Library independently of monthly collection access.');
 
