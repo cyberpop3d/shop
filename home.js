@@ -24,16 +24,11 @@ async function loadHome(){
   const modelRows=products.data||[];
   setMediaImage(document.querySelector('#homeHero'),slots.home_hero?.asset_url,'HOMEPAGE HERO · 1920 × 1080');
   if(latest){
-    document.querySelector('#heroTitle').textContent=monthLabel(latest.starts_on).toUpperCase()+' COLLECTION';
-    document.querySelector('#heroCopy').textContent=Number(latest.product_count||0)+' models in the latest CyberPop monthly drop.';
-    document.querySelector('#heroCta').href='/collection?slug='+encodeURIComponent(latest.slug);
     document.querySelector('#latestMeta').textContent=monthLabel(latest.starts_on)+' · '+Number(latest.product_count||0)+' models';
     const banner=document.querySelector('#latestCollectionBanner');banner.className='latest-banner';
     const bannerUrl=slots.home_latest_banner?.asset_url||latest.hero_image_url||latest.cover_image_url;
     banner.innerHTML='<div class="latest-banner-copy"><span class="eyebrow">'+esc(latest.slug)+'</span><h3>'+esc(monthLabel(latest.starts_on))+'</h3><p class="section-copy">'+Number(latest.product_count||0)+' models in this drop.'+(latest.has_access?' Your account has access.':'')+'</p><div><a class="btn btn-light" href="/collection?slug='+encodeURIComponent(latest.slug)+'">View Collection →</a></div></div><div class="latest-banner-media media-letterbox">'+(bannerUrl?'<img src="'+esc(bannerUrl)+'" alt="'+esc(latest.display_name)+'">':'<div class="media-placeholder"><span>LATEST BANNER · 1920 × 640</span></div>')+'</div>';
   }else{
-    document.querySelector('#heroTitle').textContent='CYBERPOP COLLECTIONS';
-    document.querySelector('#heroCopy').textContent='The next collection is being prepared.';
     document.querySelector('#latestCollectionBanner').className='';
     document.querySelector('#latestCollectionBanner').innerHTML=stateMarkup('maintenance','Collection preparing','The next published monthly drop will appear here automatically.');
   }
