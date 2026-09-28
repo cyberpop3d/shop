@@ -1,6 +1,6 @@
 import { supabase,initChrome,getSiteMediaSlots,setMediaImage,monthLabel,stateMarkup,loadingMarkup,friendlyError,showToast,esc } from '/site.js';
 
-let session=null,collections=[],products=[],favorites=[],activeFilter='all',searchTerm='',sortMode='newest';
+let session=null,collections=[],products=[],favorites=[],customDeliverables=[],activeFilter='all',searchTerm='',sortMode='newest';
 
 function collectionCard(c){
   const open=Boolean(c.has_access);
@@ -22,6 +22,27 @@ function modelCard(p){
     '<div class="library-model-copy"><div class="library-model-top"><span class="badge open">OWNED</span><button class="favorite-btn '+(favorite?'active':'')+'" data-favorite="'+p.id+'" type="button" aria-label="Favorite">'+(favorite?'★':'☆')+'</button></div>'+
     '<h3><a href="/product?slug='+encodeURIComponent(p.slug||'')+'">'+esc(p.public_title)+'</a></h3><p>'+esc(p.collection_name||'Collection')+' · v'+esc(p.version||'1.0')+'</p>'+
     '<div class="library-model-actions">'+primary+'</div></div></article>';
+}
+
+function customDeliveryCard(d){
+  const media=d.thumbnail_url
+    ? '<div class="library-model-media"><img src="'+esc(d.thumbnail_url)+'" alt="'+esc(d.title)+'" loading="lazy"></div>'
+    : '<div class="library-model-media placeholder"><div class="media-placeholder"><span>PRIVATE DELIVERY</span></div></div>';
+  const action=d.download_url
+    ? '<a class="library-action" href="'+esc(d.download_url)+'" target="_blank" rel="noopener">Open delivery ↗</a>'
+    : '<span class="library-action muted-action">Delivery link pending</span>';
+  return '<article class="library-model-card">'+media+
+    '<div class="library-model-copy"><div class="library-model-top"><span class="badge open">CUSTOM</span></div>'+
+    '<h3>'+esc(d.title)+'</h3><p>'+esc(d.description||'Private design delivered to your account.')+'</p>'+
+    '<div class="library-model-actions">'+action+'</div></div></article>';
+}
+function renderCustomDeliveries(){
+  const section=document.querySelector('#customDeliveriesSection');
+  const grid=document.querySelector('#customDeliveryGrid');
+  if(!section||!grid)return;
+  if(!session||!customDeliverables.length){section.hidden=true;grid.innerHTML='';return}
+  section.hidden=false;
+  grid.innerHTML=customDeliverables.map(customDeliveryCard).join('');
 }
 
 function filteredProducts(){
@@ -81,6 +102,8 @@ async function loadLibrary(){
     notice.innerHTML='<div><strong>You are browsing as a guest.</strong><span> Sign in to load your verified Library.</span></div><a class="btn btn-light" href="/account?returnTo=%2Flibrary">Sign in</a>';
     cta.textContent='Sign in';
     document.querySelector('#collectionGrid').innerHTML='';
+    customDeliverables=[];
+    renderCustomDeliveries();
     renderModels();
     return;
   }
@@ -93,16 +116,19 @@ async function loadLibrary(){
     supabase.from('member_owned_products').select('*'),
     supabase.from('member_favorites').select('*'),
     supabase.from('membership_collection_overview').select('*').order('starts_on',{ascending:false}),
-    supabase.from('membership_collections').select('*').eq('is_published',true)
+    supabase.from('membership_collections').select('*').eq('is_published',true),
+    supabase.from('custom_deliverables').select('*').eq('is_active',true).order('created_at',{ascending:false})
   ]);
   const err=results.find(x=>x.error);if(err)throw err.error;
 
   products=results[0].data||[];
   favorites=results[1].data||[];
   const overview=results[2].data||[],rawCollections=results[3].data||[];
+  customDeliverables=results[4].data||[];
   collections=overview.map(c=>({...c,...(rawCollections.find(x=>x.id===c.id)||{})}));
 
   document.querySelector('#collectionGrid').innerHTML=collections.length?collections.map(collectionCard).join(''):stateMarkup('','No collection months yet','Published monthly drops will appear here automatically.');
+  renderCustomDeliveries();
   renderModels();
 }
 
