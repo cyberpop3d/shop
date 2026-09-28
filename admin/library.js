@@ -5,7 +5,7 @@ const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
-let session=null,collections=[],products=[],privateRows=[],customers=[],entitlements=[],subscriptions=[],codes=[],plans=[],creditAccounts=[];
+let session=null,collections=[],products=[],privateRows=[],customers=[],entitlements=[],subscriptions=[],codes=[],plans=[],creditAccounts=[],productEntitlements=[],customDeliverables=[];
 let productSearch='',productFilter='all';
 
 $('#collectionMonth').innerHTML=monthNames.map((m,i)=>'<option value="'+(i+1)+'">'+m+'</option>').join('');
@@ -96,19 +96,22 @@ async function loadAll(){
     supabase.from('membership_subscriptions').select('*,membership_plans(name,plan_type)'),
     supabase.from('membership_collection_codes').select('*'),
     supabase.from('membership_plans').select('*').order('sort_order'),
-    supabase.from('credit_accounts').select('*')
+    supabase.from('credit_accounts').select('*'),
+    supabase.from('product_entitlements').select('*'),
+    supabase.from('custom_deliverables').select('*').order('created_at',{ascending:false})
   ]);
   const err=res.find(x=>x.error);if(err)throw err.error;
   collections=res[0].data||[];products=res[1].data||[];privateRows=res[2].data||[];
   const deliveryRows=res[3].data||[];
   customers=res[4].data||[];entitlements=res[5].data||[];subscriptions=res[6].data||[];codes=res[7].data||[];plans=res[8].data||[];creditAccounts=res[9].data||[];
+  productEntitlements=res[10].data||[];customDeliverables=res[11].data||[];
   products=products.map(p=>({...p,delivery:deliveryRows.find(d=>d.product_id===p.id)||null}));
   renderAll();setSync('Synced');
   checkCultsConnection();
 }
 
 function renderAll(){
-  renderStats();renderCollections();renderProducts();renderSelects();renderPlans();
+  renderStats();renderCollections();renderProducts();renderSelects();renderPlans();renderCustomDeliverables();
 }
 function renderStats(){
   const included=products.filter(p=>p.is_included&&p.is_published).length;
@@ -148,6 +151,7 @@ function renderProducts(){
     return '<article class="record"><div class="record-head"><div class="record-main">'+thumb+'<div><h3>'+esc(p.public_title)+'</h3><p>Admin name: <strong>'+esc(priv?priv.internal_name:'—')+'</strong> · '+esc(collectionName(p.collection_id))+'</p><p>Property key: <strong>'+esc(priv?.rights_property_key||'—')+'</strong></p></div></div>'+
       '<div><span class="badge '+(p.is_included?'on':'')+'">'+(p.is_included?'INCLUDED':'EXCLUDED')+'</span> <span class="badge '+(p.is_published?'on':'')+'">'+(p.is_published?'VISIBLE':'HIDDEN')+'</span> <span class="badge '+(legalWarn?'warn':'on')+'">'+esc(p.legal_status||'ACTIVE')+'</span></div></div>'+
       '<div class="rights-admin-grid">'+
+        '<label>Collection<select data-product-collection="'+p.id+'">'+collections.map(c=>'<option value="'+c.id+'" '+(c.id===p.collection_id?'selected':'')+'>'+esc(c.display_name)+'</option>').join('')+'</select></label>'+
         '<label>Credit price<input data-credit-price="'+p.id+'" type="number" min="1" step="1" value="'+(p.credit_price??'')+'" placeholder="40"></label>'+
         '<label>IP Class<select data-ip-class="'+p.id+'"><option value="ORIGINAL" '+(p.ip_class==='ORIGINAL'?'selected':'')+'>ORIGINAL</option><option value="RIGHTS_CLEARED" '+(p.ip_class==='RIGHTS_CLEARED'?'selected':'')+'>RIGHTS_CLEARED</option><option value="UNOFFICIAL_FAN_WORK" '+(p.ip_class==='UNOFFICIAL_FAN_WORK'?'selected':'')+'>UNOFFICIAL_FAN_WORK</option></select></label>'+
         '<label>License Scope<select data-license-scope="'+p.id+'"><option value="PERSONAL" '+(p.license_scope==='PERSONAL'?'selected':'')+'>PERSONAL</option><option value="PHYSICAL_COMMERCIAL" '+(p.license_scope==='PHYSICAL_COMMERCIAL'?'selected':'')+'>PHYSICAL_COMMERCIAL</option></select></label>'+
@@ -157,10 +161,11 @@ function renderProducts(){
         '<label>Rights property key<input data-rights-property="'+p.id+'" value="'+esc(priv?.rights_property_key||'')+'" placeholder="admin-only"></label>'+
         '<label>License terms version<input data-license-version="'+p.id+'" value="'+esc(p.license_terms_version||'')+'" placeholder="optional"></label>'+
       '</div>'+
-      '<div class="actions"><button data-save-rights="'+p.id+'">Save product rights</button><button data-toggle-included="'+p.id+'" class="secondary">'+(p.is_included?'Exclude membership':'Include membership')+'</button><button data-legal-action="HIDE" data-product-id="'+p.id+'" class="secondary">Hide</button><button data-legal-action="LEGAL_REVIEW" data-product-id="'+p.id+'" class="secondary">Legal review</button><button data-legal-action="TAKEDOWN" data-product-id="'+p.id+'" class="danger">Takedown</button><button data-legal-action="DISCONTINUE" data-product-id="'+p.id+'" class="secondary">Discontinue</button><button data-legal-action="DISABLE_DOWNLOADS" data-product-id="'+p.id+'" class="secondary">Disable downloads</button><button data-legal-action="ACTIVATE" data-product-id="'+p.id+'" class="secondary">Activate</button></div></article>';
+      '<div class="actions"><button data-save-rights="'+p.id+'">Save product rights</button><button data-move-product="'+p.id+'" class="secondary">Move to selected collection</button><button data-toggle-included="'+p.id+'" class="secondary">'+(p.is_included?'Exclude membership':'Include membership')+'</button><button data-legal-action="HIDE" data-product-id="'+p.id+'" class="secondary">Hide</button><button data-legal-action="LEGAL_REVIEW" data-product-id="'+p.id+'" class="secondary">Legal review</button><button data-legal-action="TAKEDOWN" data-product-id="'+p.id+'" class="danger">Takedown</button><button data-legal-action="DISCONTINUE" data-product-id="'+p.id+'" class="secondary">Discontinue</button><button data-legal-action="DISABLE_DOWNLOADS" data-product-id="'+p.id+'" class="secondary">Disable downloads</button><button data-legal-action="ACTIVATE" data-product-id="'+p.id+'" class="secondary">Activate</button></div></article>';
   }).join('')||'<div class="admin-empty"><strong>No products match this view.</strong><span>Change the search or filter to see more catalog items.</span></div>';
   document.querySelectorAll('[data-toggle-included]').forEach(b=>b.onclick=()=>toggleProduct(b.dataset.toggleIncluded,'is_included'));
   document.querySelectorAll('[data-save-rights]').forEach(b=>b.onclick=()=>saveProductRights(b.dataset.saveRights));
+  document.querySelectorAll('[data-move-product]').forEach(b=>b.onclick=()=>moveProductToCollection(b.dataset.moveProduct));
   document.querySelectorAll('[data-legal-action]').forEach(b=>b.onclick=()=>runLegalAction(b.dataset.productId,b.dataset.legalAction));
 }
 function optionRows(list,valueFn,labelFn){return list.map(x=>'<option value="'+esc(valueFn(x))+'">'+esc(labelFn(x))+'</option>').join('')}
@@ -168,7 +173,12 @@ function renderSelects(){
   const collectionOptions=optionRows(collections,x=>x.id,x=>x.display_name);
   ['#productCollection','#monthlyCollection','#codeCollection'].forEach(s=>$(s).innerHTML=collectionOptions);
   const customerOptions=optionRows(customers,x=>x.user_id,x=>(x.full_name||x.email)+' · '+x.email);
-  ['#monthlyCustomer','#annualCustomer','#codeCustomer','#creditCustomer'].forEach(s=>$(s).innerHTML=customerOptions);
+  ['#monthlyCustomer','#annualCustomer','#codeCustomer','#creditCustomer','#productGrantCustomer','#customCustomer'].forEach(s=>$(s).innerHTML=customerOptions);
+  const productOptions=optionRows(products,x=>x.id,x=>{
+    const priv=privateRows.find(p=>p.product_id===x.id);
+    return (priv?.internal_name||x.public_title)+' · '+collectionName(x.collection_id);
+  });
+  $('#productGrantProduct').innerHTML=productOptions;
   document.querySelectorAll('#creditCustomer option').forEach(o=>{
     const account=creditAccounts.find(x=>x.user_id===o.value);o.textContent+=' · '+Number(account?.balance||0)+' C';
   });
@@ -216,6 +226,28 @@ async function saveProductRights(id){
   if(r.error){notify(r.error.message,'error');return}
   notify('Product rights metadata updated.');await loadAll();
 }
+async function moveProductToCollection(id){
+  const select=document.querySelector('[data-product-collection="'+id+'"]');
+  if(!select)return;
+  const r=await supabase.rpc('admin_move_product_to_collection',{p_product_id:id,p_collection_id:select.value});
+  if(r.error){notify(r.error.message,'error');return}
+  notify('Model moved to '+collectionName(select.value)+'.');await loadAll();
+}
+function renderCustomDeliverables(){
+  const target=$('#customDeliverables');if(!target)return;
+  target.innerHTML=customDeliverables.map(d=>{
+    const active=d.is_active!==false;
+    const link=d.download_url?'<a class="secondary" target="_blank" rel="noopener" href="'+esc(d.download_url)+'">Open delivery ↗</a>':'';
+    return '<article class="record"><div class="record-head"><div><h3>'+esc(d.title)+'</h3><p>'+esc(customerName(d.user_id))+' · '+esc(d.source_kind)+' · '+new Date(d.created_at).toLocaleDateString()+'</p></div><span class="badge '+(active?'on':'warn')+'">'+(active?'ACTIVE':'REVOKED')+'</span></div><div class="actions">'+link+(active?'<button class="secondary" data-revoke-custom="'+d.id+'">Revoke</button>':'')+'</div></article>';
+  }).join('')||'<p class="small">No private custom deliveries yet.</p>';
+  document.querySelectorAll('[data-revoke-custom]').forEach(b=>b.onclick=()=>revokeCustomDelivery(b.dataset.revokeCustom));
+}
+async function revokeCustomDelivery(id){
+  const r=await supabase.from('custom_deliverables').update({is_active:false,updated_at:new Date().toISOString()}).eq('id',id);
+  if(r.error){notify(r.error.message,'error');return}
+  notify('Custom delivery revoked.');await loadAll();
+}
+
 async function runLegalAction(id,action){
   const note=window.prompt('Optional internal note for '+action+':','')||null;
   const r=await supabase.rpc('admin_set_product_legal_state',{p_product_id:id,p_action:action,p_note:note});
@@ -276,6 +308,51 @@ $('#productForm').addEventListener('submit',async e=>{
     if(source.error){console.warn(source.error)}
   }
   e.target.reset();setText('#productStatus','Product added and included by default.');notify('Product added to the collection.');await loadAll();
+});
+
+$('#productGrantForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  setText('#productGrantStatus','Granting model…');
+  const r=await supabase.rpc('admin_set_product_entitlement',{
+    p_user_id:$('#productGrantCustomer').value,
+    p_product_id:$('#productGrantProduct').value,
+    p_source:$('#productGrantSource').value,
+    p_reference:$('#productGrantReference').value.trim()||null,
+    p_active:true
+  });
+  setText('#productGrantStatus',r.error?r.error.message:'Model access granted.');
+  if(!r.error){notify('Model added to customer Library.');await loadAll()}
+});
+$('#revokeProductGrant').onclick=async()=>{
+  setText('#productGrantStatus','Revoking model…');
+  const r=await supabase.rpc('admin_set_product_entitlement',{
+    p_user_id:$('#productGrantCustomer').value,
+    p_product_id:$('#productGrantProduct').value,
+    p_source:$('#productGrantSource').value,
+    p_reference:$('#productGrantReference').value.trim()||null,
+    p_active:false
+  });
+  setText('#productGrantStatus',r.error?r.error.message:'Model access revoked.');
+  if(!r.error){notify('Model removed from customer Library.');await loadAll()}
+};
+
+$('#customDeliveryForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  setText('#customDeliveryStatus','Adding private delivery…');
+  const row={
+    user_id:$('#customCustomer').value,
+    title:$('#customTitle').value.trim(),
+    description:$('#customDescription').value.trim()||null,
+    thumbnail_url:$('#customThumbnailUrl').value.trim()||null,
+    download_url:$('#customDownloadUrl').value.trim()||null,
+    source_kind:$('#customSourceKind').value,
+    source_reference:$('#customReference').value.trim()||null,
+    admin_note:$('#customAdminNote').value.trim()||null,
+    created_by:session.user.id
+  };
+  const r=await supabase.from('custom_deliverables').insert(row);
+  setText('#customDeliveryStatus',r.error?r.error.message:'Private delivery added.');
+  if(!r.error){notify('Custom design delivered to customer account.');e.target.reset();await loadAll()}
 });
 
 $('#creditAdjustForm').addEventListener('submit',async e=>{
