@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090b0c">
+  <title>Request a Design — CyberPop</title>
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand-lockup" href="/">CYBERPOP</a>
+  <button class="menu-toggle" aria-label="Menu">☰</button>
+  <nav class="site-nav">
+    <a href="/">Studio</a>
+    <a href="/request" class="active">Request a Design</a>
+    <a href="/collections">Collections</a>
+    <a href="/library">Library</a>
+    <a class="account-chip" href="/account"><span data-account-label>Account</span></a>
+  </nav>
+</header>
+
+<main class="site-shell">
+  <section class="page-hero">
+    <span class="eyebrow">CUSTOM 3D DESIGN SERVICE</span>
+    <h1>Tell us what you need.</h1>
+    <p class="section-copy">Submit your request first. We review the brief, discuss scope and price with you, then send a payment request manually. Nothing is charged automatically.</p>
+  </section>
+
+  <section class="account-layout section-tight">
+    <div class="account-card">
+      <span class="eyebrow">HOW IT WORKS</span>
+      <h2>Request → Quote → Delivery</h2>
+      <div class="legal-version-list">
+        <div class="legal-version-row"><div><strong>1. Send your request</strong><span>Name, email, country and the design/access you need.</span></div><strong>01</strong></div>
+        <div class="legal-version-row"><div><strong>2. We review it</strong><span>We contact you, clarify the work and agree on a price.</span></div><strong>02</strong></div>
+        <div class="legal-version-row"><div><strong>3. Payment request</strong><span>We send your Payoneer payment link after the scope is accepted.</span></div><strong>03</strong></div>
+        <div class="legal-version-row"><div><strong>4. Access & delivery</strong><span>Your custom files, selected models or collection months are assigned to your CyberPop account.</span></div><strong>04</strong></div>
+      </div>
+    </div>
+
+    <div class="account-card">
+      <span class="eyebrow">NEW REQUEST</span>
+      <h2>Design request.</h2>
+      <form id="requestForm" class="profile-form">
+        <label>First name<input class="field" id="firstName" autocomplete="given-name" maxlength="120" required></label>
+        <label>Last name<input class="field" id="lastName" autocomplete="family-name" maxlength="120" required></label>
+        <label>Email<input class="field" id="requestEmail" type="email" autocomplete="email" maxlength="320" required></label>
+        <label>Country / region<input class="field" id="requestCountry" list="countryOptions" autocomplete="country-name" required><datalist id="countryOptions"></datalist></label>
+        <label class="profile-wide">Request type
+          <select class="field" id="requestType">
+            <option value="custom_design">Custom 3D design</option>
+            <option value="collection_access">Collection access</option>
+            <option value="model_access">Specific model access</option>
+            <option value="general">Other / general request</option>
+          </select>
+        </label>
+        <label class="profile-wide">Subject<input class="field" id="requestSubject" maxlength="200" placeholder="e.g. School mascot head for sports figures"></label>
+        <label class="profile-wide">Brief<textarea class="field profile-textarea" id="requestBrief" maxlength="5000" required placeholder="Describe what you need, intended use, references you have, and any deadline or technical requirement."></textarea></label>
+        <label class="profile-wide legal-check"><input id="requestConsent" type="checkbox" required><span>I confirm these details are correct and I have read the <a href="/privacy" target="_blank">Privacy Policy</a> and <a href="/terms" target="_blank">Terms</a>.</span></label>
+        <div class="profile-wide profile-actions">
+          <button class="btn btn-light" id="requestSubmit" type="submit">Submit request →</button>
+          <span id="requestStatus" class="small"></span>
+        </div>
+      </form>
+      <div id="requestSuccess" class="state-card success" hidden></div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer"><div class="site-shell footer-grid"><div><strong>CYBERPOP</strong><p>Custom digital design and account-based delivery.</p></div><div><div class="footer-label">Explore</div><div class="footer-links"><a href="/request">Request a Design</a><a href="/collections">Collections</a><a href="/library">Library</a></div></div><div><div class="footer-label">Account</div><div class="footer-links"><a href="/account">Profile</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></div></div></div></footer>
+<script type="module" src="/request.js"></script>
+</body>
+</html>
