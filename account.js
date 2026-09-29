@@ -198,6 +198,8 @@ async function render(){
   const google=await googleProviderReady();
   const googleButton=document.querySelector('#googleButton');
   const googleDivider=document.querySelector('#googleDivider');
+  const authIntro=document.querySelector('#authIntro');
+  if(authIntro)authIntro.textContent=google?'Continue with Google, or use a verified email and password.':'Use a verified email address to create or sign in to your CyberPop account.';
   googleButton.hidden=!google;
   googleButton.disabled=!google;
   googleButton.title=google?'Sign in with Google':'';
