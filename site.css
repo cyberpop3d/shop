@@ -501,3 +501,13 @@ a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,s
 .custom-order-page .profile-textarea{min-height:130px}
 .custom-order-page .legal-check{background:rgba(13,16,24,.6)}
 @media(max-width:900px){.custom-order-page .account-layout{grid-template-columns:1fr}.custom-order-page .account-layout .account-card:first-child{order:2}.custom-order-page .account-layout .account-card:last-child{order:1}}
+
+/* The archive opens directly on the monthly work, without an intro panel. */
+.direct-collection-archive{padding-top:clamp(18px,2vw,30px);padding-bottom:clamp(56px,7vw,92px)}
+.direct-collection-archive .collection-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(24px,3vw,42px) clamp(12px,1.5vw,22px)}
+.direct-collection-archive .collection-tile{border:0;border-radius:0;background:transparent;overflow:visible}
+.direct-collection-archive .collection-tile-copy{padding:12px 2px 0}
+.direct-collection-archive .collection-tile-copy h3{font-size:clamp(21px,2vw,27px);margin:5px 0 3px}
+.direct-collection-archive .collection-tile-copy p{font-size:10px}
+.direct-collection-archive .collection-tile-media{border:1px solid rgba(201,205,223,.13)}
+@media(max-width:760px){.direct-collection-archive{padding-top:12px}.direct-collection-archive .collection-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 10px}}

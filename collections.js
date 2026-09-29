@@ -1,50 +1,49 @@
-import { supabase,initChrome,getSiteMediaSlots,monthLabel,stateMarkup,loadingMarkup,friendlyError,esc } from '/site.js';
+import { supabase,initChrome,monthLabel,stateMarkup,esc } from '/site.js';
 import {mosaicMedia} from '/collection-mosaic.js';
-let rows=[],active='all',snapshotCollections={};
-function card(c){
-  const artwork=cover(c);
-  const media=mosaicMedia(c,snapshotCollections[c.slug]||[],artwork);
-  return '<a class="collection-tile collection-mosaic-tile" href="/collection?slug='+encodeURIComponent(c.slug)+'"><div class="collection-tile-media '+(!artwork?'unfilled':'')+'">'+media+'<span class="collection-mosaic-gradient"></span><span class="collection-mosaic-title"><small>'+esc(c.slug)+'</small><strong>'+esc(c.display_name)+' Collection</strong></span><span class="collection-open">VIEW COLLECTION ↗</span></div><div class="collection-tile-copy"><span class="eyebrow">'+esc(String(c.month).padStart(2,'0'))+' / '+esc(c.year)+'</span><h3>'+esc(c.display_name)+'</h3>'+(Number(c.product_count||0)?'<p>'+Number(c.product_count)+' models</p>':'')+'</div></a>';
+
+let rows=[],snapshotCollections={};
+const snapshotPromise=fetch('/data/cults-collections.json',{cache:'force-cache'})
+  .then(r=>r.ok?r.json():null).catch(()=>null);
+function snapshotRows(snapshot){
+  const source=snapshot?.collections||{};
+  return Object.entries(source).map(([slug,items])=>{
+    const [year,month]=slug.split('-').map(Number),starts_on=slug+'-01';
+    return {id:slug,slug,year,month,starts_on,display_name:monthLabel(starts_on),product_count:items.length,is_published:true};
+  }).sort((a,b)=>b.starts_on.localeCompare(a.starts_on));
 }
-function cover(c){return c.cover_image_url||c.preview_image_url||(/^2026-(04|05|06|07|08|09|10)$/.test(c.slug||'')?'/images/cults/'+c.slug+'.webp':'')}
-function renderHero(collections,slot){
-  const feature=collections.filter(c=>c.starts_on<=new Date().toISOString().slice(0,10)).slice(0,4);
-  document.querySelector('#archiveHeroArt').innerHTML=feature.map((c,i)=>{
-    const artwork=(i===0&&slot)||cover(c);
-    return '<a class="archive-art-cell '+(!artwork?'unfilled':'')+'" href="/collection?slug='+encodeURIComponent(c.slug)+'">'+
-      (artwork?'<img src="'+esc(artwork)+'" alt="'+esc(c.display_name)+'" loading="lazy">':'')+
-      '<span>'+esc(monthLabel(c.starts_on))+'</span></a>';
-  }).join('');
+function card(c){
+  const items=snapshotCollections[c.slug]||[];
+  const artwork=c.cover_image_url||c.hero_image_url||c.preview_image_url||'';
+  const media=mosaicMedia(c,items,artwork);
+  return '<a class="collection-tile collection-mosaic-tile" href="/collection?slug='+encodeURIComponent(c.slug)+'"><div class="collection-tile-media '+(!artwork?'unfilled':'')+'">'+media+
+    (c.is_latest_collection?'<span class="collection-ongoing"><i></i>ONGOING COLLECTION</span>':'')+
+    '<span class="collection-mosaic-gradient"></span><span class="collection-mosaic-title"><small>'+esc(c.slug)+'</small><strong>'+esc(c.display_name)+' Collection</strong></span><span class="collection-open">VIEW COLLECTION ↗</span></div><div class="collection-tile-copy"><span class="eyebrow">'+esc(String(c.month).padStart(2,'0'))+' / '+esc(c.year)+'</span><h3>'+esc(c.display_name)+'</h3><p>'+Number(c.product_count||items.length)+' models'+(c.has_access?' · IN YOUR LIBRARY':'')+'</p></div></a>';
 }
 function render(){
-  const filtered=active==='all'?rows:rows.filter(x=>String(x.year)===active);
-  document.querySelector('#collectionsGrid').innerHTML=filtered.length?filtered.map(card).join(''):stateMarkup('empty','No collections','Nothing matches this year filter.');
+  const grid=document.querySelector('#collectionsGrid');
+  grid.innerHTML=rows.length?rows.map(card).join(''):stateMarkup('empty','Collections are loading','');
 }
 async function load(){
-  await initChrome();
-  document.querySelector('#collectionsGrid').innerHTML=loadingMarkup(8,'wide');
-  const [slots,c,o,products,snapshot]=await Promise.all([
-    getSiteMediaSlots(),
-    supabase.from('membership_collections').select('*').eq('is_published',true).order('starts_on',{ascending:false}),
-    supabase.from('membership_collection_overview').select('*'),
-    supabase.from('membership_library_products').select('collection_id,thumbnail_url').not('thumbnail_url','is',null).order('product_number'),
-    fetch('/data/cults-collections.json').then(r=>r.ok?r.json():null).catch(()=>null)
-  ]);
-  if(c.error)throw c.error;if(o.error)throw o.error;if(products.error)throw products.error;
+  const snapshot=await snapshotPromise;
   snapshotCollections=snapshot?.collections||{};
-  rows=(c.data||[]).map(x=>{
-    const row={...x,...((o.data||[]).find(y=>y.id===x.id)||{}),preview_image_url:(products.data||[]).find(p=>p.collection_id===x.id)?.thumbnail_url||null};
-    if(!Number(row.product_count||0))row.product_count=(snapshot?.collections?.[x.slug]||[]).length;
-    return row;
-  });
+  rows=snapshotRows(snapshot);
   if(rows[0])rows[0].is_latest_collection=true;
-  renderHero(rows,slots.collections_hero?.asset_url);
-  const years=[...new Set(rows.map(x=>x.year))].sort((a,b)=>b-a);
-  const modelCount=rows.reduce((n,x)=>n+Number(x.product_count||0),0);
-  const unlocked=rows.filter(x=>x.has_access).length;
-  document.querySelector('#collectionSummary').innerHTML='<span><strong>'+rows.length+'</strong> drops</span><span><strong>'+modelCount+'</strong> models</span>'+(unlocked?'<span><strong>'+unlocked+'</strong> unlocked</span>':'');
-  document.querySelector('#yearFilters').innerHTML=years.map(y=>'<button class="filter-chip" data-year="'+y+'">'+y+'</button>').join('');
-  document.querySelectorAll('[data-year]').forEach(b=>b.onclick=()=>{active=b.dataset.year;document.querySelectorAll('[data-year]').forEach(x=>x.classList.toggle('active',x===b));render()});
+  render();
+  await initChrome();
+  const [collectionsResult,overviewResult]=await Promise.all([
+    supabase.from('membership_collections').select('*').eq('is_published',true).order('starts_on',{ascending:false}),
+    supabase.from('membership_collection_overview').select('*')
+  ]);
+  if(collectionsResult.error||!collectionsResult.data?.length)return;
+  const overview=overviewResult.error?[]:overviewResult.data||[];
+  rows=collectionsResult.data.map(c=>({
+    ...c,...(overview.find(x=>x.id===c.id)||{}),
+    product_count:Number(c.product_count||0)||snapshotCollections[c.slug]?.length||0
+  }));
+  if(rows[0])rows[0].is_latest_collection=true;
   render();
 }
-load().catch(e=>document.querySelector('#collectionsGrid').innerHTML=stateMarkup('error','Collections unavailable',friendlyError(e,'The archive could not be loaded.'),{href:'/collections',label:'Retry'}));
+load().catch(error=>{
+  console.error(error);
+  if(!rows.length)document.querySelector('#collectionsGrid').innerHTML=stateMarkup('error','Collections unavailable','Please refresh to load the archive.');
+});
