@@ -50,15 +50,15 @@
             <label>Short note<textarea id="accessNote" class="field" maxlength="900" rows="2" placeholder="Anything we should know?"></textarea></label>
           </div>
           <details class="purchase-billing">
-            <summary>Billing details <span>Share now if convenient</span></summary>
-            <p>We can collect the required invoice details when we contact you. You may share these early if you prefer.</p>
+            <summary>Billing details <span>Optional · for your Payoneer request or invoice</span></summary>
+            <p>Your verified account email is used as the Payoneer recipient email. Add a billing name and country here if they are needed for the payment request or invoice.</p>
             <div class="purchase-fields">
               <label>Invoice name or company<input id="invoiceName" class="field" maxlength="120" autocomplete="organization" placeholder="Optional"></label>
               <label>Country / region<input id="invoiceCountry" class="field" maxlength="80" autocomplete="country-name" placeholder="Optional"></label>
             </div>
           </details>
           <div class="purchase-submit">
-            <div><span>03 / Send request</span><p>No automatic charge. We review your request and email the Payoneer payment link.</p></div>
+            <div><span>03 / Send request</span><p>No automatic charge. After review, your Payoneer payment link will appear in your account.</p></div>
             <button id="accessSubmit" class="btn btn-light" type="submit">Send Access Request <span aria-hidden="true">↗</span></button>
           </div>
           <p id="accessStatus" class="purchase-error" role="alert" aria-live="polite"></p>

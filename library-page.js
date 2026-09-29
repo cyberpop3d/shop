@@ -1,15 +1,22 @@
 import { supabase,initChrome,mediaMarkup,monthLabel,stateMarkup,friendlyError,esc } from '/site.js';
 
-let session=null,collections=[],products=[],collectionCodes=[],customDeliverables=[];
+let session=null,collections=[],products=[],collectionCodes=[],customDeliverables=[],purchaseMonthIds=new Set(),activeFilter='all';
 
 function collectionCard(c){
   const preview=products.find(p=>p.collection_id===c.id&&p.thumbnail_url)?.thumbnail_url;
   const artwork=c.cover_image_url||c.hero_image_url||preview||(/^2026-(04|05|06|07|08|09|10)$/.test(c.slug||'')?'/images/cults/'+c.slug+'.webp':'');
-  const media=artwork?mediaMarkup(artwork,c.display_name||monthLabel(c.starts_on)):'<div class="media-placeholder"><span>COLLECTION</span></div>';
+  const owned=c.has_access===true;
+  const media=artwork?mediaMarkup(artwork,c.display_name||monthLabel(c.starts_on)):'<div class="media-placeholder"><span>CLASSIFIED</span></div>';
   const code=collectionCodes.find(x=>x.collection_id===c.id&&x.is_active!==false);
-  return '<a class="library-collection-card is-active" href="/collection?slug='+encodeURIComponent(c.slug)+'">'+
-    '<div class="library-collection-media">'+media+'<span class="library-access-state">ACTIVE</span></div>'+
-    '<div class="library-collection-copy"><span>'+esc(c.slug)+'</span><h2>'+esc(c.display_name||monthLabel(c.starts_on))+'</h2><p>'+(code?.cults_code?'Cults code available':'Code pending')+'</p></div></a>';
+  const purchased=purchaseMonthIds.has(c.id);
+  return '<a class="library-collection-card '+(owned?'is-active':'is-locked')+'" data-owned="'+owned+'" data-purchased="'+purchased+'" href="/collection?slug='+encodeURIComponent(c.slug)+'">'+
+    '<div class="library-collection-media">'+media+'<span class="library-access-state">'+(owned?(purchased?'PURCHASED':'ACCESS ACTIVE'):'LOCKED')+'</span></div>'+
+    '<div class="library-collection-copy"><span>'+esc(c.slug||'')+'</span><h2>'+esc(c.display_name||monthLabel(c.starts_on))+' Collection</h2><p>'+(owned?(code?.cults_code?'Cults code available':'Cults code pending'):'Collection preview · access required')+'</p></div></a>';
+}
+
+function renderCollections(){
+  const visible=collections.filter(c=>activeFilter==='all'||(activeFilter==='mine'&&c.has_access===true)||(activeFilter==='purchased'&&purchaseMonthIds.has(c.id))||(activeFilter==='locked'&&c.has_access!==true));
+  document.querySelector('#collectionGrid').innerHTML=visible.length?visible.map(collectionCard).join(''):stateMarkup('','Nothing in this view','Try another collection filter.');
 }
 
 function customDeliveryCard(d){
@@ -33,24 +40,33 @@ async function loadLibrary(){
   }
   notice.innerHTML='<div><strong>Your Collection Library</strong><span> Access is verified by your account.</span></div><a class="text-link" href="/account">Open Account →</a>';
   const results=await Promise.all([
-    supabase.from('membership_collection_overview').select('*').order('starts_on',{ascending:false}),
     supabase.from('membership_collections').select('*').eq('is_published',true),
-    supabase.from('member_owned_products').select('id,collection_id,thumbnail_url,public_title,product_number,collection_name,slug'),
-    supabase.from('membership_collection_codes').select('*').eq('user_id',session.user.id).eq('is_active',true),
+    supabase.from('membership_collection_overview').select('*').order('starts_on',{ascending:false}),
+    supabase.from('membership_library_products').select('id,collection_id,thumbnail_url,public_title,product_number,collection_name,slug,has_access'),
+    supabase.from('membership_collection_delivery_codes').select('collection_id,cults_code,cults_url'),
     supabase.from('custom_deliverables').select('*').eq('user_id',session.user.id).eq('is_active',true).order('created_at',{ascending:false}),
-    supabase.from('product_entitlements').select('product_id').eq('user_id',session.user.id).is('revoked_at',null)
+    supabase.from('product_entitlements').select('product_id').eq('user_id',session.user.id).is('revoked_at',null),
+    supabase.from('membership_entitlements').select('collection_id,source_kind,status,revoked_at').eq('user_id',session.user.id).eq('status','active').is('revoked_at',null)
   ]);
   const failed=results.find(x=>x.error);if(failed)throw failed.error;
-  const overview=results[0].data||[],raw=results[1].data||[];
+  const raw=results[0].data||[],overview=results[1].data||[];
   products=results[2].data||[];collectionCodes=results[3].data||[];customDeliverables=results[4].data||[];
-  collections=overview.filter(c=>c.has_access===true).map(c=>({...c,...(raw.find(x=>x.id===c.id)||{})}));
-  document.querySelector('#collectionGrid').innerHTML=collections.length?collections.map(collectionCard).join(''):stateMarkup('','No collections in your Library yet','Browse the archive to request access.',{href:'/collections',label:'Browse Collections'});
-  const individuallyGranted=new Set((results[5].data||[]).map(x=>x.product_id));
+  const accessById=new Map(overview.map(c=>[c.id,c.has_access===true]));
+  collections=raw.map(c=>({...c,has_access:accessById.get(c.id)===true}));
+  purchaseMonthIds=new Set((results[7].data||[]).filter(e=>['monthly_payment','migration','purchase'].includes(e.source_kind)).map(e=>e.collection_id));
+  renderCollections();
+  const individuallyGranted=new Set((results[6].data||[]).map(x=>x.product_id));
   const individualProducts=products.filter(p=>individuallyGranted.has(p.id)&&!collections.some(c=>c.id===p.collection_id));
   document.querySelector('#individualModelsSection').hidden=!individualProducts.length;
   document.querySelector('#individualModelsGrid').innerHTML=individualProducts.map(individualModelCard).join('');
   document.querySelector('#customDeliveryGrid').innerHTML=customDeliverables.length?customDeliverables.map(customDeliveryCard).join(''):stateMarkup('','No custom designs yet','Private design deliveries will appear here when ready.');
 }
+
+document.querySelectorAll('[data-library-filter]').forEach(button=>button.addEventListener('click',()=>{
+  activeFilter=button.dataset.libraryFilter;
+  document.querySelectorAll('[data-library-filter]').forEach(item=>item.classList.toggle('active',item===button));
+  renderCollections();
+}));
 
 loadLibrary().catch(err=>{
   console.error(err);

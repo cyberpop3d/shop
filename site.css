@@ -330,6 +330,14 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;bac
 .library-collection-copy>span{font-size:8px;letter-spacing:.15em;color:#777d79;text-transform:uppercase}
 .library-collection-copy h2{font-size:clamp(24px,2.4vw,34px);letter-spacing:-.05em;margin:7px 0 5px}
 .library-collection-copy p{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#929793;margin:0}
+.library-collection-filters{display:flex;gap:8px;flex-wrap:wrap;margin:-4px 0 24px}
+.library-collection-filters button{border:1px solid rgba(255,255,255,.14);background:rgba(16,18,20,.72);color:#aaa;font:inherit;font-size:10px;padding:9px 13px;border-radius:999px;cursor:pointer;transition:color .2s,border-color .2s,background .2s}
+.library-collection-filters button:hover,.library-collection-filters button.active{color:#f5f3ef;border-color:rgba(190,174,239,.55);background:rgba(146,119,212,.14)}
+.library-collection-card.is-locked .library-collection-media:after{content:"";position:absolute;inset:0;background:rgba(9,10,13,.16);backdrop-filter:blur(2px);pointer-events:none}
+.library-collection-card.is-locked .library-access-state{z-index:1}
+.payment-report-button,.payment-report-state{display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(180,160,240,.48);background:rgba(141,115,213,.12);color:#e9e1ff;border-radius:5px;padding:9px 12px;font:inherit;font-size:10px;font-weight:750;cursor:pointer}
+.payment-report-button:disabled{opacity:.6;cursor:wait}
+.payment-report-state{border-color:rgba(220,190,110,.34);background:rgba(160,125,48,.12);color:#f1d99e;cursor:default}
 .collection-code-panel{display:flex;align-items:flex-end;justify-content:space-between;gap:28px;padding:28px 30px;border-top:1px solid rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.14);background:#0d1010}
 .collection-code-panel>div:first-child{display:grid;gap:12px}
 .collection-code-panel strong{font-size:clamp(28px,4vw,52px);line-height:1;letter-spacing:.06em}
@@ -491,6 +499,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,s
 .custom-order-page .account-layout{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:18px;padding-top:20px}
 .custom-order-page .account-card{background:linear-gradient(145deg,#151924,#0d1017);border-color:rgba(200,196,225,.17);border-radius:8px;padding:clamp(22px,2.4vw,36px)}
 .custom-order-page .account-card h2{font-weight:690;letter-spacing:-.045em}
+.custom-order-page .account-card .how-it-works-title{font-size:clamp(30px,3vw,40px);line-height:1.02;font-weight:760;letter-spacing:-.055em;margin:0 0 24px}
 .custom-order-page .legal-version-row{padding:20px 0;gap:24px}
 .custom-order-page .legal-version-row strong{font-size:13px;font-weight:650}
 .custom-order-page .legal-version-row span{font-size:11px;line-height:1.5}

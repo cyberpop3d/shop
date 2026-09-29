@@ -5,7 +5,7 @@ const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
-let session=null,collections=[],products=[],privateRows=[],customers=[],entitlements=[],subscriptions=[],codes=[],plans=[],creditAccounts=[],productEntitlements=[],customDeliverables=[],sourceRows=[],cultsInventory=[];
+let session=null,collections=[],products=[],privateRows=[],customers=[],entitlements=[],subscriptions=[],codes=[],collectionDeliveryCodes=[],plans=[],creditAccounts=[],productEntitlements=[],customDeliverables=[],sourceRows=[],cultsInventory=[];
 let productSearch='',productFilter='all';
 const cultsSelected=new Set();
 
@@ -234,6 +234,7 @@ async function loadAll(){
     supabase.from('membership_entitlements').select('*'),
     supabase.from('membership_subscriptions').select('*,membership_plans(name,plan_type)'),
     supabase.from('membership_collection_codes').select('*'),
+    supabase.from('membership_collection_delivery_codes').select('*'),
     supabase.from('membership_plans').select('*').order('sort_order'),
     supabase.from('credit_accounts').select('*'),
     supabase.from('product_entitlements').select('*'),
@@ -243,9 +244,9 @@ async function loadAll(){
   const err=res.find(x=>x.error);if(err)throw err.error;
   collections=res[0].data||[];products=res[1].data||[];privateRows=res[2].data||[];
   const deliveryRows=res[3].data||[];
-  customers=res[4].data||[];entitlements=res[5].data||[];subscriptions=res[6].data||[];codes=res[7].data||[];plans=res[8].data||[];creditAccounts=res[9].data||[];
-  productEntitlements=res[10].data||[];customDeliverables=res[11].data||[];
-  sourceRows=res[12].data||[];
+  customers=res[4].data||[];entitlements=res[5].data||[];subscriptions=res[6].data||[];codes=res[7].data||[];collectionDeliveryCodes=res[8].data||[];plans=res[9].data||[];creditAccounts=res[10].data||[];
+  productEntitlements=res[11].data||[];customDeliverables=res[12].data||[];
+  sourceRows=res[13].data||[];
   products=products.map(p=>({...p,delivery:deliveryRows.find(d=>d.product_id===p.id)||null}));
   renderAll();setSync('Synced');
   checkCultsConnection();
@@ -266,10 +267,29 @@ function renderStats(){
 function renderCollections(){
   $('#collections').innerHTML=collections.map(c=>{
     const count=products.filter(p=>p.collection_id===c.id).length;
+    const delivery=collectionDeliveryCodes.find(x=>x.collection_id===c.id);
     return '<article class="record"><div class="record-head"><div><h3>'+esc(c.display_name)+'</h3><p>'+esc(c.slug)+' · '+count+' model'+(count===1?'':'s')+' · starts '+esc(c.starts_on)+'</p></div><span class="badge '+(c.is_published?'on':'warn')+'">'+(c.is_published?'PUBLISHED':'DRAFT')+'</span></div>'+
+      '<div class="rights-admin-grid"><label>Cults collection code<input data-collection-cults-code="'+c.id+'" value="'+esc(delivery?.cults_code||'')+'" placeholder="April access code"></label><label>Cults collection URL<input data-collection-cults-url="'+c.id+'" type="url" value="'+esc(delivery?.cults_url||'')+'" placeholder="https://cults3d.com/…"></label></div>'+
+      '<div class="actions"><button data-save-collection-code="'+c.id+'">Save Cults access</button><span class="small">Visible only to accounts with this month active.</span></div>'+
+      (delivery?'<div class="actions"><button data-remove-collection-code="'+c.id+'" class="secondary">Remove Cults access</button></div>':'')+
       '<div class="actions"><button data-publish-collection="'+c.id+'" class="secondary">'+(c.is_published?'Make draft':'Publish')+'</button></div></article>';
   }).join('')||'<p class="small">No collections.</p>';
   document.querySelectorAll('[data-publish-collection]').forEach(b=>b.onclick=()=>toggleCollection(b.dataset.publishCollection));
+  document.querySelectorAll('[data-save-collection-code]').forEach(b=>b.onclick=()=>saveCollectionCode(b.dataset.saveCollectionCode));
+  document.querySelectorAll('[data-remove-collection-code]').forEach(b=>b.onclick=()=>removeCollectionCode(b.dataset.removeCollectionCode));
+}
+async function saveCollectionCode(collectionId){
+  const code=document.querySelector('[data-collection-cults-code="'+collectionId+'"]')?.value.trim()||'';
+  const url=document.querySelector('[data-collection-cults-url="'+collectionId+'"]')?.value.trim()||'';
+  if(!code){notify('Enter the Cults collection code.','error');return}
+  const r=await supabase.from('membership_collection_delivery_codes').upsert({collection_id:collectionId,cults_code:code,cults_url:url||null,updated_by:session.user.id,updated_at:new Date().toISOString()},{onConflict:'collection_id'});
+  if(r.error){notify(r.error.message,'error');return}
+  notify('Collection Cults access saved.');await loadAll();
+}
+async function removeCollectionCode(collectionId){
+  const r=await supabase.from('membership_collection_delivery_codes').delete().eq('collection_id',collectionId);
+  if(r.error){notify(r.error.message,'error');return}
+  notify('Collection Cults access removed.');await loadAll();
 }
 function productMatchesAdminFilter(p){
   const priv=privateRows.find(x=>x.product_id===p.id);

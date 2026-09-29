@@ -5,6 +5,7 @@ const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 let session=null,rows=[],searchTerm='',filter='open';
+let firstLoad=true,knownPaymentReports=new Set(),refreshTimer=null;
 
 function notify(msg,type='success'){
   const toast=$('#adminToast');
@@ -21,7 +22,8 @@ function option(value,label,current){return '<option value="'+value+'" '+(value=
 function filtered(){
   return rows.filter(r=>{
     if(filter==='open'&&!isOpen(r.status))return false;
-    if(filter!=='open'&&filter!=='all'&&r.status!==filter)return false;
+    if(filter==='customer_reported'&&!r.customer_payment_reported_at)return false;
+    if(!['open','all','customer_reported'].includes(filter)&&r.status!==filter)return false;
     if(searchTerm){
       const hay=[r.request_code,r.first_name,r.last_name,r.email,r.subject,r.brief,r.country_code,r.plan_slug,r.coupon_code]
         .filter(Boolean).join(' ').toLowerCase();
@@ -35,8 +37,9 @@ function renderStats(){
   const awaiting=rows.filter(r=>['quoted','payment_requested'].includes(r.status)).length;
   const paid=rows.filter(r=>r.status==='paid').length;
   const fulfilled=rows.filter(r=>r.status==='fulfilled').length;
+  const reported=rows.filter(r=>r.customer_payment_reported_at&&!['paid','fulfilled'].includes(r.status)).length;
   $('#requestStats').innerHTML=[
-    ['OPEN',open],['AWAITING PAYMENT',awaiting],['PAID',paid],['FULFILLED',fulfilled]
+    ['OPEN',open],['AWAITING PAYMENT',awaiting],['CUSTOMER SAYS PAID',reported],['PAID',paid],['FULFILLED',fulfilled]
   ].map(x=>'<div class="stat"><span>'+x[0]+'</span><strong>'+x[1]+'</strong></div>').join('');
 }
 function render(){
@@ -53,6 +56,9 @@ function render(){
     const plan=(r.plan_months||packageSlug)
       ? '<div class="admin-callout"><span><strong>'+esc(packageSlug?packageSlug.replaceAll('-',' ').toUpperCase():Number(r.plan_months)+' MONTH ACCESS')+'</strong> · $'+Number(r.plan_list_price||0).toFixed(0)+' '+esc(r.currency||'USD')+(selectedSlugs.length?' · '+esc(selectedSlugs.join(', ')):'')+(r.coupon_code?' · Coupon '+esc(r.coupon_code):'')+'</span></div>'
       : '';
+    const reported=r.customer_payment_reported_at
+      ? '<div class="admin-callout payment-reported-callout"><span><strong>CUSTOMER SAYS PAYMENT SENT</strong> · '+esc(new Date(r.customer_payment_reported_at).toLocaleString())+(r.customer_payment_note?' · '+esc(r.customer_payment_note):'')+'</span></div>'
+      : '';
     const accessGrant=(r.request_type==='collection_access'&&(r.plan_months||packageSlug)&&r.user_id&&r.status!=='fulfilled')
       ? '<div class="actions"><label>Access starts<input data-access-start="'+r.id+'" type="month" min="2026-04" value="'+currentMonth()+'"></label><button data-grant-request="'+r.id+'">Confirm payment & grant access</button><span class="small">Verify payment in Payoneer first. This immediately opens the selected collections.</span></div>'
       : '';
@@ -60,6 +66,7 @@ function render(){
     return '<article class="record" data-request="'+r.id+'">'+
       '<div class="record-head"><div><span class="eyebrow">'+esc(r.request_code)+'</span><h3>'+esc(name)+'</h3><p>'+esc(r.email)+' · '+esc(r.country_code||'—')+' · '+esc(r.request_type)+'</p></div><div>'+linked+' <span class="badge '+(isOpen(r.status)?'warn':'on')+'">'+esc(r.status.toUpperCase())+'</span></div></div>'+
       plan+
+      reported+
       '<div><strong>'+esc(r.subject||'No subject')+'</strong><p style="white-space:pre-wrap;margin-top:7px">'+esc(r.brief)+'</p></div>'+
       '<div class="rights-admin-grid">'+
         '<label>Status<select data-status="'+r.id+'">'+
@@ -149,6 +156,12 @@ async function load(){
   const r=await supabase.from('service_requests').select('*').order('created_at',{ascending:false});
   if(r.error)throw r.error;
   rows=r.data||[];
+  const reports=new Set(rows.filter(row=>row.customer_payment_reported_at).map(row=>row.id));
+  if(!firstLoad){
+    const fresh=rows.find(row=>reports.has(row.id)&&!knownPaymentReports.has(row.id));
+    if(fresh)notify(fresh.request_code+' · customer reports payment sent. Verify in Payoneer before confirming.');
+  }
+  knownPaymentReports=reports;firstLoad=false;
   renderStats();render();setSync('Synced');
 }
 $('#requestLoginForm').addEventListener('submit',async e=>{
@@ -161,5 +174,10 @@ $('#requestSearch').addEventListener('input',e=>{searchTerm=e.target.value.trim(
 $('#requestFilter').addEventListener('change',e=>{filter=e.target.value;render()});
 $('#requestRefresh').onclick=load;
 supabase.auth.onAuthStateChange(()=>setTimeout(init,0));
-async function init(){if(await ensureAdmin())load().catch(e=>{setSync('Error');notify(e.message,'error')})}
+async function init(){
+  if(await ensureAdmin()){
+    load().catch(e=>{setSync('Error');notify(e.message,'error')});
+    if(!refreshTimer)refreshTimer=setInterval(()=>load().catch(e=>notify(e.message,'error')),30000);
+  }else if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}
+}
 init();

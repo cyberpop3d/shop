@@ -23,7 +23,7 @@ async function load(){
   const [cRes,oRes,codeRes]=await Promise.all([
     supabase.from('membership_collections').select('*').eq('slug',slug).eq('is_published',true).maybeSingle(),
     supabase.from('membership_collection_overview').select('*').eq('slug',slug).maybeSingle(),
-    session?supabase.from('membership_collection_codes').select('*').eq('is_active',true):Promise.resolve({data:[],error:null})
+    session?supabase.from('membership_collection_delivery_codes').select('collection_id,cults_code,cults_url'):Promise.resolve({data:[],error:null})
   ]);
   if(cRes.error)throw cRes.error;if(!cRes.data)throw new Error('Collection not found.');
   collection={...cRes.data,...(oRes.data||{})};

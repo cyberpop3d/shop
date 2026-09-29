@@ -112,8 +112,17 @@ function renderServiceRequests(rows){
     const payment=r.payoneer_payment_url&&['payment_requested','paid','in_progress','fulfilled'].includes(r.status)
       ? '<a href="'+esc(r.payoneer_payment_url)+'" target="_blank" rel="noopener">Payment link ↗</a>'
       : '<span>'+esc(quote)+'</span>';
-    return '<div class="legal-version-row"><div><strong>'+esc(r.request_code)+' · '+esc(r.subject||r.request_type)+'</strong><span>'+new Date(r.created_at).toLocaleDateString()+' · '+esc(r.status.replaceAll('_',' ').toUpperCase())+'</span></div><div>'+payment+'</div><a href="/request">New request →</a></div>';
+    const report=r.customer_payment_reported_at
+      ? '<span class="payment-report-state">PAYMENT REPORTED · VERIFYING</span>'
+      : (r.status==='payment_requested'&&r.payoneer_payment_url?'<button class="payment-report-button" type="button" data-report-payment="'+r.id+'">I’ve sent the payment</button>':'');
+    return '<div class="legal-version-row"><div><strong>'+esc(r.request_code)+' · '+esc(r.subject||r.request_type)+'</strong><span>'+new Date(r.created_at).toLocaleDateString()+' · '+esc(r.status.replaceAll('_',' ').toUpperCase())+'</span></div><div>'+payment+'</div><div>'+report+'</div></div>';
   }).join('')+'</div>';
+  target.querySelectorAll('[data-report-payment]').forEach(button=>button.onclick=async()=>{
+    button.disabled=true;button.textContent='Sending…';
+    const result=await supabase.rpc('customer_report_payment',{p_request_id:button.dataset.reportPayment,p_note:null});
+    if(result.error){button.disabled=false;button.textContent='I’ve sent the payment';alert(result.error.message);return}
+    await render();
+  });
 }
 
 function renderPayments(rows){

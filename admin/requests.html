@@ -40,7 +40,7 @@
       <section id="requestStats" class="stats"></section>
 
       <section class="panel">
-        <div class="section-head"><div><span class="eyebrow">QUEUE</span><h2>Customer requests</h2><p class="small">Quote, record the manual Payoneer request, payment, invoice and fulfillment state here.</p></div></div>
+        <div class="section-head"><div><span class="eyebrow">QUEUE</span><h2>Customer requests</h2><p class="small">Quote, record the manual Payoneer request, payment, invoice and fulfillment state here. Customer payment reports refresh every 30 seconds while this page is open; always verify in Payoneer before confirming.</p></div></div>
         <div class="admin-toolbar">
           <input id="requestSearch" type="search" placeholder="Search request code, customer, email or brief…">
           <select id="requestFilter">
@@ -50,6 +50,7 @@
             <option value="reviewing">Reviewing</option>
             <option value="quoted">Quoted</option>
             <option value="payment_requested">Payment requested</option>
+            <option value="customer_reported">Customer reports payment sent</option>
             <option value="paid">Paid</option>
             <option value="in_progress">In progress</option>
             <option value="fulfilled">Fulfilled</option>
