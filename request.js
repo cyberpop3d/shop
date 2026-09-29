@@ -12,6 +12,20 @@ function countryCode(value){
   const upper=v.toUpperCase();
   return countries.find(x=>x.code===upper)?.code||countries.find(x=>x.name.toLowerCase()===v.toLowerCase())?.code||null;
 }
+function syncCountryAvailability(){
+  const code=countryCode(countryInput.value);
+  const blocked=code==='TR';
+  const status=document.querySelector('#requestStatus');
+  const button=document.querySelector('#requestSubmit');
+  if(blocked){
+    status.textContent='We do not currently provide services in Türkiye.';
+    button.disabled=true;
+  }else{
+    if(status.textContent==='We do not currently provide services in Türkiye.')status.textContent='';
+    button.disabled=false;
+  }
+  return {code,blocked};
+}
 
 async function prefill(){
   const session=await initChrome();
@@ -22,6 +36,7 @@ async function prefill(){
     const row=countries.find(x=>x.code===profile.data.country_code);
     if(row)countryInput.value=row.name;
   }
+  syncCountryAvailability();
 }
 
 document.querySelector('#requestForm').addEventListener('submit',async e=>{
@@ -31,6 +46,7 @@ document.querySelector('#requestForm').addEventListener('submit',async e=>{
   const success=document.querySelector('#requestSuccess');
   const code=countryCode(countryInput.value);
   if(!code){status.textContent='Choose a valid country / region from the list.';return}
+  if(code==='TR'){status.textContent='We do not currently provide services in Türkiye.';return}
   if(!document.querySelector('#requestConsent').checked){status.textContent='Please confirm the required acknowledgement.';return}
 
   setButtonBusy(button,true,'Submitting…');
@@ -57,4 +73,5 @@ document.querySelector('#requestForm').addEventListener('submit',async e=>{
   success.innerHTML='<div class="state-icon">✓</div><div class="state-copy"><strong>Request received.</strong><p>Reference: '+esc(data.request_code||'—')+'. We will review the request and contact you at the email you provided with scope and pricing. No payment has been taken.</p><a class="state-action" href="/account">Open your CyberPop account →</a></div>';
 });
 
+for(const eventName of ['input','change'])countryInput.addEventListener(eventName,syncCountryAvailability);
 prefill().catch(console.error);
