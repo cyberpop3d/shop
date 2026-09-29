@@ -33,6 +33,20 @@ function countryCodeFromInput(value){
   const byName=COUNTRIES.find(x=>x.name.toLowerCase()===v.toLowerCase());
   return byName?byName.code:null;
 }
+const SERVICE_UNAVAILABLE_COUNTRIES=new Set(['TR']);
+function serviceCountryBlocked(code){
+  return SERVICE_UNAVAILABLE_COUNTRIES.has(String(code||'').toUpperCase());
+}
+function syncCountryAvailability(input,status,button){
+  const code=countryCodeFromInput(input?.value);
+  const blocked=serviceCountryBlocked(code);
+  if(status){
+    status.hidden=!blocked;
+    status.textContent=blocked?'We do not currently provide services in Türkiye.':'';
+  }
+  if(button)button.disabled=blocked;
+  return {code,blocked};
+}
 function collectionCard(c){
   return '<a class="collection-tile" href="/collection?slug='+encodeURIComponent(c.slug)+'"><div class="collection-tile-media"><div class="media-placeholder"><span>COLLECTION</span></div></div><div class="collection-tile-copy"><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(monthLabel(c.starts_on))+'</h3><p>'+Number(c.product_count||0)+' models · access active</p></div></a>';
 }
@@ -71,7 +85,7 @@ function renderOnboardingLegal(){
     '<p class="legal-summary">CyberPop digital files are licensed for personal use unless a separate Seller License applies. Digital redistribution is prohibited.</p>';
 }
 function onboardingComplete(){
-  return Boolean(currentProfile?.handle&&currentProfile?.country_code&&currentProfile?.onboarding_completed_at&&!missingAccountRequirements.length);
+  return Boolean(currentProfile?.handle&&currentProfile?.country_code&&!serviceCountryBlocked(currentProfile.country_code)&&currentProfile?.onboarding_completed_at&&!missingAccountRequirements.length);
 }
 function renderLegalHistory(docs,acceptances){
   const target=document.querySelector('#legalAgreementList');
@@ -260,6 +274,11 @@ async function render(){
     document.querySelector('#onboardingHandle').value=currentProfile.handle||'';
     document.querySelector('#onboardingCountry').value=countryDisplay(currentProfile.country_code);
     renderOnboardingLegal();
+    syncCountryAvailability(
+      document.querySelector('#onboardingCountry'),
+      document.querySelector('#onboardingCountryStatus'),
+      document.querySelector('#completeOnboarding')
+    );
   }
 
   const annual=subscriptions.find(s=>s.status==='active'&&Number(s.billing_months)===12);
@@ -267,7 +286,10 @@ async function render(){
   const verified=Boolean(activeSession.user.email_confirmed_at);
 
   document.querySelector('#accountHeading').textContent=currentProfile.handle?'@'+currentProfile.handle:activeSession.user.email;
-  document.querySelector('#accountCopy').textContent=needsOnboarding?'Finish onboarding before protected actions.':(missingActionRequirements.length?'Review current agreements before purchase/download actions.':(annual?'Annual collection access is active.':'Your CyberPop account is ready.'));
+  const serviceUnavailable=serviceCountryBlocked(currentProfile.country_code);
+  document.querySelector('#accountCopy').textContent=serviceUnavailable
+    ?'We do not currently provide services in Türkiye.'
+    :(needsOnboarding?'Finish onboarding before protected actions.':(missingActionRequirements.length?'Review current agreements before purchase/download actions.':(annual?'Annual collection access is active.':'Your CyberPop account is ready.')));
   summary.innerHTML='<div class="mini-card"><span>Email</span><strong>'+(verified?'Verified':'Verification required')+'</strong></div>'+
     '<div class="mini-card"><span>Owned models</span><strong>'+ownedProducts.length+'</strong></div>'+
     '<div class="mini-card"><span>Collection months</span><strong>'+unlocked.length+'</strong></div>'+
@@ -278,6 +300,11 @@ async function render(){
   document.querySelector('#profileCountry').value=countryDisplay(currentProfile.country_code);
   document.querySelector('#profilePrinter').value=currentProfile.preferred_printer||'';
   document.querySelector('#profileBio').value=currentProfile.bio||'';
+  syncCountryAvailability(
+    document.querySelector('#profileCountry'),
+    document.querySelector('#profileCountryStatus'),
+    document.querySelector('#profileSaveButton')
+  );
 
   renderLegalHistory(legalDocs,acceptances);
   renderSellerLicense(sellerLicense);
@@ -331,6 +358,14 @@ document.querySelector('#onboardingForm').addEventListener('submit',async e=>{
   if(!session){status.textContent='Sign in first.';return}
   if(!session.user.email_confirmed_at){status.textContent='Verify your email before completing your account.';return}
 
+  const country=countryCodeFromInput(document.querySelector('#onboardingCountry').value);
+  if(!country){status.textContent='Choose a valid country / region from the list.';return}
+  if(serviceCountryBlocked(country)){
+    status.textContent='We do not currently provide services in Türkiye.';
+    syncCountryAvailability(document.querySelector('#onboardingCountry'),document.querySelector('#onboardingCountryStatus'),document.querySelector('#completeOnboarding'));
+    return;
+  }
+
   const requiredUnchecked=[...document.querySelectorAll('[data-legal-accept]:not(:disabled)')].filter(x=>!x.checked);
   if(requiredUnchecked.length){status.textContent='Accept the required legal documents to continue.';return}
 
@@ -341,8 +376,6 @@ document.querySelector('#onboardingForm').addEventListener('submit',async e=>{
   }
 
   const handle=document.querySelector('#onboardingHandle').value.trim().replace(/^@/,'');
-  const country=countryCodeFromInput(document.querySelector('#onboardingCountry').value);
-  if(!country){status.textContent='Choose a valid country / region from the list.';return}
   const p=await supabase.from('member_profiles').update({
     handle,country_code:country,onboarding_completed_at:new Date().toISOString(),updated_at:new Date().toISOString()
   }).eq('user_id',session.user.id);
@@ -358,9 +391,15 @@ document.querySelector('#profileForm').addEventListener('submit',async e=>{
   if(!session){status.textContent='Sign in first.';return}
   status.textContent='Saving…';
   const handle=document.querySelector('#profileHandle').value.trim().replace(/^@/,'')||null;
+  const selectedCountry=document.querySelector('#profileCountry').value?countryCodeFromInput(document.querySelector('#profileCountry').value):null;
+  if(serviceCountryBlocked(selectedCountry)){
+    status.textContent='We do not currently provide services in Türkiye.';
+    syncCountryAvailability(document.querySelector('#profileCountry'),document.querySelector('#profileCountryStatus'),document.querySelector('#profileSaveButton'));
+    return;
+  }
   const row={
     handle,
-    country_code:document.querySelector('#profileCountry').value?countryCodeFromInput(document.querySelector('#profileCountry').value):null,
+    country_code:selectedCountry,
     preferred_printer:document.querySelector('#profilePrinter').value.trim()||null,
     bio:document.querySelector('#profileBio').value.trim()||null,
     updated_at:new Date().toISOString()
@@ -370,6 +409,21 @@ document.querySelector('#profileForm').addEventListener('submit',async e=>{
   status.textContent=r.error?r.error.message:'Account updated.';
   if(!r.error)setTimeout(()=>render(),300);
 });
+
+const onboardingCountryInput=document.querySelector('#onboardingCountry');
+const profileCountryInput=document.querySelector('#profileCountry');
+for(const eventName of ['input','change']){
+  onboardingCountryInput.addEventListener(eventName,()=>syncCountryAvailability(
+    onboardingCountryInput,
+    document.querySelector('#onboardingCountryStatus'),
+    document.querySelector('#completeOnboarding')
+  ));
+  profileCountryInput.addEventListener(eventName,()=>syncCountryAvailability(
+    profileCountryInput,
+    document.querySelector('#profileCountryStatus'),
+    document.querySelector('#profileSaveButton')
+  ));
+}
 
 document.querySelector('#signOutButton').addEventListener('click',async()=>{await signOut();location.reload()});
 supabase.auth.onAuthStateChange(()=>setTimeout(render,0));
