@@ -2,9 +2,10 @@ import { supabase,initChrome,getSiteMediaSlots,setMediaImage,monthLabel,stateMar
 
 let session=null,collections=[],products=[],favorites=[],customDeliverables=[],productCodes=[],activeFilter='all',searchTerm='',sortMode='newest';
 
-function collectionCard(c){
+function collectionCard(c,previewImage){
   const open=Boolean(c.has_access);
-  const media=c.cover_image_url?'<img src="'+esc(c.cover_image_url)+'" alt="'+esc(c.display_name||monthLabel(c.starts_on))+'">':'<div class="media-placeholder"><span>1200 × 900</span></div>';
+  const image=c.cover_image_url||previewImage;
+  const media=image?'<img src="'+esc(image)+'" alt="'+esc(c.display_name||monthLabel(c.starts_on))+'">':'<div class="media-placeholder"><span>COLLECTION COVER</span></div>';
   return '<a class="collection-tile" href="/collection?slug='+encodeURIComponent(c.slug)+'"><div class="collection-tile-media">'+media+'</div><div class="collection-tile-copy"><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name||monthLabel(c.starts_on))+'</h3><p>'+Number(c.product_count||0)+' models · '+(open?'Collection access active':'Browse collection')+'</p></div></a>';
 }
 
@@ -138,7 +139,7 @@ async function loadLibrary(){
   productCodes=results[5].data||[];
   collections=overview.map(c=>({...c,...(rawCollections.find(x=>x.id===c.id)||{})}));
 
-  document.querySelector('#collectionGrid').innerHTML=collections.length?collections.map(collectionCard).join(''):stateMarkup('','No collection months yet','Published monthly drops will appear here automatically.');
+  document.querySelector('#collectionGrid').innerHTML=collections.length?collections.map(c=>collectionCard(c,products.find(p=>p.collection_id===c.id)?.thumbnail_url)).join(''):stateMarkup('','No collection months yet','Published monthly drops will appear here automatically.');
   renderCustomDeliveries();
   renderModels();
 }

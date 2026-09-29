@@ -1,13 +1,20 @@
-import { supabase,initChrome,getSiteMediaSlots,setMediaImage,monthLabel,stateMarkup,loadingMarkup,friendlyError,esc } from '/site.js';
+import { supabase,initChrome,getSiteMediaSlots,monthLabel,stateMarkup,loadingMarkup,friendlyError,esc } from '/site.js';
 
 function productCard(p){
   const media=p.thumbnail_url?'<img src="'+esc(p.thumbnail_url)+'" alt="'+esc(p.public_title)+'" loading="lazy">':'<div class="media-placeholder"><span>1200 × 1400</span></div>';
-  const badge=p.has_access?'OWNED':'NEW';
-  return '<a class="store-product-card" href="/product?slug='+encodeURIComponent(p.slug||'')+'"><div class="store-product-media">'+media+'<span class="store-product-badge '+(p.has_access?'owned-badge':'')+'">'+badge+'</span></div><div class="store-product-body"><h3>'+esc(p.public_title)+'</h3><p>'+esc(p.collection_name||'Collection')+'<br>Multipart · '+(p.ams_required?'AMS':'No AMS')+(p.height_mm?' · '+p.height_mm+' mm':'')+(p.credit_price?' · '+Number(p.credit_price)+' C':'')+'</p></div></a>';
+  const badge=p.has_access?'<span class="work-access">IN YOUR LIBRARY</span>':'';
+  return '<a class="store-product-card" href="/product?slug='+encodeURIComponent(p.slug||'')+'"><div class="store-product-media">'+media+badge+'</div><div class="store-product-body"><h3>'+esc(p.public_title)+'</h3><p>'+esc(p.collection_name||'CyberPop Collection')+'</p></div></a>';
 }
-function collectionCard(c){
-  const media=c.cover_image_url?'<img src="'+esc(c.cover_image_url)+'" alt="'+esc(c.display_name)+'" loading="lazy">':'<div class="media-placeholder"><span>COLLECTION COVER · 1200 × 900</span></div>';
-  return '<a class="collection-tile" href="/collection?slug='+encodeURIComponent(c.slug)+'"><div class="collection-tile-media">'+media+'</div><div class="collection-tile-copy"><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name)+'</h3><p>'+Number(c.product_count||0)+' models'+(c.has_access?' · unlocked':'')+'</p></div></a>';
+function collectionCard(c,previewImage){
+  const image=c.cover_image_url||previewImage;
+  const media=image?'<img src="'+esc(image)+'" alt="'+esc(c.display_name)+'" loading="lazy">':'<div class="media-placeholder"><span>COLLECTION COVER</span></div>';
+  return '<a class="collection-tile" href="/collection?slug='+encodeURIComponent(c.slug)+'"><div class="collection-tile-media">'+media+'<span class="collection-open">VIEW COLLECTION ↗</span></div><div class="collection-tile-copy"><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name)+'</h3><p>'+Number(c.product_count||0)+' models'+(c.has_access?' · in your library':'')+'</p></div></a>';
+}
+const visualWorks=[
+  ['cammy.png','Cammy'],['johnny-cage.png','Johnny Cage'],['dhalsim.webp','Dhalsim'],['juri.webp','Juri']
+];
+function renderVisualWorks(){
+  return visualWorks.map(([file,name],i)=>'<a class="store-product-card fallback-work" href="/collections"><div class="store-product-media"><img src="/images/covers/'+file+'" alt="'+name+' CyberPop 3D character design" loading="lazy"><span class="work-number">0'+(i+1)+'</span></div><div class="store-product-body"><h3>'+name+'</h3><p>CyberPop character study</p></div></a>').join('');
 }
 async function loadHome(){
   await initChrome();
@@ -22,24 +29,26 @@ async function loadHome(){
   const collections=raw.map(c=>({...c,...(access.find(x=>x.id===c.id)||{})}));
   const latest=collections[0];
   const modelRows=products.data||[];
-  setMediaImage(document.querySelector('#homeHero'),slots.home_hero?.asset_url,'HOMEPAGE HERO · 1920 × 1080');
+  if(slots.home_hero?.asset_url){
+    const heroImage=document.querySelector('.hero-art-main img');
+    if(heroImage)heroImage.src=slots.home_hero.asset_url;
+  }
   if(latest){
+    document.querySelector('#latestSection').hidden=false;
     document.querySelector('#latestMeta').textContent=monthLabel(latest.starts_on)+' · '+Number(latest.product_count||0)+' models';
     const banner=document.querySelector('#latestCollectionBanner');banner.className='latest-banner';
-    const bannerUrl=slots.home_latest_banner?.asset_url||latest.hero_image_url||latest.cover_image_url;
-    banner.innerHTML='<div class="latest-banner-copy"><span class="eyebrow">'+esc(latest.slug)+'</span><h3>'+esc(monthLabel(latest.starts_on))+'</h3><p class="section-copy">'+Number(latest.product_count||0)+' models in this drop.'+(latest.has_access?' Your account has access.':'')+'</p><div><a class="btn btn-light" href="/collection?slug='+encodeURIComponent(latest.slug)+'">View Collection →</a></div></div><div class="latest-banner-media media-letterbox">'+(bannerUrl?'<img src="'+esc(bannerUrl)+'" alt="'+esc(latest.display_name)+'">':'<div class="media-placeholder"><span>LATEST BANNER · 1920 × 640</span></div>')+'</div>';
+    const bannerUrl=latest.cover_image_url||modelRows.find(p=>p.collection_id===latest.id)?.thumbnail_url||latest.hero_image_url;
+    banner.innerHTML='<a class="latest-banner-art" href="/collection?slug='+encodeURIComponent(latest.slug)+'">'+(bannerUrl?'<img src="'+esc(bannerUrl)+'" alt="'+esc(latest.display_name)+'" loading="lazy">':'<div class="media-placeholder"><span>CYBERPOP COLLECTION</span></div>')+'<span class="collection-open">OPEN COLLECTION ↗</span></a><div class="latest-banner-copy"><span class="eyebrow">'+esc(latest.slug)+' · '+Number(latest.product_count||0)+' MODELS</span><h3>'+esc(monthLabel(latest.starts_on))+'</h3><p>'+esc(latest.description||'A monthly collection of CyberPop character designs.')+'</p><a class="text-link" href="/collection?slug='+encodeURIComponent(latest.slug)+'">View Collection <span aria-hidden="true">↗</span></a></div>';
   }else{
-    document.querySelector('#latestCollectionBanner').className='';
-    document.querySelector('#latestCollectionBanner').innerHTML=stateMarkup('maintenance','Collection preparing','The next published monthly drop will appear here automatically.');
+    document.querySelector('#latestSection').hidden=true;
   }
-  document.querySelector('#newReleaseMeta').textContent=modelRows.length?modelRows.length+' latest catalog models':'Catalog preparing';
-  document.querySelector('#newReleaseGrid').innerHTML=modelRows.length?modelRows.slice(0,6).map(productCard).join(''):stateMarkup('empty','No published models yet','Models will appear here after they are synced or published.');
-  document.querySelector('#homeCollections').innerHTML=collections.length?collections.slice(0,4).map(collectionCard).join(''):stateMarkup('empty','No collections yet','Published monthly drops will appear here automatically.');
+  document.querySelector('#newReleaseGrid').innerHTML=modelRows.length?modelRows.slice(0,4).map(productCard).join(''):renderVisualWorks();
+  document.querySelector('#homeCollections').innerHTML=collections.length?collections.slice(0,4).map(c=>collectionCard(c,modelRows.find(p=>p.collection_id===c.id)?.thumbnail_url)).join(''):stateMarkup('empty','No collections yet','Published monthly drops will appear here automatically.');
 }
-document.querySelector('#newReleaseGrid').innerHTML=loadingMarkup(6,'card');
+document.querySelector('#newReleaseGrid').innerHTML=loadingMarkup(4,'card');
 loadHome().catch(e=>{
   console.error(e);
-  document.querySelector('#latestCollectionBanner').className='';
-  document.querySelector('#latestCollectionBanner').innerHTML=stateMarkup('error','Storefront unavailable',friendlyError(e,'The collection catalog could not be loaded.'),{href:'/',label:'Retry'});
-  document.querySelector('#newReleaseGrid').innerHTML=stateMarkup('error','Models unavailable','The catalog could not be loaded right now.');
+  document.querySelector('#latestSection').hidden=true;
+  document.querySelector('#newReleaseGrid').innerHTML=renderVisualWorks();
+  document.querySelector('#homeCollections').innerHTML=stateMarkup('error','Archive unavailable',friendlyError(e,'The collection archive could not be loaded.'),{href:'/',label:'Retry'});
 });

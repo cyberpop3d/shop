@@ -1,5 +1,5 @@
 import {
-  supabase,initChrome,getSession,getCreditSummary,googleProviderReady,
+  supabase,initChrome,getSession,googleProviderReady,
   signInGoogle,signInWithPassword,signUpWithPassword,resendSignupConfirmation,
   signOut,monthLabel,stateMarkup,esc
 } from '/site.js';
@@ -40,14 +40,6 @@ function safeReturnTo(){
   const value=new URLSearchParams(location.search).get('returnTo');
   if(!value||!value.startsWith('/')||value.startsWith('//'))return null;
   return value;
-}
-function renderCreditHistory(rows){
-  const target=document.querySelector('#creditHistory');
-  if(!rows.length){target.innerHTML=stateMarkup('','No credit activity yet','Credits granted, spent or reversed will appear here.');return}
-  target.innerHTML=rows.map(r=>{
-    const n=Number(r.amount||0);
-    return '<div class="credit-history-row"><time>'+new Date(r.created_at).toLocaleDateString()+'</time><span>'+esc(r.description||r.type)+'</span><strong class="'+(n>0?'positive':'negative')+'">'+(n>0?'+':'')+n+' C</strong></div>';
-  }).join('');
 }
 function setAuthMode(mode){
   authMode=mode;
@@ -183,7 +175,7 @@ async function render(){
   const owned=document.querySelector('#ownedCollections');
   const returnTo=safeReturnTo();
 
-  ['#profileSection','#credits','#legalSection','#sellerLicenseSection','#purchaseSection','#serviceRequestSection'].forEach(s=>document.querySelector(s).hidden=!activeSession);
+  ['#profileSection','#legalSection','#sellerLicenseSection','#purchaseSection','#serviceRequestSection'].forEach(s=>document.querySelector(s).hidden=!activeSession);
   if(!activeSession)document.querySelector('#patreonTransitionSection').hidden=true;
   if(!activeSession){
     document.querySelector('#onboardingSection').hidden=true;
@@ -207,8 +199,6 @@ async function render(){
     supabase.from('membership_subscriptions').select('*,membership_plans(name,plan_type)').order('current_period_end',{ascending:false}),
     supabase.from('member_profiles').select('*').eq('user_id',activeSession.user.id).maybeSingle(),
     supabase.from('member_owned_products').select('id'),
-    supabase.from('credit_transactions').select('*').order('created_at',{ascending:false}).limit(50),
-    getCreditSummary(),
     supabase.from('legal_documents').select('*').eq('status','published').order('document_type'),
     supabase.from('legal_acceptances').select('*').order('accepted_at',{ascending:false}),
     supabase.from('seller_licenses').select('*').eq('user_id',activeSession.user.id).maybeSingle(),
@@ -222,14 +212,12 @@ async function render(){
   const subscriptions=results[1].data||[];
   currentProfile=results[2].data||{};
   const ownedProducts=results[3].data||[];
-  const creditRows=results[4].data||[];
-  const credits=results[5]||{balance:0,transaction_count:0};
-  const legalDocs=results[6].data||[];
-  const acceptances=results[7].data||[];
-  const sellerLicense=results[8].data||null;
-  const payments=results[9].data||[];
-  const serviceRequests=results[10].data||[];
-  const patreonLink=results[11].data||null;
+  const legalDocs=results[4].data||[];
+  const acceptances=results[5].data||[];
+  const sellerLicense=results[6].data||null;
+  const payments=results[7].data||[];
+  const serviceRequests=results[8].data||[];
+  const patreonLink=results[9].data||null;
   await loadLegalState();
 
   const needsOnboarding=!onboardingComplete();
@@ -248,7 +236,7 @@ async function render(){
   document.querySelector('#accountCopy').textContent=needsOnboarding?'Finish onboarding before protected actions.':(missingActionRequirements.length?'Review current agreements before purchase/download actions.':(annual?'Annual collection access is active.':'Your CyberPop account is ready.'));
   summary.innerHTML='<div class="mini-card"><span>Email</span><strong>'+(verified?'Verified':'Verification required')+'</strong></div>'+
     '<div class="mini-card"><span>Owned models</span><strong>'+ownedProducts.length+'</strong></div>'+
-    '<div class="mini-card"><span>Credits</span><strong>'+credits.balance+' C</strong></div>'+
+    '<div class="mini-card"><span>Collection months</span><strong>'+unlocked.length+'</strong></div>'+
     '<div class="mini-card"><span>Account</span><strong>'+esc((currentProfile.account_status||'active').toUpperCase())+'</strong></div>';
 
   document.querySelector('#profileHandle').value=currentProfile.handle||'';
@@ -257,16 +245,13 @@ async function render(){
   document.querySelector('#profilePrinter').value=currentProfile.preferred_printer||'';
   document.querySelector('#profileBio').value=currentProfile.bio||'';
 
-  document.querySelector('#creditBalanceLarge').textContent=credits.balance+' C';
-  document.querySelector('#creditTransactionCount').textContent=credits.transaction_count;
-  renderCreditHistory(creditRows);
   renderLegalHistory(legalDocs,acceptances);
   renderSellerLicense(sellerLicense);
   renderPayments(payments);
   renderPatreonTransition(patreonLink);
   renderServiceRequests(serviceRequests);
 
-  owned.innerHTML=unlocked.length?unlocked.map(collectionCard).join(''):stateMarkup('','No collection access yet','Permanent product unlocks can still appear in your Library independently of monthly collection access.');
+  owned.innerHTML=unlocked.length?unlocked.map(collectionCard).join(''):stateMarkup('','No collection access yet','Paid months and manually granted models appear here after activation.');
 
   if(returnTo&&!needsOnboarding&&verified&&!missingActionRequirements.length){
     history.replaceState(null,'',location.pathname);

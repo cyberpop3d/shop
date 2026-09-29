@@ -1,4 +1,4 @@
-import { supabase,initChrome,getSession,getCreditSummary,stateMarkup,loadingMarkup,friendlyError,showToast,setButtonBusy,esc } from '/site.js';
+import { supabase,initChrome,getSession,stateMarkup,loadingMarkup,friendlyError,showToast,esc } from '/site.js';
 
 const slug=new URLSearchParams(location.search).get('slug');
 let currentProduct=null;
@@ -10,8 +10,7 @@ function card(p){
     : '<div class="media-placeholder"><span>1200 × 1400</span></div>';
   return '<a class="store-product-card" href="/product?slug='+encodeURIComponent(p.slug||'')+'">'+
     '<div class="store-product-media">'+media+(p.has_access?'<span class="store-product-badge">OWNED</span>':'')+'</div>'+
-    '<div class="store-product-body"><h3>'+esc(p.public_title)+'</h3><p>'+esc(p.collection_name||'Collection')+
-    (p.credit_price?' · '+Number(p.credit_price)+' C':'')+'</p></div></a>';
+    '<div class="store-product-body"><h3>'+esc(p.public_title)+'</h3><p>'+esc(p.collection_name||'Collection')+'</p></div></a>';
 }
 
 function safeReturnPath(){
@@ -63,109 +62,13 @@ async function renderAccess(p){
   }
 
   if(p.disable_new_purchases){
-    access.innerHTML='<div class="unlock-box"><span class="eyebrow">MODEL ACCESS</span><div class="unlock-price"><strong>UNAVAILABLE</strong></div><p class="unlock-note">New unlocks are currently disabled for this model.</p></div>';
+    access.innerHTML='<div class="unlock-box"><span class="eyebrow">MODEL ACCESS</span><div class="unlock-price"><strong>UNAVAILABLE</strong></div><p class="unlock-note">New access to this model is currently unavailable.</p></div>';
     return;
   }
 
-  if(!currentSession){
-    access.innerHTML='<div class="unlock-box"><span class="eyebrow">MODEL ACCESS</span>'+
-      '<div class="unlock-price"><strong>'+(p.credit_price?Number(p.credit_price)+' C':'—')+'</strong><span>credit unlock</span></div>'+
-      '<p class="unlock-note">Sign in to check your balance and unlock this model.</p>'+
-      '<a class="btn btn-light" href="/account?returnTo='+encodeURIComponent(safeReturnPath())+'">Sign in to unlock →</a></div>';
-    return;
-  }
-
-  if(!p.credit_price){
-    access.innerHTML='<div class="unlock-box"><span class="eyebrow">MODEL ACCESS</span><div class="unlock-price"><strong>SOON</strong></div><p class="unlock-note">Credit price has not been published yet.</p></div>';
-    return;
-  }
-
-  const summary=await getCreditSummary();
-  const enough=summary.balance>=Number(p.credit_price);
-  access.innerHTML='<div class="unlock-box"><span class="eyebrow">CREDIT UNLOCK</span>'+
-    '<div class="unlock-price"><strong>'+Number(p.credit_price)+' C</strong><span>permanent model unlock</span></div>'+
-    '<p class="unlock-note">Balance: '+summary.balance+' C · The server will re-read the product price before spending credits.</p>'+
-    '<button id="unlockButton" class="btn btn-light">'+(enough?'Unlock for '+Number(p.credit_price)+' C':'Need '+(Number(p.credit_price)-summary.balance)+' more credits')+'</button>'+
-    '<div id="unlockResult" class="unlock-result"></div></div>';
-  document.querySelector('#unlockButton').onclick=()=>openUnlockDialog(p,summary);
-}
-
-function ensureDialog(){
-  let dialog=document.querySelector('#unlockDialog');
-  if(dialog)return dialog;
-  dialog=document.createElement('dialog');
-  dialog.id='unlockDialog';
-  dialog.className='unlock-dialog';
-  document.body.appendChild(dialog);
-  return dialog;
-}
-
-function openUnlockDialog(p,summary){
-  const dialog=ensureDialog();
-  const price=Number(p.credit_price||0);
-  dialog.innerHTML='<div class="unlock-dialog-inner"><span class="eyebrow">CONFIRM UNLOCK</span>'+
-    '<h3>Unlock '+esc(p.public_title)+'?</h3>'+
-    '<p>Credits are spent only if the backend confirms the current product price, your balance and that you do not already own the model.</p>'+
-    '<div class="unlock-balance-grid"><div><span>Price</span><strong>'+price+' C</strong></div><div><span>Current</span><strong>'+summary.balance+' C</strong></div><div><span>After</span><strong>'+Math.max(0,summary.balance-price)+' C</strong></div></div>'+
-    '<div id="dialogUnlockResult" class="unlock-result"></div>'+
-    '<div class="unlock-dialog-actions"><button id="cancelUnlock" class="btn btn-ghost">Cancel</button><button id="confirmUnlock" class="btn btn-light">Unlock Model</button></div></div>';
-  dialog.showModal();
-  document.querySelector('#cancelUnlock').onclick=()=>dialog.close();
-  document.querySelector('#confirmUnlock').onclick=()=>performUnlock(p.id,dialog);
-}
-
-async function performUnlock(productId,dialog){
-  const button=document.querySelector('#confirmUnlock');
-  const result=document.querySelector('#dialogUnlockResult');
-  setButtonBusy(button,true,'Processing…');result.textContent='';
-  const r=await supabase.rpc('unlock_product_with_credits',{p_product_id:productId});
-  if(r.error){
-    result.className='unlock-result error';
-    result.textContent=r.error.message;
-    setButtonBusy(button,false);button.textContent='Try Again';
-    return;
-  }
-  const data=r.data||{};
-  if(data.status==='unlocked'){
-    result.className='unlock-result success';
-    result.textContent='Unlocked. The model is now in your Library.';
-    button.textContent='Unlocked';
-    setTimeout(()=>location.reload(),700);
-    return;
-  }
-  if(data.status==='already_owned'){
-    result.className='unlock-result success';
-    result.textContent='Already owned. No credits were spent.';
-    setTimeout(()=>location.reload(),600);
-    return;
-  }
-  if(data.status==='insufficient_credits'){
-    result.className='unlock-result error';
-    result.textContent='Insufficient credits. You need '+Number(data.needed||0)+' more C.';
-    setButtonBusy(button,false);button.textContent='Unlock Model';
-    return;
-  }
-  if(data.status==='legal_acceptance_required'){
-    result.className='unlock-result error';
-    result.innerHTML='Current legal agreements must be accepted before this unlock. <a href="/account?returnTo='+encodeURIComponent(safeReturnPath())+'">Review agreements →</a>';
-    setButtonBusy(button,false);button.textContent='Review Agreements';
-    return;
-  }
-  if(data.status==='email_verification_required'){
-    result.className='unlock-result error';
-    result.innerHTML='Verify your email before unlocking models. <a href="/account?returnTo='+encodeURIComponent(safeReturnPath())+'">Open account →</a>';
-    setButtonBusy(button,false);button.textContent='Verification Required';
-    return;
-  }
-  if(data.status==='product_unavailable'){
-    result.className='unlock-result error';
-    result.textContent='This model is currently unavailable for new unlocks.';
-    button.disabled=true;button.textContent='Unavailable';
-    return;
-  }
-  result.className='unlock-result error';
-  result.textContent='Unlock could not be completed.';
-  setButtonBusy(button,false);button.textContent='Try Again';
+  access.innerHTML='<div class="unlock-box"><span class="eyebrow">COLLECTION ACCESS</span><div class="unlock-price"><strong>REQUEST</strong></div>'+
+    '<p class="unlock-note">This model is available through a CyberPop collection access request.</p>'+
+    '<a class="btn btn-light" href="/access">Get Collection Access →</a></div>';
 }
 
 function renderRightsNotices(p){
@@ -199,7 +102,7 @@ async function load(){
   document.querySelector('#productEyebrow').textContent=p.collection_name||'MODEL';
   document.querySelector('#productName').textContent=p.public_title;
   document.querySelector('#productDescription').textContent=raw.data?.description||'CyberPop multipart collectible model.';
-  document.querySelector('#productTags').innerHTML='<span>'+(p.multipart?'MULTIPART':'MODEL')+'</span><span>'+(p.ams_required?'AMS':'NO AMS')+'</span>'+(p.height_mm?'<span>'+p.height_mm+' MM</span>':'')+(p.credit_price?'<span>'+Number(p.credit_price)+' C</span>':'')+'<span>'+(p.license_scope==='PHYSICAL_COMMERCIAL'?'PHYSICAL PRINT PERMISSION':'PERSONAL LICENSE')+'</span>';
+  document.querySelector('#productTags').innerHTML='<span>'+(p.multipart?'MULTIPART':'MODEL')+'</span><span>'+(p.ams_required?'AMS':'NO AMS')+'</span>'+(p.height_mm?'<span>'+p.height_mm+' MM</span>':'')+'<span>'+(p.license_scope==='PHYSICAL_COMMERCIAL'?'PHYSICAL PRINT PERMISSION':'PERSONAL LICENSE')+'</span>';
   renderRightsNotices(p);
 
   const images=[...(g.data||[])];

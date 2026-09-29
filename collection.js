@@ -2,7 +2,7 @@ import { supabase,initChrome,setMediaImage,stateMarkup,loadingMarkup,friendlyErr
 const slug=new URLSearchParams(location.search).get('slug');let session=null,collection=null,products=[],filter='all',sort='newest';
 function card(p){
   const media=p.thumbnail_url?'<img src="'+esc(p.thumbnail_url)+'" alt="'+esc(p.public_title)+'" loading="lazy">':'<div class="media-placeholder"><span>1200 × 1400</span></div>';
-  return '<a class="store-product-card" href="/product?slug='+encodeURIComponent(p.slug||'')+'"><div class="store-product-media">'+media+'<span class="store-product-badge '+(p.has_access?'owned-badge':'locked-badge')+'">'+(p.has_access?'OWNED':'LOCKED')+'</span></div><div class="store-product-body"><h3>'+esc(p.public_title)+'</h3><p>'+esc(p.collection_name||'Collection')+'<br>Multipart · '+(p.ams_required?'AMS':'No AMS')+(p.height_mm?' · '+p.height_mm+' mm':'')+(p.credit_price?' · '+Number(p.credit_price)+' C':'')+'</p></div></a>';
+  return '<a class="store-product-card" href="/product?slug='+encodeURIComponent(p.slug||'')+'"><div class="store-product-media">'+media+'<span class="store-product-badge '+(p.has_access?'owned-badge':'locked-badge')+'">'+(p.has_access?'IN YOUR LIBRARY':'COLLECTION ACCESS')+'</span></div><div class="store-product-body"><h3>'+esc(p.public_title)+'</h3><p>'+esc(p.collection_name||'Collection')+'<br>Multipart · '+(p.ams_required?'AMS':'No AMS')+(p.height_mm?' · '+p.height_mm+' mm':'')+'</p></div></a>';
 }
 function render(){
   let rows=[...products];
@@ -23,17 +23,17 @@ async function load(){
   if(cRes.error)throw cRes.error;if(!cRes.data)throw new Error('Collection not found.');
   collection={...cRes.data,...(oRes.data||{})};
   document.title=collection.display_name+' — CyberPop';
-  setMediaImage(document.querySelector('#collectionHero'),collection.hero_image_url||collection.cover_image_url,'COLLECTION HERO · 1920 × 900');
   document.querySelector('#collectionCrumb').textContent='COLLECTIONS / '+collection.slug;
   document.querySelector('#collectionTitle').textContent=collection.display_name.toUpperCase();
   document.querySelector('#collectionDescription').textContent=collection.description||'A CyberPop monthly collectible collection.';
   document.querySelector('#collectionMeta').innerHTML='<span>'+Number(collection.product_count||0)+' MODELS</span><span>MULTIPART</span><span>'+(collection.has_access?'ACCESS ACTIVE':'ARCHIVE')+'</span>';
   const pRes=await supabase.from('membership_library_products').select('*').eq('collection_id',collection.id).order('product_number');
   if(pRes.error)throw pRes.error;products=pRes.data||[];render();
+  setMediaImage(document.querySelector('#collectionHero'),collection.cover_image_url||products.find(p=>p.thumbnail_url)?.thumbnail_url||collection.hero_image_url,'COLLECTION ARTWORK');
   const area=document.querySelector('#accessArea');area.hidden=false;
   area.innerHTML=collection.has_access
     ? '<div class="notice"><div><strong>Collection access active.</strong><span> Owned models are available through your verified Library.</span></div><a class="btn btn-light" href="/library">Open Library →</a></div>'
-    : '<div class="notice accent"><div><strong>Archive preview.</strong><span> You can browse every model now. Payment activation is intentionally disabled during pre-launch.</span></div><a class="btn btn-ghost" href="/membership">Membership details →</a></div>';
+    : '<div class="notice accent"><div><strong>Explore the collection.</strong><span> Request access when you’re ready.</span></div><a class="btn btn-ghost" href="/access">Request Access →</a></div>';
 }
 document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));render()});
 document.querySelector('#collectionSort').onchange=e=>{sort=e.target.value;render()};

@@ -36,7 +36,7 @@ async function checkCultsConnection(){
       status.textContent=data.ok?'Cults API connected. Ready to import your own designs.':(data.error||'Cults API error.');
     }else{
       badge.textContent='NOT CONFIGURED';badge.className='badge warn';
-      status.textContent='Add CULTS_USERNAME and CULTS_API_KEY to Vercel environment variables to enable sync.';
+      status.textContent='Add the rotated CULTS_API_KEY_ROTATED secret to the Vercel preview environment to enable sync.';
     }
   }catch(error){
     badge.textContent='UNAVAILABLE';badge.className='badge warn';

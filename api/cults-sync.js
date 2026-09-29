@@ -5,8 +5,10 @@ module.exports = async function handler(req,res){
     return;
   }
 
-  const username=process.env.CULTS_USERNAME;
-  const apiKey=process.env.CULTS_API_KEY;
+  // Deliberately use a fresh variable name so a previously exposed CULTS_API_KEY
+  // in a deployment environment can never be reused by this endpoint.
+  const username='CyberPOP';
+  const apiKey=process.env.CULTS_API_KEY_ROTATED;
   const authHeader=req.headers.authorization||'';
   const accessToken=authHeader.startsWith('Bearer ')?authHeader.slice(7):'';
 
@@ -48,7 +50,7 @@ module.exports = async function handler(req,res){
     res.status(503).json({
       ok:false,
       configured:false,
-      error:'Cults API credentials are not configured yet.'
+      error:'The rotated Cults API credential is not configured yet.'
     });
     return;
   }
