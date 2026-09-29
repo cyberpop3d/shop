@@ -101,6 +101,28 @@ function renderPatreonTransition(row){
   const founder=row.founder_status?'<span class="badge open">FOUNDER PRICING PRESERVED</span>':'';
   target.innerHTML='<div class="notice"><div><strong>Patreon linked · '+esc(paidMonth)+'</strong><span> Your paid Patreon month is active here. Future access can continue through CyberPop without waiting for the next Patreon billing date.</span></div>'+founder+'</div>';
 }
+function renderPaymentNotifications(rows){
+  const section=document.querySelector('#paymentNotificationSection');
+  const target=document.querySelector('#paymentNotifications');
+  const active=rows.filter(r=>r.payoneer_payment_url&&r.status==='payment_requested');
+  if(!active.length){section.hidden=true;target.innerHTML='';return}
+  section.hidden=false;
+  target.innerHTML='<div class="legal-version-list">'+active.map(r=>{
+    const amount=r.quote_amount!=null?Number(r.quote_amount):Number(r.plan_list_price||0);
+    const amountLabel=amount?amount.toFixed(2)+' '+esc(r.currency||'USD'):'Payment requested';
+    const report=r.customer_payment_reported_at
+      ? '<span class="payment-report-state">PAYMENT REPORTED · VERIFYING</span>'
+      : '<button class="payment-report-button" type="button" data-notification-report-payment="'+r.id+'">I’ve sent the payment</button>';
+    return '<div class="legal-version-row"><div><strong>Payment request · Order ID: '+esc(r.request_code)+'</strong><span>'+esc(r.subject||r.request_type)+' · '+esc(amountLabel)+'</span></div><div><a class="btn btn-light" href="'+esc(r.payoneer_payment_url)+'" target="_blank" rel="noopener">Open payment link ↗</a></div><div>'+report+'</div></div>';
+  }).join('')+'</div>';
+  target.querySelectorAll('[data-notification-report-payment]').forEach(button=>button.onclick=async()=>{
+    button.disabled=true;button.textContent='Sending…';
+    const result=await supabase.rpc('customer_report_payment',{p_request_id:button.dataset.notificationReportPayment,p_note:null});
+    if(result.error){button.disabled=false;button.textContent='I’ve sent the payment';alert(result.error.message);return}
+    await render();
+  });
+}
+
 function renderServiceRequests(rows){
   const target=document.querySelector('#serviceRequestHistory');
   if(!rows.length){
@@ -184,7 +206,7 @@ async function render(){
   const owned=document.querySelector('#ownedCollections');
   const returnTo=safeReturnTo();
 
-  ['#profileSection','#legalSection','#sellerLicenseSection','#purchaseSection','#serviceRequestSection'].forEach(s=>document.querySelector(s).hidden=!activeSession);
+  ['#profileSection','#legalSection','#sellerLicenseSection','#purchaseSection','#serviceRequestSection','#paymentNotificationSection'].forEach(s=>document.querySelector(s).hidden=!activeSession);
   if(!activeSession)document.querySelector('#patreonTransitionSection').hidden=true;
   if(!activeSession){
     document.querySelector('#onboardingSection').hidden=true;
@@ -258,6 +280,7 @@ async function render(){
   renderSellerLicense(sellerLicense);
   renderPayments(payments);
   renderPatreonTransition(patreonLink);
+  renderPaymentNotifications(serviceRequests);
   renderServiceRequests(serviceRequests);
 
   owned.innerHTML=unlocked.length?unlocked.map(collectionCard).join(''):stateMarkup('','No collection access yet','Paid months and manually granted models appear here after activation.');
