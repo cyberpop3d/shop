@@ -1,3 +1,10 @@
+function originalMediaUrl(url){
+  if(!url)return null;
+  const marker='https://fbi.cults3d.com/';
+  const index=url.indexOf(marker);
+  return index>=0?url.slice(index):url;
+}
+
 module.exports = async function handler(req,res){
   res.setHeader('Cache-Control','no-store');
   if(req.method!=='GET'){
@@ -5,8 +12,6 @@ module.exports = async function handler(req,res){
     return;
   }
 
-  // Deliberately use a fresh variable name so a previously exposed CULTS_API_KEY
-  // in a deployment environment can never be reused by this endpoint.
   const username='CyberPOP';
   const apiKey=process.env.CULTS_API_KEY_ROTATED;
   const authHeader=req.headers.authorization||'';
@@ -55,8 +60,8 @@ module.exports = async function handler(req,res){
     return;
   }
 
-  const limit=Math.min(Math.max(Number(req.query.limit||50),1),50);
-  const offset=Math.max(Number(req.query.offset||0),0);
+  const limit=Math.min(Math.max(Number(req.query.limit||50)||50,1),50);
+  const offset=Math.max(Number(req.query.offset||0)||0,0);
 
   const query=`
     query CyberpopOwnDesigns($limit: Int!, $offset: Int!) {
@@ -64,10 +69,15 @@ module.exports = async function handler(req,res){
         creationsBatch(limit: $limit, offset: $offset, sort: BY_PUBLICATION) {
           total
           results {
+            identifier
+            slug
             name(locale: EN)
             url(locale: EN)
-            illustrationImageUrl
+            illustrationImageUrl(version: LARGE)
             publishedAt
+            updatedAt
+            illustrations { id position imageUrl(version: LARGE) }
+            videos { url imageUrl }
             creator { nick }
           }
         }
@@ -92,7 +102,7 @@ module.exports = async function handler(req,res){
         ok:false,
         configured:true,
         error:'Cults API request failed.',
-        details:body.errors||null
+        details:body.errors?.map(error=>({message:error.message}))||null
       });
       return;
     }
@@ -111,14 +121,21 @@ module.exports = async function handler(req,res){
         reset:response.headers.get('x-ratelimit-reset')
       },
       results:results.map(item=>({
+        externalId:item.identifier,
+        slug:item.slug,
         name:item.name||'Untitled design',
         url:item.url,
         imageUrl:item.illustrationImageUrl||null,
         publishedAt:item.publishedAt||null,
+        updatedAt:item.updatedAt||null,
+        images:(item.illustrations||[]).filter(image=>image.imageUrl).map(image=>({
+          id:image.id,url:originalMediaUrl(image.imageUrl),position:image.position
+        })),
+        videos:(item.videos||[]).map(video=>({url:video.url,posterUrl:video.imageUrl})),
         creator:item.creator&&item.creator.nick?item.creator.nick:username
       })).filter(item=>item.url)
     });
   }catch(error){
-    res.status(500).json({ok:false,configured:true,error:error.message||'Unexpected sync error'});
+    res.status(502).json({ok:false,configured:true,error:'Cults API connection failed.'});
   }
 };

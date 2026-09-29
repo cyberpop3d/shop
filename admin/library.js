@@ -5,8 +5,9 @@ const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
-let session=null,collections=[],products=[],privateRows=[],customers=[],entitlements=[],subscriptions=[],codes=[],plans=[],creditAccounts=[],productEntitlements=[],customDeliverables=[];
+let session=null,collections=[],products=[],privateRows=[],customers=[],entitlements=[],subscriptions=[],codes=[],plans=[],creditAccounts=[],productEntitlements=[],customDeliverables=[],sourceRows=[],cultsInventory=[];
 let productSearch='',productFilter='all';
+const cultsSelected=new Set();
 
 $('#collectionMonth').innerHTML=monthNames.map((m,i)=>'<option value="'+(i+1)+'">'+m+'</option>').join('');
 $('#collectionMonth').value='10';
@@ -46,34 +47,138 @@ async function checkCultsConnection(){
 
 async function syncFromCults(){
   const button=$('#cultsSyncButton'),status=$('#cultsSyncStatus');
-  button.disabled=true;setSync('Cults sync…');status.textContent='Fetching latest designs from Cults…';
+  button.disabled=true;setSync('Cults inventory…');status.textContent='Loading the complete Cults catalog…';
   try{
-    const response=await fetch('/api/cults-sync?limit=50&offset=0',{cache:'no-store',headers:{Authorization:'Bearer '+session.access_token}});
-    const payload=await response.json();
-    if(!payload.ok)throw new Error(payload.error||'Cults sync failed.');
-    let created=0,updated=0,failed=0;
-    const items=[...(payload.results||[])].sort((a,b)=>new Date(a.publishedAt||0)-new Date(b.publishedAt||0));
-    for(const item of items){
-      const r=await supabase.rpc('admin_import_cults_product',{
-        p_source_url:item.url,
-        p_source_name:item.name,
-        p_image_url:item.imageUrl||null,
-        p_published_at:item.publishedAt||null,
-        p_raw_metadata:item
-      });
-      if(r.error){console.error(r.error);failed++;continue}
-      const row=Array.isArray(r.data)?r.data[0]:null;
-      if(row&&row.was_created)created++;else updated++;
+    let offset=0,total=Infinity;
+    const items=[];
+    while(offset<total){
+      const response=await fetch('/api/cults-sync?limit=50&offset='+offset,{cache:'no-store',headers:{Authorization:'Bearer '+session.access_token}});
+      const payload=await response.json();
+      if(!response.ok||!payload.ok)throw new Error(payload.error||'Cults catalog could not be loaded.');
+      total=payload.total;
+      if(!payload.results?.length)break;
+      items.push(...payload.results);
+      offset+=payload.results.length;
+      status.textContent='Loaded '+items.length+' of '+total+' Cults designs…';
     }
-    status.textContent='Cults sync complete · '+created+' new · '+updated+' updated'+(failed?' · '+failed+' failed':'')+'.';
-    notify('Cults catalog synced.');
-    await loadAll();
+    cultsInventory=[...new Map(items.map(item=>[item.externalId||item.url,item])).values()];
+    $('#cultsInventoryPanel').hidden=false;
+    renderCultsInventory();
+    status.textContent='Cults catalog ready · '+cultsInventory.length+' designs. Choose a collection, then import the selected models as drafts.';
   }catch(error){
-    status.textContent=error.message||'Cults sync failed.';
+    status.textContent=error.message||'Cults catalog could not be loaded.';
     notify(status.textContent,'error');
   }finally{
     setSync('Ready');button.disabled=false;
   }
+}
+
+function sourceForCults(item){
+  return sourceRows.find(source=>source.provider==='cults'&&
+    (source.external_id&&source.external_id===item.externalId||source.source_url===item.url));
+}
+function visibleCultsItems(){
+  const term=$('#cultsInventorySearch').value.trim().toLowerCase();
+  return cultsInventory.filter(item=>!term||[item.name,item.slug,item.publishedAt].some(value=>String(value||'').toLowerCase().includes(term)));
+}
+function renderCultsInventory(){
+  if(!cultsInventory.length)return;
+  const collectionSelect=$('#cultsCollection');
+  const selectedCollection=collectionSelect.value;
+  collectionSelect.innerHTML=optionRows(collections,x=>x.id,x=>x.display_name);
+  if(collections.some(c=>c.id===selectedCollection))collectionSelect.value=selectedCollection;
+  const visible=visibleCultsItems();
+  $('#cultsInventoryCount').textContent=visible.length+' shown · '+sourceRows.filter(source=>source.provider==='cults').length+' linked · '+cultsSelected.size+' selected';
+  $('#cultsInventory').innerHTML=visible.map(item=>{
+    const source=sourceForCults(item);
+    const existing=products.find(p=>p.id===source?.product_id);
+    const image=item.imageUrl?'<img src="'+esc(item.imageUrl)+'" alt="" loading="lazy">':'<span class="record-thumb empty">CP</span>';
+    return '<label class="cults-inventory-row"><input type="checkbox" data-cults-id="'+esc(item.externalId||item.url)+'" '+(cultsSelected.has(item.externalId||item.url)?'checked':'')+'>'+image+
+      '<span><strong>'+esc(item.name)+'</strong><small>'+esc(item.publishedAt?.slice(0,10)||'Unpublished on Cults')+' · '+(item.images?.length||0)+' images</small></span>'+
+      '<span class="badge '+(source?'on':'warn')+'">'+(source?esc(collectionName(existing?.collection_id)):'NEW')+'</span></label>';
+  }).join('')||'<p class="small">No Cults models match this search.</p>';
+  document.querySelectorAll('[data-cults-id]').forEach(input=>input.onchange=()=>{
+    if(input.checked)cultsSelected.add(input.dataset.cultsId);else cultsSelected.delete(input.dataset.cultsId);
+    $('#cultsInventoryCount').textContent=visible.length+' shown · '+sourceRows.filter(source=>source.provider==='cults').length+' linked · '+cultsSelected.size+' selected';
+  });
+}
+
+async function importCultsItem(item,collectionId){
+  let source=sourceForCults(item);
+  let product=products.find(p=>p.id===source?.product_id);
+  if(source&&!product)throw new Error('Existing Cults mapping has no model: '+item.name);
+  const updateTitle=!product?.public_title||product.public_title===source?.source_name;
+  const updateImage=!product?.thumbnail_url||(!product?.thumbnail_storage_path&&product.thumbnail_url===source?.source_image_url);
+  let created=false;
+  if(!source){
+    const number=1+Math.max(0,...products.filter(p=>p.collection_id===collectionId).map(p=>Number(p.product_number)||0));
+    const row={collection_id:collectionId,product_number:number,sort_order:number,thumbnail_url:item.imageUrl||null,
+      release_date:item.publishedAt?.slice(0,10)||null,is_included:true,is_published:false,status:'draft',multipart:true,ams_required:false,version:'1.0'};
+    const inserted=await supabase.from('membership_products').insert(row).select('*').single();
+    if(inserted.error)throw inserted.error;
+    product=inserted.data;created=true;products.push(product);
+    try{
+      const privateResult=await supabase.from('membership_product_private').insert({product_id:product.id,internal_name:item.name,admin_note:'Imported from Cults API'});
+      if(privateResult.error)throw privateResult.error;
+      const sourceResult=await supabase.from('membership_product_sources').insert({product_id:product.id,provider:'cults',external_id:item.externalId,
+        external_slug:item.slug,source_url:item.url,source_name:item.name,source_image_url:item.imageUrl||null,
+        published_at:item.publishedAt||null,raw_metadata:item,sync_status:'synced',last_synced_at:new Date().toISOString()}).select('*').single();
+      if(sourceResult.error)throw sourceResult.error;
+      source=sourceResult.data;sourceRows.push(source);
+    }catch(error){
+      await supabase.from('membership_product_private').delete().eq('product_id',product.id);
+      await supabase.from('membership_products').delete().eq('id',product.id);
+      products=products.filter(p=>p.id!==product.id);
+      throw error;
+    }
+  }else{
+    const sourceResult=await supabase.from('membership_product_sources').update({external_id:item.externalId,external_slug:item.slug,
+      source_url:item.url,source_name:item.name,source_image_url:item.imageUrl||null,published_at:item.publishedAt||null,
+      raw_metadata:item,sync_status:'synced',last_synced_at:new Date().toISOString()}).eq('product_id',product.id);
+    if(sourceResult.error)throw sourceResult.error;
+  }
+  const updated=await supabase.from('membership_products').update({
+    ...(updateTitle?{public_title:item.name}:{}),
+    ...(updateImage?{thumbnail_url:item.imageUrl||product.thumbnail_url}:{}),
+    release_date:item.publishedAt?.slice(0,10)||product.release_date,
+    product_updated_at:new Date().toISOString()
+  }).eq('id',product.id);
+  if(updated.error)throw updated.error;
+  const delivery=await supabase.from('membership_product_delivery').upsert({product_id:product.id,cults_url:item.url,updated_at:new Date().toISOString()},{onConflict:'product_id'});
+  if(delivery.error)throw delivery.error;
+  const images=[...(item.images||[])].sort((a,b)=>(a.position??0)-(b.position??0));
+  if(images.length){
+    const existing=await supabase.from('membership_product_images').select('image_url').eq('product_id',product.id);
+    if(existing.error)throw existing.error;
+    const known=new Set((existing.data||[]).map(image=>image.image_url));
+    const missing=images.filter(image=>image.url&&!known.has(image.url));
+    if(missing.length){
+      const gallery=await supabase.from('membership_product_images').insert(missing.map(image=>({product_id:product.id,image_url:image.url,
+        sort_order:image.position??0,alt_text:item.name})));
+      if(gallery.error)throw gallery.error;
+    }
+  }
+  return created;
+}
+
+async function importSelectedCults(){
+  const button=$('#cultsImportSelected'),status=$('#cultsSyncStatus');
+  const chosen=cultsInventory.filter(item=>cultsSelected.has(item.externalId||item.url));
+  const collectionId=$('#cultsCollection').value;
+  if(!chosen.length||!collectionId){status.textContent='Select models and a collection first.';return}
+  button.disabled=true;$('#cultsSyncButton').disabled=true;
+  let created=0,updated=0,failed=0;
+  for(const item of chosen.reverse()){
+    try{
+      if(await importCultsItem(item,collectionId))created++;else updated++;
+      cultsSelected.delete(item.externalId||item.url);
+    }catch(error){failed++;status.textContent='Could not import '+item.name+': '+(error.message||'Unknown error');}
+    setSync('Imported '+(created+updated+failed)+' / '+chosen.length);
+  }
+  await loadAll();renderCultsInventory();
+  status.textContent='Cults import · '+created+' new drafts · '+updated+' updated · '+failed+' failed. New models stay hidden until you publish them.';
+  notify(failed?'Import finished with '+failed+' errors.':'Cults models imported.',failed?'error':'success');
+  button.disabled=false;$('#cultsSyncButton').disabled=false;
 }
 
 async function ensureAdmin(){
@@ -98,13 +203,15 @@ async function loadAll(){
     supabase.from('membership_plans').select('*').order('sort_order'),
     supabase.from('credit_accounts').select('*'),
     supabase.from('product_entitlements').select('*'),
-    supabase.from('custom_deliverables').select('*').order('created_at',{ascending:false})
+    supabase.from('custom_deliverables').select('*').order('created_at',{ascending:false}),
+    supabase.from('membership_product_sources').select('*').eq('provider','cults')
   ]);
   const err=res.find(x=>x.error);if(err)throw err.error;
   collections=res[0].data||[];products=res[1].data||[];privateRows=res[2].data||[];
   const deliveryRows=res[3].data||[];
   customers=res[4].data||[];entitlements=res[5].data||[];subscriptions=res[6].data||[];codes=res[7].data||[];plans=res[8].data||[];creditAccounts=res[9].data||[];
   productEntitlements=res[10].data||[];customDeliverables=res[11].data||[];
+  sourceRows=res[12].data||[];
   products=products.map(p=>({...p,delivery:deliveryRows.find(d=>d.product_id===p.id)||null}));
   renderAll();setSync('Synced');
   checkCultsConnection();
@@ -112,6 +219,7 @@ async function loadAll(){
 
 function renderAll(){
   renderStats();renderCollections();renderProducts();renderSelects();renderPlans();renderCustomDeliverables();
+  renderCultsInventory();
 }
 function renderStats(){
   const included=products.filter(p=>p.is_included&&p.is_published).length;
@@ -231,6 +339,11 @@ async function moveProductToCollection(id){
   if(!select)return;
   const r=await supabase.rpc('admin_move_product_to_collection',{p_product_id:id,p_collection_id:select.value});
   if(r.error){notify(r.error.message,'error');return}
+  const source=sourceRows.find(row=>row.product_id===id);
+  if(source?.source_name){
+    const title=await supabase.from('membership_products').update({public_title:source.source_name}).eq('id',id);
+    if(title.error){notify('Model moved, but its title could not be restored: '+title.error.message,'error');await loadAll();return}
+  }
   notify('Model moved to '+collectionName(select.value)+'.');await loadAll();
 }
 function renderCustomDeliverables(){
@@ -418,6 +531,9 @@ $('#productAdminFilter').addEventListener('change',e=>{productFilter=e.target.va
 $('#refresh').onclick=loadAll;
 $('#cultsCheckButton').onclick=checkCultsConnection;
 $('#cultsSyncButton').onclick=syncFromCults;
+$('#cultsInventorySearch').oninput=renderCultsInventory;
+$('#cultsSelectVisible').onclick=()=>{visibleCultsItems().forEach(item=>cultsSelected.add(item.externalId||item.url));renderCultsInventory()};
+$('#cultsImportSelected').onclick=importSelectedCults;
 supabase.auth.onAuthStateChange(()=>setTimeout(init,0));
 async function init(){if(await ensureAdmin())loadAll().catch(e=>{setSync('Error');notify(e.message,'error')})}
 init();

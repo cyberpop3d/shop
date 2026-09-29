@@ -139,19 +139,7 @@ export function syncHeader(session,creditBalance=0,handle=null){
   const label=session&&session.user?(handle?'@'+handle:session.user.email.split('@')[0]):'Account';
   document.querySelectorAll('[data-account-label]').forEach(el=>el.textContent=label);
   const nav=document.querySelector('.site-nav');
-  if(nav&&session){
-    let credit=nav.querySelector('.credit-chip');
-    if(!credit){
-      credit=document.createElement('a');
-      credit.className='credit-chip';
-      credit.href='/account#credits';
-      const account=nav.querySelector('.account-chip')||nav.lastElementChild;
-      nav.insertBefore(credit,account);
-    }
-    credit.innerHTML='◇ <strong data-credit-balance>'+Number(creditBalance||0)+'</strong> C';
-  }else if(nav){
-    nav.querySelector('.credit-chip')?.remove();
-  }
+  nav?.querySelector('.credit-chip')?.remove();
   const toggle=document.querySelector('.menu-toggle');
   if(toggle&&nav)toggle.onclick=()=>nav.classList.toggle('open');
 }
@@ -165,19 +153,16 @@ export function ensureGlobalLegalFooter(){
 }
 export async function initChrome(){
   ensureGlobalLegalFooter();
-  ensureNetworkState();
   const session=await getSession();
-  let balance=0;
   let handle=null;
   if(session){
     await ensureCustomerProfile(session);
-    try{balance=(await getCreditSummary()).balance}catch(error){console.warn('Credit summary unavailable',error)}
     try{
       const p=await supabase.from('member_profiles').select('handle').eq('user_id',session.user.id).maybeSingle();
       if(!p.error)handle=p.data?.handle||null;
     }catch(_){}
   }
-  syncHeader(session,balance,handle);
+  syncHeader(session,0,handle);
   requestAnimationFrame(()=>document.body.classList.add('page-ready'));
   return session;
 }

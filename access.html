@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#090b0c">
   <title>Get Collection Access — CyberPop</title>
   <link rel="stylesheet" href="/site.css">
+  <link rel="stylesheet" href="/access-page.css">
 </head>
 <body>
 <header class="site-header">
@@ -18,34 +19,50 @@
     <a class="account-chip" href="/account"><span data-account-label>Account</span></a>
   </nav>
 </header>
-<main class="site-shell access-shell">
-  <section class="access-head">
-    <span class="eyebrow">CYBERPOP COLLECTIONS</span>
-    <h1>Get Collection Access</h1>
-  </section>
+<main class="site-shell purchase-shell">
+  <div class="purchase-topline"><a href="/collections">← Back to collections</a><span>CyberPop / Collection access</span></div>
+  <div class="purchase-layout">
+    <section class="purchase-intro" aria-labelledby="purchaseTitle">
+      <span class="eyebrow">CYBERPOP COLLECTIONS</span>
+      <h1 id="purchaseTitle">Purchase<br><em>Collection</em></h1>
+      <div class="purchase-intro-foot"><span class="purchase-index">01 — 03</span><p>Choose your access period. Your request goes directly to the studio.</p></div>
+    </section>
 
-  <section id="accessAuth" class="access-card" hidden>
-    <span class="eyebrow">ACCOUNT REQUIRED</span>
-    <h2>Sign in first.</h2>
-    <a class="btn btn-light" href="/account?returnTo=%2Faccess">Sign in / Create account →</a>
-  </section>
+    <div class="purchase-panel">
+      <section id="accessAuth" class="purchase-auth" hidden>
+        <span class="eyebrow">YOUR ACCOUNT</span>
+        <h2>Sign in to continue.</h2>
+        <p>Your verified email connects the request to your Library.</p>
+        <a class="btn btn-light" href="/account?returnTo=%2Faccess">Sign in / Create account <span aria-hidden="true">↗</span></a>
+      </section>
 
-  <section id="accessApp" class="access-card" hidden>
-    <div class="access-account-line"><span>Requesting as</span><strong id="accessEmail"></strong></div>
-    <form id="accessForm">
-      <div id="accessPlans" class="access-plan-grid"></div>
-      <div class="access-fields">
-        <label>Patreon / Founder code <span>Optional</span><input id="accessCoupon" class="field" maxlength="64" autocomplete="off" placeholder="Code"></label>
-        <label>Note <span>Optional</span><textarea id="accessNote" class="field access-note" maxlength="1200" placeholder="Anything we should know?"></textarea></label>
-      </div>
-      <div class="access-submit-row">
-        <span id="accessStatus" class="small"></span>
-        <button id="accessSubmit" class="btn btn-light" type="submit">Send Access Request →</button>
-      </div>
-      <p class="access-manual-note">No charge is made when you send a request. We’ll review it and email your payment request.</p>
-    </form>
-    <div id="accessSuccess" class="state-card success" hidden></div>
-  </section>
+      <section id="accessApp" hidden>
+        <div class="purchase-panel-head"><span>01 / Access period</span><span id="accessEmail"></span></div>
+        <form id="accessForm">
+          <fieldset class="purchase-options"><legend class="sr-only">Choose collection access period</legend><div id="accessPlans" class="purchase-plans"></div></fieldset>
+          <div class="purchase-details-head"><span>02 / Request details</span><span>Optional</span></div>
+          <div class="purchase-fields">
+            <label>Patreon / Founder code<input id="accessCoupon" class="field" maxlength="64" autocomplete="off" placeholder="Enter code if you have one"></label>
+            <label>Short note<textarea id="accessNote" class="field" maxlength="900" rows="2" placeholder="Anything we should know?"></textarea></label>
+          </div>
+          <details class="purchase-billing">
+            <summary>Billing details <span>Share now if convenient</span></summary>
+            <p>We can collect the required invoice details when we contact you. You may share these early if you prefer.</p>
+            <div class="purchase-fields">
+              <label>Invoice name or company<input id="invoiceName" class="field" maxlength="120" autocomplete="organization" placeholder="Optional"></label>
+              <label>Country / region<input id="invoiceCountry" class="field" maxlength="80" autocomplete="country-name" placeholder="Optional"></label>
+            </div>
+          </details>
+          <div class="purchase-submit">
+            <div><span>03 / Send request</span><p>No automatic charge. We review your request and email the Payoneer payment link.</p></div>
+            <button id="accessSubmit" class="btn btn-light" type="submit">Send Access Request <span aria-hidden="true">↗</span></button>
+          </div>
+          <p id="accessStatus" class="purchase-error" role="alert" aria-live="polite"></p>
+        </form>
+        <div id="accessSuccess" class="purchase-success" hidden role="status" aria-live="polite"></div>
+      </section>
+    </div>
+  </div>
 </main>
 <script type="module" src="/access.js"></script>
 </body>

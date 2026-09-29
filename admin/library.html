@@ -51,15 +51,25 @@
           <div>
             <span class="eyebrow">CULTS API</span>
             <h2>Sync your Cults catalog</h2>
-            <p class="small">Pull your own Cults models, thumbnails and publication dates into CyberPop. Files stay on Cults; customer download actions redirect there.</p>
+            <p class="small">Review the full Cults catalog, choose its CyberPop collection, and import models as drafts. Existing models keep their collection and publishing choices during sync.</p>
           </div>
           <span id="cultsConnectionBadge" class="badge warn">CHECKING</span>
         </div>
         <div class="actions">
-          <button id="cultsSyncButton" type="button" disabled>Sync latest 50 models</button>
+          <button id="cultsSyncButton" type="button" disabled>Load Cults catalog</button>
           <button id="cultsCheckButton" type="button" class="secondary">Check connection</button>
         </div>
         <p id="cultsSyncStatus" class="status-line">Cults credentials are stored server-side only.</p>
+        <div id="cultsInventoryPanel" hidden>
+          <div class="admin-toolbar">
+            <input id="cultsInventorySearch" type="search" placeholder="Search Cults models…" aria-label="Search Cults models">
+            <select id="cultsCollection" aria-label="Collection for new imports"></select>
+            <button id="cultsSelectVisible" type="button" class="secondary">Select visible</button>
+            <button id="cultsImportSelected" type="button">Import selected as drafts</button>
+          </div>
+          <p id="cultsInventoryCount" class="small"></p>
+          <div id="cultsInventory" class="cults-inventory"></div>
+        </div>
       </section>
 
       <div class="section-label">Content</div>

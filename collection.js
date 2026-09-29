@@ -1,15 +1,17 @@
 import { supabase,initChrome,setMediaImage,stateMarkup,loadingMarkup,friendlyError,esc } from '/site.js';
 const slug=new URLSearchParams(location.search).get('slug');let session=null,collection=null,products=[],filter='all',sort='newest';
 function card(p){
-  const media=p.thumbnail_url?'<img src="'+esc(p.thumbnail_url)+'" alt="'+esc(p.public_title)+'" loading="lazy">':'<div class="media-placeholder"><span>1200 × 1400</span></div>';
-  return '<a class="store-product-card" href="/product?slug='+encodeURIComponent(p.slug||'')+'"><div class="store-product-media">'+media+'<span class="store-product-badge '+(p.has_access?'owned-badge':'locked-badge')+'">'+(p.has_access?'IN YOUR LIBRARY':'COLLECTION ACCESS')+'</span></div><div class="store-product-body"><h3>'+esc(p.public_title)+'</h3><p>'+esc(p.collection_name||'Collection')+'<br>Multipart · '+(p.ams_required?'AMS':'No AMS')+(p.height_mm?' · '+p.height_mm+' mm':'')+'</p></div></a>';
+  const media=p.thumbnail_url?'<img src="'+esc(p.thumbnail_url)+'" alt="'+esc(p.public_title)+'" loading="lazy">':'<div class="media-placeholder"><span>CYBERPOP</span></div>';
+  const href=p.public_preview_url||'/product?slug='+encodeURIComponent(p.slug||'');
+  const badge=p.public_preview_url?'':p.has_access?'<span class="store-product-badge owned-badge">IN YOUR LIBRARY</span>':'';
+  return '<a class="store-product-card" href="'+esc(href)+'"'+(p.public_preview_url?' target="_blank" rel="noopener noreferrer"':'')+'><div class="store-product-media">'+media+badge+'</div><div class="store-product-body"><h3>'+esc(p.public_title)+'</h3><p>'+esc(p.collection_name||'Collection')+'</p></div></a>';
 }
 function render(){
   let rows=[...products];
   if(filter==='owned')rows=rows.filter(x=>x.has_access);
   if(filter==='locked')rows=rows.filter(x=>!x.has_access);
   rows.sort((a,b)=>sort==='az'?String(a.public_title).localeCompare(String(b.public_title)):sort==='oldest'?Number(a.product_number)-Number(b.product_number):Number(b.product_number)-Number(a.product_number));
-  document.querySelector('#collectionCount').textContent=products.length+' models · '+products.filter(x=>x.has_access).length+' owned';
+  document.querySelector('#collectionCount').textContent=products.length+' models'+(products.some(x=>!x.public_preview_url)?' · '+products.filter(x=>x.has_access).length+' owned':'');
   document.querySelector('#productGrid').innerHTML=rows.length?rows.map(card).join(''):stateMarkup('empty','No models found','Nothing matches the active collection filter.');
 }
 async function load(){
@@ -25,11 +27,23 @@ async function load(){
   document.title=collection.display_name+' — CyberPop';
   document.querySelector('#collectionCrumb').textContent='COLLECTIONS / '+collection.slug;
   document.querySelector('#collectionTitle').textContent=collection.display_name.toUpperCase();
-  document.querySelector('#collectionDescription').textContent=collection.description||'A CyberPop monthly collectible collection.';
-  document.querySelector('#collectionMeta').innerHTML='<span>'+Number(collection.product_count||0)+' MODELS</span><span>MULTIPART</span><span>'+(collection.has_access?'ACCESS ACTIVE':'ARCHIVE')+'</span>';
+  document.querySelector('#collectionDescription').textContent=collection.description||'';
+  document.querySelector('#collectionMeta').innerHTML=(Number(collection.product_count||0)?'<span>'+Number(collection.product_count)+' MODELS</span>':'')+'<span>'+(collection.has_access?'ACCESS ACTIVE':'ARCHIVE')+'</span>';
   const pRes=await supabase.from('membership_library_products').select('*').eq('collection_id',collection.id).order('product_number');
-  if(pRes.error)throw pRes.error;products=pRes.data||[];render();
-  setMediaImage(document.querySelector('#collectionHero'),collection.cover_image_url||products.find(p=>p.thumbnail_url)?.thumbnail_url||collection.hero_image_url,'COLLECTION ARTWORK');
+  if(pRes.error)throw pRes.error;products=pRes.data||[];
+  if(!products.length){
+    const snapshot=await fetch('/data/cults-collections.json').then(r=>r.ok?r.json():null).catch(()=>null);
+    products=(snapshot?.collections?.[collection.slug]||[]).map((item,index)=>({
+      public_title:String(item.title||'').replace(/\s+Multipart\b.*$/i,'').trim(),
+      thumbnail_url:item.imageUrl,collection_name:collection.display_name,product_number:index+1,
+      public_preview_url:item.url,has_access:false
+    }));
+    document.querySelector('#collectionFilters').hidden=true;
+  }
+  document.querySelector('#collectionMeta').innerHTML='<span>'+products.length+' MODELS</span><span>'+(collection.has_access?'ACCESS ACTIVE':'ARCHIVE')+'</span>';
+  render();
+  const curated=/^2026-(04|05|06|07|08|09|10)$/.test(collection.slug)?'/images/cults/'+collection.slug+'.webp':'';
+  setMediaImage(document.querySelector('#collectionHero'),collection.cover_image_url||products.find(p=>p.thumbnail_url)?.thumbnail_url||collection.hero_image_url||curated,'COLLECTION ARTWORK');
   const area=document.querySelector('#accessArea');area.hidden=false;
   area.innerHTML=collection.has_access
     ? '<div class="notice"><div><strong>Collection access active.</strong><span> Owned models are available through your verified Library.</span></div><a class="btn btn-light" href="/library">Open Library →</a></div>'
