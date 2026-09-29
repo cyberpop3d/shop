@@ -1,7 +1,7 @@
 import { supabase,initChrome,setMediaImage,mediaMarkup,stateMarkup,loadingMarkup,friendlyError,esc } from '/site.js';
 const slug=new URLSearchParams(location.search).get('slug');let session=null,collection=null,products=[],filter='all',sort='newest';
 const curatedHero=/^2026-(04|05|06|07|08|09|10)$/.test(slug||'')?'/images/cults/'+slug+'.webp':'';
-if(curatedHero)setMediaImage(document.querySelector('#collectionHero'),curatedHero,'COLLECTION ARTWORK');
+if(curatedHero)setMediaImage(document.querySelector('.collection-detail-art'),curatedHero,'COLLECTION ARTWORK');
 function card(p,index){
   const label=(collection?.display_name||'CyberPop Collection')+' #'+String(index+1);
   const media=p.thumbnail_url?mediaMarkup(p.thumbnail_url,label):'<div class="media-placeholder"><span>CYBERPOP</span></div>';
@@ -46,7 +46,10 @@ async function load(){
   }
   document.querySelector('#collectionMeta').innerHTML='<span>'+products.length+' MODELS</span><span>'+(collection.has_access?'ACCESS ACTIVE':'ARCHIVE')+'</span>';
   render();
-  setMediaImage(document.querySelector('#collectionHero'),collection.cover_image_url||products.find(p=>p.thumbnail_url)?.thumbnail_url||collection.hero_image_url||curatedHero,'COLLECTION ARTWORK');
+  const cover=collection.cover_image_url||products.find(p=>p.thumbnail_url)?.thumbnail_url||collection.hero_image_url||curatedHero;
+  setMediaImage(document.querySelector('.collection-detail-art'),cover,'COLLECTION ARTWORK');
+  const backdrop=[cover,products.find(p=>p.thumbnail_url&&!/\.(mp4|webm|mov)(?:$|[?#])/i.test(p.thumbnail_url))?.thumbnail_url,curatedHero].find(url=>url&&!/\.(mp4|webm|mov)(?:$|[?#])/i.test(url));
+  if(backdrop)document.querySelector('.collection-detail-backdrop').style.backgroundImage='url('+JSON.stringify(backdrop)+')';
   const code=(codeRes.data||[]).find(x=>x.collection_id===collection.id);
   const area=document.querySelector('#accessArea');area.hidden=false;
   area.innerHTML=collection.has_access

@@ -4,7 +4,14 @@ import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '/supabase-config.js';
 const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-let session=null,slots=[],collections=[],products=[],privateRows=[],gallery=[];
+let session=null,slots=[],collections=[],products=[],privateRows=[],gallery=[],snapshotCollections={};
+const snapshotItems=slug=>snapshotCollections[slug]||[];
+function artworkPicker(items,key,kind){
+  if(!items.length)return '';
+  return '<div class="media-artwork-picker"><label>Choose existing Cults artwork<select data-artwork-'+kind+'="'+esc(key)+'"><option value="">Choose model…</option>'+
+    items.map((item,i)=>'<option value="'+esc(item.imageUrl)+'">#'+(i+1)+' · '+esc(item.title||'Model')+'</option>').join('')+
+    '</select></label><button type="button" class="secondary" data-artwork-save-'+kind+'="'+esc(key)+'">Use this artwork</button></div>';
+}
 
 function toast(msg,type='success'){
   const el=$('#adminToast');el.textContent=msg;el.className='toast '+(type==='error'?'error ':'')+'show';
@@ -62,16 +69,19 @@ function dimStatus(originalW,originalH,targetW,targetH){
   return originalW+' × '+originalH+' · ratio differs, black letterbox will fill the remainder';
 }
 function siteSlotCard(s){
+  const heroSlot=['home_hero','home_preview_1','home_preview_2','home_preview_3','home_preview_4'].includes(s.slot_key);
+  const available=heroSlot?Object.entries(snapshotCollections).flatMap(([slug,items])=>items.map(item=>({...item,title:slug+' · '+item.title}))):[];
   return '<article class="media-admin-card">'+preview(s.asset_url,s.label,s.recommended_width,s.recommended_height)+
     '<div class="media-admin-copy"><div class="record-head"><div><span class="eyebrow">'+esc(s.page_name)+'</span><h3>'+esc(s.label)+'</h3></div><span class="badge">'+ratioLabel(s.recommended_width,s.recommended_height)+'</span></div>'+
     '<p>'+esc(s.description||'')+'</p><div class="media-spec"><strong>'+s.recommended_width+' × '+s.recommended_height+' px</strong><span>'+esc(dimStatus(s.original_width,s.original_height,s.recommended_width,s.recommended_height))+'</span></div>'+
-    '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif,video/mp4,video/webm" data-site-file="'+esc(s.slot_key)+'"></label>'+(s.asset_url?'<button class="ghost" data-site-remove="'+esc(s.slot_key)+'">Remove</button>':'')+'</div></div></article>';
+    '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif,video/mp4,video/webm" data-site-file="'+esc(s.slot_key)+'"></label>'+(s.asset_url?'<button class="ghost" data-site-remove="'+esc(s.slot_key)+'">Remove</button>':'')+'</div>'+artworkPicker(available,s.slot_key,'site')+'</div></article>';
 }
 function collectionCard(c){
+  const picker=artworkPicker(snapshotItems(c.slug),c.id,'collection');
   return '<article class="media-admin-card">'+preview(c.cover_image_url,c.display_name+' card',1200,900)+
     '<div class="media-admin-copy"><div class="record-head"><div><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name)+' · Card</h3></div><span class="badge">4:3</span></div>'+
-    '<p>Collection grid/card artwork.</p><div class="media-spec"><strong>1200 × 900 px</strong><span>Off-ratio images remain centered on black.</span></div>'+
-    '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif,video/mp4,video/webm" data-collection-cover="'+c.id+'"></label>'+(c.cover_image_url?'<button class="ghost" data-collection-cover-remove="'+c.id+'">Remove</button>':'')+'</div></div></article>'+
+    '<p>Choose the lead model for the collection mosaic, or upload custom cover art.</p><div class="media-spec"><strong>Square collection mosaic</strong><span>The chosen artwork appears in the large top-left cell.</span></div>'+
+    '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif,video/mp4,video/webm" data-collection-cover="'+c.id+'"></label>'+(c.cover_image_url?'<button class="ghost" data-collection-cover-remove="'+c.id+'">Remove</button>':'')+'</div>'+picker+'</div></article>'+
     '<article class="media-admin-card">'+preview(c.hero_image_url,c.display_name+' hero',1920,900)+
     '<div class="media-admin-copy"><div class="record-head"><div><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name)+' · Hero</h3></div><span class="badge">32:15</span></div>'+
     '<p>Wide artwork for the collection detail header.</p><div class="media-spec"><strong>1920 × 900 px</strong><span>Off-ratio images remain centered on black.</span></div>'+
@@ -85,7 +95,7 @@ function renderHeroComposer(){
   const slot=slots.find(x=>x.slot_key==='home_hero');if(!slot)return;
   const c=slot.content_json||{};
   const groups=[
-    ['Main copy',heroField('title_line_1','Title line 1',c.title_line_1)+heroField('title_line_2','Title line 2',c.title_line_2)+heroField('primary_label','Primary button',c.primary_label)+heroField('primary_href','Primary link',c.primary_href)+heroField('secondary_label','Secondary button',c.secondary_label)+heroField('secondary_href','Secondary link',c.secondary_href)],
+    ['Main copy',heroField('studio_caption','Small studio caption',c.studio_caption||'CYBERPOP Studio Design Service')+heroField('primary_label','Primary button',c.primary_label)+heroField('primary_href','Primary link',c.primary_href)+heroField('secondary_label','Secondary button',c.secondary_label)+heroField('secondary_href','Secondary link',c.secondary_href)],
     ['Main artwork label',heroField('feature_label','Collection label',c.feature_label)+heroField('feature_href','Collection link',c.feature_href)],
     ['Preview 1 · wide',heroField('preview_1_label','Label',c.preview_1_label)+heroField('preview_1_href','Link',c.preview_1_href)],
     ['Preview 2 · small',heroField('preview_2_label','Label',c.preview_2_label)+heroField('preview_2_href','Link',c.preview_2_href)],
@@ -122,6 +132,8 @@ function render(){
   $('#mediaProductSelect').innerHTML=products.map(p=>'<option value="'+p.id+'">'+esc(productName(p))+' · '+esc(p.public_title)+'</option>').join('');
   document.querySelectorAll('[data-site-file]').forEach(input=>input.onchange=e=>uploadSiteSlot(input.dataset.siteFile,e.target.files[0]));
   document.querySelectorAll('[data-site-remove]').forEach(btn=>btn.onclick=()=>removeSiteSlot(btn.dataset.siteRemove));
+  document.querySelectorAll('[data-artwork-save-site]').forEach(btn=>btn.onclick=()=>selectArtwork('site',btn.dataset.artworkSaveSite));
+  document.querySelectorAll('[data-artwork-save-collection]').forEach(btn=>btn.onclick=()=>selectArtwork('collection',btn.dataset.artworkSaveCollection));
   document.querySelectorAll('[data-collection-cover]').forEach(input=>input.onchange=e=>uploadCollectionCover(input.dataset.collectionCover,e.target.files[0]));
   document.querySelectorAll('[data-collection-cover-remove]').forEach(btn=>btn.onclick=()=>removeCollectionCover(btn.dataset.collectionCoverRemove));
   document.querySelectorAll('[data-collection-hero]').forEach(input=>input.onchange=e=>uploadCollectionHero(input.dataset.collectionHero,e.target.files[0]));
@@ -134,11 +146,24 @@ async function load(){
     supabase.from('membership_collections').select('*').order('starts_on',{ascending:false}),
     supabase.from('membership_products').select('*').order('collection_id').order('product_number'),
     supabase.from('membership_product_private').select('*'),
-    supabase.from('membership_product_images').select('*')
+    supabase.from('membership_product_images').select('*'),
+    fetch('/data/cults-collections.json').then(r=>r.ok?r.json():null).catch(()=>null)
   ]);
   const err=res.find(x=>x.error);if(err)throw err.error;
-  slots=res[0].data||[];collections=res[1].data||[];products=res[2].data||[];privateRows=res[3].data||[];gallery=res[4].data||[];
+  slots=res[0].data||[];collections=res[1].data||[];products=res[2].data||[];privateRows=res[3].data||[];gallery=res[4].data||[];snapshotCollections=res[5]?.collections||{};
   render();
+}
+async function selectArtwork(kind,key){
+  const select=document.querySelector('[data-artwork-'+kind+'="'+CSS.escape(key)+'"]');
+  const url=select?.value;
+  if(!url)return toast('Choose a model first.','error');
+  const table=kind==='site'?'site_media_slots':'membership_collections';
+  const query=kind==='site'?'slot_key':'id';
+  const values=kind==='site'?{asset_url:url,storage_path:null,original_width:null,original_height:null,file_name:null,updated_by:session.user.id,updated_at:new Date().toISOString()}:
+    {cover_image_url:url,cover_storage_path:null,updated_at:new Date().toISOString()};
+  const result=await supabase.from(table).update(values).eq(query,key);
+  if(result.error)return toast(result.error.message,'error');
+  toast('Featured artwork updated.');await load();
 }
 async function uploadSiteSlot(key,file){
   if(!file)return;const slot=slots.find(x=>x.slot_key===key);if(!slot)return;

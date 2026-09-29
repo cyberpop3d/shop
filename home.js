@@ -1,4 +1,5 @@
 import { supabase,initChrome,getSiteMediaSlots,monthLabel,stateMarkup,mediaMarkup,esc } from '/site.js';
+import {mosaicMedia,bindCollectionPreviews} from '/collection-mosaic.js';
 
 const collectionHref=c=>'/collection?slug='+encodeURIComponent(c.slug);
 const month=c=>monthLabel(c.starts_on);
@@ -26,10 +27,9 @@ function productCard(p,index){
     '<span class="selected-work-shade"></span><span class="selected-work-label">'+esc(label)+'</span></div></a>';
 }
 function collectionCard(c,models,snapshotItems=[]){
-  const images=(snapshotItems||[]).map(x=>x.imageUrl).filter(Boolean);
-  if(!images.length)images.push(...models.filter(p=>p.collection_id===c.id&&p.thumbnail_url).map(p=>p.thumbnail_url));
-  const artwork=images[0]||collectionImage(c,models);
-  const mosaic=images.length>1?'<div class="collection-mosaic">'+images.slice(0,16).map((url,i)=>'<span class="collection-mosaic-cell '+(i===0?'feature':'')+'">'+image(url,c.display_name+' Collection #'+(i+1))+'</span>').join('')+'</div>':image(artwork,c.display_name);
+  const artwork=collectionImage(c,models);
+  const items=snapshotItems.length?snapshotItems:models.filter(p=>p.collection_id===c.id&&p.thumbnail_url);
+  const mosaic=mosaicMedia(c,items,artwork);
   return '<a class="collection-tile collection-mosaic-tile" href="'+collectionHref(c)+'"><div class="collection-tile-media '+(!artwork?'unfilled':'')+'">'+
     mosaic+(!artwork?'<span class="collection-type-cover">'+esc(month(c))+'</span>':'')+
     '<span class="collection-mosaic-gradient"></span><span class="collection-mosaic-title"><small>'+esc(c.slug)+'</small><strong>'+esc(c.display_name||month(c))+' Collection</strong></span>'+
@@ -59,8 +59,7 @@ function renderShowcase(collections,models,slots){
   if(feature){
     featurePanel.insertAdjacentHTML('beforeend','<a class="showcase-feature-link" href="'+esc(settings.feature_href||collectionHref(feature))+'">'+esc(settings.feature_label||month(feature))+' <span aria-hidden="true">↗</span></a>');
   }
-  document.querySelector('#heroTitleLine1').textContent=settings.title_line_1||'CYBERPOP';
-  document.querySelector('#heroTitleLine2').textContent=settings.title_line_2||'COLLECTIONS';
+  document.querySelector('#heroStudioCaption').textContent=settings.studio_caption||'CYBERPOP Studio Design Service';
   const primary=document.querySelector('#heroPrimaryAction'),secondary=document.querySelector('#heroSecondaryAction');
   primary.href=settings.primary_href||'/access';primary.querySelector('span').textContent=settings.primary_label||'Purchase Collection';
   secondary.href=settings.secondary_href||'/collections';secondary.querySelector('span').textContent=settings.secondary_label||'Explore Collections';
@@ -88,6 +87,7 @@ async function loadHome(){
     return row;
   });
   const models=productsResult.status==='fulfilled'&&!productsResult.value.error?(productsResult.value.data||[]).filter(p=>p.thumbnail_url):[];
+  if(collections[0])collections[0].is_latest_collection=true;
   renderShowcase(collections,models,slots);
 
   const selectedPool=Object.entries(snapshot).flatMap(([collectionSlug,items])=>{
@@ -103,6 +103,7 @@ async function loadHome(){
   document.querySelector('#homeCollections').innerHTML=collections.length?
     collections.map(c=>collectionCard(c,models,snapshot[c.slug]||[])).join(''):
     stateMarkup('empty','Collections are being prepared','');
+  bindCollectionPreviews(document.querySelector('#homeCollections'));
 }
 
 loadHome().catch(error=>{
