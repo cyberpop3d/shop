@@ -126,11 +126,14 @@ async function saveRequest(id){
   const row=rows.find(x=>x.id===id);
   const status=document.querySelector('[data-status="'+id+'"]');
   if(row?.request_type==='collection_access'&&status.value==='paid'){notify('Use Confirm payment & grant access after verifying Payoneer.','error');return}
+  const paymentUrl=document.querySelector('[data-payment-url="'+id+'"]').value.trim()||null;
+  let nextStatus=status.value;
+  if(paymentUrl&&['submitted','reviewing','quoted'].includes(nextStatus))nextStatus='payment_requested';
   const patch={
-    status:status.value,
+    status:nextStatus,
     quote_amount:document.querySelector('[data-quote="'+id+'"]').value?Number(document.querySelector('[data-quote="'+id+'"]').value):null,
     currency:document.querySelector('[data-currency="'+id+'"]').value.trim().toUpperCase()||'USD',
-    payoneer_payment_url:document.querySelector('[data-payment-url="'+id+'"]').value.trim()||null,
+    payoneer_payment_url:paymentUrl,
     payment_reference:document.querySelector('[data-payment-ref="'+id+'"]').value.trim()||null,
     invoice_reference:document.querySelector('[data-invoice-ref="'+id+'"]').value.trim()||null,
     admin_note:document.querySelector('[data-admin-note="'+id+'"]').value.trim()||null,
@@ -138,7 +141,7 @@ async function saveRequest(id){
   };
   const r=await supabase.from('service_requests').update(patch).eq('id',id);
   if(r.error){notify(r.error.message,'error');return}
-  notify('Request updated.');await load();
+  notify(paymentUrl&&nextStatus==='payment_requested'?'Payment link published to customer account.':'Request updated.');await load();
 }
 async function ensureAdmin(){
   const auth=await supabase.auth.getSession();session=auth.data.session;
