@@ -4,7 +4,7 @@ import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '/supabase-config.js';
 const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-let session=null,customers=[],products=[],privateRows=[],deliveryRows=[],codes=[],coupons=[],collections=[],entitlements=[],grants=[],orders=[],modelGrants=[],collectionCodes=[];
+let session=null,customers=[],products=[],privateRows=[],deliveryRows=[],codes=[],coupons=[],collections=[],entitlements=[],grants=[],orders=[],modelGrants=[],collectionCodes=[],subscriptions=[];
 
 function notify(msg,type='success'){
   const t=$('#adminToast');t.textContent=msg;t.className='toast '+(type==='error'?'error ':'')+'show';
@@ -47,13 +47,15 @@ function renderMembers(){
     const purchased=orders.filter(o=>o.user_id===c.user_id&&o.request_type==='collection_access');
     const terms=grants.filter(g=>g.user_id===c.user_id).sort((a,b)=>b.created_at.localeCompare(a.created_at));
     const direct=modelGrants.filter(g=>g.user_id===c.user_id&&!g.revoked_at);
+    const memberSubscriptions=subscriptions.filter(s=>s.user_id===c.user_id&&s.status==='active');
     const codeCount=collectionCodes.filter(x=>x.user_id===c.user_id&&x.is_active&&x.cults_code).length;
     const monthNames=owned.map(e=>collections.find(x=>x.id===e.collection_id)).filter(Boolean).sort((a,b)=>a.starts_on.localeCompare(b.starts_on)).map(x=>x.display_name);
     return '<article class="record member-record"><div class="record-head"><div><h3>'+esc(c.full_name||c.email)+'</h3><p>'+esc(c.email)+'</p></div><span class="badge '+(owned.length?'on':'')+'">'+owned.length+' COLLECTION'+(owned.length===1?'':'S')+'</span></div>'+
       '<div class="member-months">'+(monthNames.length?monthNames.map(x=>'<span>'+esc(x)+'</span>').join(''):'<span>No collection access</span>')+'</div>'+
       '<div class="member-ledger">'+(purchased.length?purchased.slice(0,8).map(o=>'<div><strong>'+esc(o.request_code)+'</strong> · '+esc(o.plan_slug||o.subject)+' · '+esc(o.status.replaceAll('_',' '))+(o.quote_amount!=null?' · $'+Number(o.quote_amount).toFixed(2):'')+'</div>').join(''):'<div>No collection orders yet</div>')+
-      (terms.length?'<div>Terms: '+terms.slice(0,4).map(g=>esc(monthLabel(g.start_on)+'–'+monthLabel(endMonth(g.start_on,g.months))+' ('+g.months+' months)')).join(' · ')+'</div>':'')+
-      '<div>'+direct.length+' individually granted model'+(direct.length===1?'':'s')+' · '+codeCount+' collection Cults code'+(codeCount===1?'':'s')+'</div></div></article>';
+      (terms.length?'<div>Terms: '+terms.slice(0,4).map(g=>esc(monthLabel(g.start_on)+'–'+monthLabel(endMonth(g.start_on,g.months))+' ('+g.months+' months)'+(g.source_reference?' · '+g.source_reference:''))).join(' · ')+'</div>':'')+
+      (memberSubscriptions.length?'<div>Active legacy subscription: '+memberSubscriptions.map(s=>esc(s.billing_months+' months · through '+(s.current_period_end||'—'))).join(' · ')+'</div>':'')+
+      '<div>Individual models: '+(direct.length?direct.map(g=>esc(products.find(p=>p.id===g.product_id)?.public_title||'Model')).join(', '):'none')+' · '+codeCount+' collection Cults code'+(codeCount===1?'':'s')+'</div></div></article>';
   }).join('')||'<div class="admin-empty"><strong>No customers match.</strong><span>Try an email or order ID.</span></div>';
 }
 function renderCodes(){
@@ -89,11 +91,12 @@ async function load(){
     supabase.from('membership_access_grants').select('user_id,start_on,months,source_reference,created_at').order('created_at',{ascending:false}),
     supabase.from('service_requests').select('user_id,request_code,request_type,plan_slug,subject,status,quote_amount').order('created_at',{ascending:false}),
     supabase.from('product_entitlements').select('user_id,product_id,revoked_at'),
-    supabase.from('membership_collection_codes').select('user_id,collection_id,cults_code,is_active')
+    supabase.from('membership_collection_codes').select('user_id,collection_id,cults_code,is_active'),
+    supabase.from('membership_subscriptions').select('user_id,status,billing_months,current_period_end')
   ]);
   const err=res.find(x=>x.error);if(err)throw err.error;
   customers=res[0].data||[];products=res[1].data||[];privateRows=res[2].data||[];deliveryRows=res[3].data||[];codes=res[4].data||[];coupons=res[5].data||[];
-  collections=res[6].data||[];entitlements=res[7].data||[];grants=res[8].data||[];orders=res[9].data||[];modelGrants=res[10].data||[];collectionCodes=res[11].data||[];
+  collections=res[6].data||[];entitlements=res[7].data||[];grants=res[8].data||[];orders=res[9].data||[];modelGrants=res[10].data||[];collectionCodes=res[11].data||[];subscriptions=res[12].data||[];
   renderSelectors();renderCodes();renderCoupons();renderMembers();
   if(!$('#grantStart').value){
     const d=new Date(),m=String(d.getMonth()+1).padStart(2,'0');$('#grantStart').value=d.getFullYear()+'-'+m;
