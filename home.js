@@ -25,10 +25,14 @@ function productCard(p,index){
     image(p.thumbnail_url,label)+(p.has_access?'<span class="work-access">IN YOUR LIBRARY</span>':'')+
     '<span class="selected-work-shade"></span><span class="selected-work-label">'+esc(label)+'</span></div></a>';
 }
-function collectionCard(c,models){
-  const artwork=collectionImage(c,models);
-  return '<a class="collection-tile" href="'+collectionHref(c)+'"><div class="collection-tile-media '+(!artwork?'unfilled':'')+'">'+
-    image(artwork,c.display_name)+(!artwork?'<span class="collection-type-cover">'+esc(month(c))+'</span>':'')+
+function collectionCard(c,models,snapshotItems=[]){
+  const images=(snapshotItems||[]).map(x=>x.imageUrl).filter(Boolean);
+  if(!images.length)images.push(...models.filter(p=>p.collection_id===c.id&&p.thumbnail_url).map(p=>p.thumbnail_url));
+  const artwork=images[0]||collectionImage(c,models);
+  const mosaic=images.length>1?'<div class="collection-mosaic">'+images.slice(0,16).map((url,i)=>'<span class="collection-mosaic-cell '+(i===0?'feature':'')+'">'+image(url,c.display_name+' Collection #'+(i+1))+'</span>').join('')+'</div>':image(artwork,c.display_name);
+  return '<a class="collection-tile collection-mosaic-tile" href="'+collectionHref(c)+'"><div class="collection-tile-media '+(!artwork?'unfilled':'')+'">'+
+    mosaic+(!artwork?'<span class="collection-type-cover">'+esc(month(c))+'</span>':'')+
+    '<span class="collection-mosaic-gradient"></span><span class="collection-mosaic-title"><small>'+esc(c.slug)+'</small><strong>'+esc(c.display_name||month(c))+' Collection</strong></span>'+
     '<span class="collection-open">VIEW COLLECTION ↗</span></div><div class="collection-tile-copy">'+
     '<span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name)+'</h3>'+
     (Number(c.product_count||0)?'<p>'+Number(c.product_count)+' models</p>':'')+'</div></a>';
@@ -97,7 +101,7 @@ async function loadHome(){
   document.querySelector('#newReleases').hidden=!selected.length;
   document.querySelector('#newReleaseGrid').innerHTML=selected.map(productCard).join('');
   document.querySelector('#homeCollections').innerHTML=collections.length?
-    collections.map(c=>collectionCard(c,models)).join(''):
+    collections.map(c=>collectionCard(c,models,snapshot[c.slug]||[])).join(''):
     stateMarkup('empty','Collections are being prepared','');
 }
 

@@ -3,6 +3,7 @@ import { supabase,initChrome,setButtonBusy,esc } from '/site.js';
 let session=null,selectedPackage='monthly-drop',pastCollections=[],selectedCollections=new Set();
 const packages=[
   {slug:'monthly-drop',label:'Monthly Drop',price:20,suffix:'USD',description:'Current monthly collection'},
+  {slug:'six-month',label:'6 Month Access',price:100,suffix:'USD',description:'6 upcoming collections · no archive months'},
   {slug:'past-collections',label:'Past Collections',price:30,suffix:'EACH',description:'Choose one or more archive months'},
   {slug:'annual-plus-3',label:'Annual + 3 Past',price:200,suffix:'USD',description:'12 months and 3 past collections'}
 ];
@@ -17,14 +18,14 @@ function renderPlans(){
   ).join('');
   target.querySelectorAll('[data-plan]').forEach(btn=>btn.onclick=()=>{
     selectedPackage=btn.dataset.plan;
-    if(selectedPackage==='monthly-drop')selectedCollections.clear();
+    if(selectedPackage==='monthly-drop'||selectedPackage==='six-month')selectedCollections.clear();
     if(selectedPackage==='annual-plus-3'&&selectedCollections.size>3)selectedCollections=new Set([...selectedCollections].slice(0,3));
     renderPlans();renderCollectionChooser();
   });
 }
 function renderCollectionChooser(){
   const chooser=document.querySelector('#pastCollectionChooser');
-  const needsCollections=selectedPackage!=='monthly-drop';
+  const needsCollections=selectedPackage==='past-collections'||selectedPackage==='annual-plus-3';
   chooser.hidden=!needsCollections;
   if(!needsCollections)return;
   const annual=selectedPackage==='annual-plus-3';

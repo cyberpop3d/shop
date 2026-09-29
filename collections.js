@@ -1,9 +1,10 @@
 import { supabase,initChrome,getSiteMediaSlots,monthLabel,stateMarkup,loadingMarkup,friendlyError,esc } from '/site.js';
-let rows=[],active='all';
+let rows=[],active='all',snapshotCollections={};
 function card(c){
   const artwork=cover(c);
-  const media=artwork?'<img src="'+esc(artwork)+'" alt="'+esc(c.display_name)+'" loading="lazy">':'<span class="collection-type-cover">'+esc(c.display_name)+'</span>';
-  return '<a class="collection-tile" href="/collection?slug='+encodeURIComponent(c.slug)+'"><div class="collection-tile-media '+(!artwork?'unfilled':'')+'">'+media+'</div><div class="collection-tile-copy"><span class="eyebrow">'+esc(String(c.month).padStart(2,'0'))+' / '+esc(c.year)+'</span><h3>'+esc(c.display_name)+'</h3>'+(Number(c.product_count||0)?'<p>'+Number(c.product_count)+' models</p>':'')+'</div></a>';
+  const images=(snapshotCollections[c.slug]||[]).map(x=>x.imageUrl).filter(Boolean).slice(0,16);
+  const media=images.length>1?'<div class="collection-mosaic">'+images.map((url,i)=>'<span class="collection-mosaic-cell '+(i===0?'feature':'')+'"><img src="'+esc(url)+'" alt="'+esc(c.display_name)+' Collection #'+(i+1)+'" loading="lazy"></span>').join('')+'</div>':artwork?'<img src="'+esc(artwork)+'" alt="'+esc(c.display_name)+'" loading="lazy">':'<span class="collection-type-cover">'+esc(c.display_name)+'</span>';
+  return '<a class="collection-tile collection-mosaic-tile" href="/collection?slug='+encodeURIComponent(c.slug)+'"><div class="collection-tile-media '+(!artwork?'unfilled':'')+'">'+media+'<span class="collection-mosaic-gradient"></span><span class="collection-mosaic-title"><small>'+esc(c.slug)+'</small><strong>'+esc(c.display_name)+' Collection</strong></span><span class="collection-open">VIEW COLLECTION ↗</span></div><div class="collection-tile-copy"><span class="eyebrow">'+esc(String(c.month).padStart(2,'0'))+' / '+esc(c.year)+'</span><h3>'+esc(c.display_name)+'</h3>'+(Number(c.product_count||0)?'<p>'+Number(c.product_count)+' models</p>':'')+'</div></a>';
 }
 function cover(c){return c.cover_image_url||c.preview_image_url||(/^2026-(04|05|06|07|08|09|10)$/.test(c.slug||'')?'/images/cults/'+c.slug+'.webp':'')}
 function renderHero(collections,slot){
@@ -30,6 +31,7 @@ async function load(){
     fetch('/data/cults-collections.json').then(r=>r.ok?r.json():null).catch(()=>null)
   ]);
   if(c.error)throw c.error;if(o.error)throw o.error;if(products.error)throw products.error;
+  snapshotCollections=snapshot?.collections||{};
   rows=(c.data||[]).map(x=>{
     const row={...x,...((o.data||[]).find(y=>y.id===x.id)||{}),preview_image_url:(products.data||[]).find(p=>p.collection_id===x.id)?.thumbnail_url||null};
     if(!Number(row.product_count||0))row.product_count=(snapshot?.collections?.[x.slug]||[]).length;
