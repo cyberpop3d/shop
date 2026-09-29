@@ -63,7 +63,7 @@ export async function getSiteMediaSlots(){
   return Object.fromEntries((r.data||[]).map(x=>[x.slot_key,x]));
 }
 export function isVideoUrl(url=''){
-  return /(?:videos\.cults3d\.com|\.(?:mp4|webm|mov)(?:$|[?#]))/i.test(String(url));
+  return /\.(?:mp4|webm|mov)(?:$|[?#])/i.test(String(url));
 }
 export function mediaMarkup(url,alt='',options={}){
   if(!url)return '';

@@ -1,12 +1,12 @@
 import {mediaMarkup} from '/site.js';
 
-const monthStart=date=>String(date||'').slice(0,7);
+const isMotion=url=>/\.(?:mp4|webm|mov)(?:$|[?#])/i.test(String(url||''));
 export function isOngoingCollection(c){
-  return Boolean(c.is_latest_collection)||monthStart(c.starts_on)===new Date().toISOString().slice(0,7);
+  return Boolean(c.is_latest_collection);
 }
 export function mosaicMedia(c,items=[],fallback=''){
-  const all=items.map(x=>typeof x==='string'?x:x?.imageUrl||x?.thumbnail_url).filter(Boolean);
-  const selected=c.cover_image_url||all[0]||fallback;
+  const all=items.map(x=>typeof x==='string'?x:x?.imageUrl||x?.thumbnail_url).filter(url=>url&&!isMotion(url));
+  const selected=[c.cover_image_url,all[0],fallback].find(url=>url&&!isMotion(url));
   const images=selected?[selected,...all.filter(url=>url!==selected)].slice(0,16):[];
   const ongoing=isOngoingCollection(c);
   const cells=Array.from({length:17},(_,i)=>{
