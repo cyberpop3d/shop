@@ -69,11 +69,14 @@ function dimStatus(originalW,originalH,targetW,targetH){
   return originalW+' × '+originalH+' · ratio differs, black letterbox will fill the remainder';
 }
 function siteSlotCard(s){
+  if(['home_preview_1','home_preview_2','home_preview_3','home_preview_4'].includes(s.slot_key))return '';
   const heroSlot=['home_hero','home_preview_1','home_preview_2','home_preview_3','home_preview_4'].includes(s.slot_key);
+  const isMain=s.slot_key==='home_hero';
+  const width=isMain?1800:s.recommended_width,height=isMain?1200:s.recommended_height;
   const available=heroSlot?Object.entries(snapshotCollections).flatMap(([slug,items])=>items.map(item=>({...item,title:slug+' · '+item.title}))):[];
-  return '<article class="media-admin-card">'+preview(s.asset_url,s.label,s.recommended_width,s.recommended_height)+
-    '<div class="media-admin-copy"><div class="record-head"><div><span class="eyebrow">'+esc(s.page_name)+'</span><h3>'+esc(s.label)+'</h3></div><span class="badge">'+ratioLabel(s.recommended_width,s.recommended_height)+'</span></div>'+
-    '<p>'+esc(s.description||'')+'</p><div class="media-spec"><strong>'+s.recommended_width+' × '+s.recommended_height+' px</strong><span>'+esc(dimStatus(s.original_width,s.original_height,s.recommended_width,s.recommended_height))+'</span></div>'+
+  return '<article class="media-admin-card">'+preview(s.asset_url,s.label,width,height)+
+    '<div class="media-admin-copy"><div class="record-head"><div><span class="eyebrow">'+esc(s.page_name)+'</span><h3>'+(isMain?'Homepage Banner':esc(s.label))+'</h3></div><span class="badge">'+ratioLabel(width,height)+'</span></div>'+
+    '<p>'+(isMain?'Design your own banner image or video. It appears uncropped in the large left panel; use a 3:2 composition and keep the lower-left corner clear for CYBERPOP STUDIO.':'')+(isMain?'':esc(s.description||''))+'</p><div class="media-spec"><strong>'+width+' × '+height+' px · '+ratioLabel(width,height)+'</strong><span>'+(isMain?'Image or MP4/WebM video · displayed without cropping':esc(dimStatus(s.original_width,s.original_height,width,height)))+'</span></div>'+
     '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif,video/mp4,video/webm" data-site-file="'+esc(s.slot_key)+'"></label>'+(s.asset_url?'<button class="ghost" data-site-remove="'+esc(s.slot_key)+'">Remove</button>':'')+'</div>'+artworkPicker(available,s.slot_key,'site')+'</div></article>';
 }
 function collectionCard(c){
@@ -95,12 +98,7 @@ function renderHeroComposer(){
   const slot=slots.find(x=>x.slot_key==='home_hero');if(!slot)return;
   const c=slot.content_json||{};
   const groups=[
-    ['Main copy',heroField('studio_caption','Small studio caption',c.studio_caption||'CYBERPOP Studio Design Service')+heroField('primary_label','Primary button',c.primary_label)+heroField('primary_href','Primary link',c.primary_href)+heroField('secondary_label','Secondary button',c.secondary_label)+heroField('secondary_href','Secondary link',c.secondary_href)],
-    ['Main artwork label',heroField('feature_label','Collection label',c.feature_label)+heroField('feature_href','Collection link',c.feature_href)],
-    ['Preview 1 · wide',heroField('preview_1_label','Label',c.preview_1_label)+heroField('preview_1_href','Link',c.preview_1_href)],
-    ['Preview 2 · small',heroField('preview_2_label','Label',c.preview_2_label)+heroField('preview_2_href','Link',c.preview_2_href)],
-    ['Preview 3 · small',heroField('preview_3_label','Label',c.preview_3_label)+heroField('preview_3_href','Link',c.preview_3_href)],
-    ['Preview 4 · small',heroField('preview_4_label','Label',c.preview_4_label)+heroField('preview_4_href','Link',c.preview_4_href)]
+    ['Banner title',heroField('studio_caption','Text over banner',c.studio_caption||'CYBERPOP STUDIO')]
   ];
   $('#heroComposer').innerHTML=groups.map(g=>'<div class="hero-composer-group"><h3>'+g[0]+'</h3>'+g[1]+'</div>').join('');
 }

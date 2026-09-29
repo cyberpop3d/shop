@@ -4,6 +4,7 @@ const ISO_CODES=`AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF 
 const display=new Intl.DisplayNames(['en'],{type:'region'});
 const countries=ISO_CODES.map(code=>({code,name:display.of(code)||code})).sort((a,b)=>a.name.localeCompare(b.name));
 const countryInput=document.querySelector('#requestCountry');
+if(new URLSearchParams(location.search).get('type')==='general')document.querySelector('#requestType').value='general';
 document.querySelector('#countryOptions').innerHTML=countries.map(x=>'<option value="'+esc(x.name)+'">'+x.code+'</option>').join('');
 
 function countryCode(value){

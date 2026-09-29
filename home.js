@@ -50,22 +50,13 @@ function renderShowcase(collections,models,slots){
   const visible=current.length?current:collections;
   const feature=visible[0];
   const settings=slots.home_hero?.content_json||{};
-  const featureArt=slots.home_hero?.asset_url||(feature?collectionImage(feature,models):'');
+  const featureArt=slots.home_hero?.asset_url||'';
   const featurePanel=document.querySelector('#heroFeature');
   featurePanel.classList.toggle('has-artwork',!!featureArt);
   if(featureArt){
     featurePanel.insertAdjacentHTML('afterbegin','<div class="showcase-feature-media">'+image(featureArt,feature?.display_name||'CyberPop collection',true)+'</div>');
   }
-  if(feature){
-    featurePanel.insertAdjacentHTML('beforeend','<a class="showcase-feature-link" href="'+esc(settings.feature_href||collectionHref(feature))+'">'+esc(settings.feature_label||month(feature))+' <span aria-hidden="true">↗</span></a>');
-  }
-  document.querySelector('#heroStudioCaption').textContent=settings.studio_caption||'CYBERPOP Studio Design Service';
-  const primary=document.querySelector('#heroPrimaryAction'),secondary=document.querySelector('#heroSecondaryAction');
-  primary.href=settings.primary_href||'/access';primary.querySelector('span').textContent=settings.primary_label||'Purchase Collection';
-  secondary.href=settings.secondary_href||'/collections';secondary.querySelector('span').textContent=settings.secondary_label||'Explore Collections';
-  const previews=visible.slice(1,5);
-  document.querySelector('#heroPreviews').innerHTML=previews.map((c,i)=>previewCard(c,models,i===0,slots['home_preview_'+(i+1)]||{},settings,i+1)).join('');
-  document.querySelector('#heroPreviews').hidden=!previews.length;
+  document.querySelector('#heroStudioCaption').textContent=settings.studio_caption||'CYBERPOP STUDIO';
 }
 
 async function loadHome(){
