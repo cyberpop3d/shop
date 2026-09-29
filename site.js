@@ -2,6 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.117.1';
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '/supabase-config.js';
 
 export const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const PUBLIC_ORIGIN='https://cyberpopstudio.com';
 export const $=s=>document.querySelector(s);
 export const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
@@ -124,7 +125,7 @@ export async function googleProviderReady(){
   }catch(_){return false}
 }
 export async function signInGoogle(redirectPath='/account'){
-  return supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+redirectPath}});
+  return supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo:PUBLIC_ORIGIN+redirectPath}});
 }
 export async function signInWithPassword(email,password){
   return supabase.auth.signInWithPassword({email,password});
@@ -132,13 +133,13 @@ export async function signInWithPassword(email,password){
 export async function signUpWithPassword(email,password,redirectPath='/account'){
   return supabase.auth.signUp({
     email,password,
-    options:{emailRedirectTo:location.origin+redirectPath}
+    options:{emailRedirectTo:PUBLIC_ORIGIN+redirectPath}
   });
 }
 export async function resendSignupConfirmation(email,redirectPath='/account'){
   return supabase.auth.resend({
     type:'signup',email,
-    options:{emailRedirectTo:location.origin+redirectPath}
+    options:{emailRedirectTo:PUBLIC_ORIGIN+redirectPath}
   });
 }
 export async function signOut(){
