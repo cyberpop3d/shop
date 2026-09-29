@@ -1,7 +1,7 @@
 import {
   supabase,initChrome,getSession,googleProviderReady,
   signInGoogle,signInWithPassword,signUpWithPassword,resendSignupConfirmation,
-  signOut,monthLabel,stateMarkup,esc
+  signOut,monthLabel,stateMarkup,esc,safeAccountPath,setButtonBusy
 } from '/site.js';
 
 let authMode='signin';
@@ -52,8 +52,7 @@ function collectionCard(c){
 }
 function safeReturnTo(){
   const value=new URLSearchParams(location.search).get('returnTo');
-  if(!value||!value.startsWith('/')||value.startsWith('//'))return null;
-  return value;
+  return value?safeAccountPath(value,null):null;
 }
 function setAuthMode(mode){
   authMode=mode;
@@ -207,18 +206,25 @@ async function acceptRequiredActionLegal(){
   setTimeout(()=>render(),300);
 }
 
-async function render(){
-  activeSession=await initChrome();
+async function renderGoogleMethod(){
   const google=await googleProviderReady();
   const googleButton=document.querySelector('#googleButton');
   const googleDivider=document.querySelector('#googleDivider');
   const authIntro=document.querySelector('#authIntro');
   if(authIntro)authIntro.textContent=google?'Continue with Google, or use a verified email and password.':'Use a verified email address to create or sign in to your CyberPop account.';
-  googleButton.hidden=!google;
-  googleButton.disabled=!google;
-  googleButton.title=google?'Sign in with Google':'';
-  if(googleDivider)googleDivider.hidden=!google;
+  googleButton.hidden=false;
+  googleButton.disabled=google===false;
+  googleButton.title=google===false?'Google sign-in is being configured':'Continue with Google';
+  const providerStatus=document.querySelector('#googleProviderStatus');
+  providerStatus.hidden=google!==false;
+  providerStatus.textContent=google===false?'Google sign-in is being set up. You can use email below.':'';
+  if(googleDivider)googleDivider.hidden=false;
 
+}
+
+async function render(){
+  void renderGoogleMethod();
+  activeSession=await initChrome();
   const authMethods=document.querySelector('#authMethods');
   const authCard=document.querySelector('#authCard');
   const summary=document.querySelector('#accountSummary');
@@ -326,10 +332,18 @@ async function render(){
 document.querySelectorAll('[data-auth-mode]').forEach(b=>b.onclick=()=>setAuthMode(b.dataset.authMode));
 document.querySelector('#googleButton').addEventListener('click',async()=>{
   const status=document.querySelector('#authStatus');
-  status.innerHTML='<span>Opening Google sign-in…</span>';
-  const redirect=location.pathname+location.search;
-  const r=await signInGoogle(redirect);
-  if(r.error)status.innerHTML='<span>'+esc(r.error.message)+'</span>';
+  const button=document.querySelector('#googleButton');
+  setButtonBusy(button,true,'Connecting to Google…');
+  status.textContent='Opening Google sign-in…';
+  try{
+    const r=await signInGoogle(location.pathname+location.search);
+    if(r.error)throw r.error;
+  }catch(error){
+    status.textContent=/provider|not enabled/i.test(error.message||'')
+      ?'Google sign-in is being configured. Please use email for now.'
+      :'Google sign-in could not start. Please try again.';
+    setButtonBusy(button,false);
+  }
 });
 document.querySelector('#emailForm').addEventListener('submit',async e=>{
   e.preventDefault();
@@ -431,6 +445,11 @@ document.querySelector('#signOutButton').addEventListener('click',async()=>{awai
 supabase.auth.onAuthStateChange(()=>setTimeout(render,0));
 populateCountries();
 setAuthMode('signin');
+const oauthError=new URLSearchParams(location.hash.slice(1));
+if(oauthError.has('error')){
+  document.querySelector('#authStatus').textContent='Sign-in was cancelled or could not be completed. Please try again.';
+  history.replaceState(null,'',location.pathname+location.search);
+}
 render().catch(err=>{
   console.error(err);
   document.querySelector('#accountSummary').innerHTML=stateMarkup('error','Account unavailable','Your account data could not be loaded.');

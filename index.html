@@ -1,11 +1,12 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090b0c"><title>CyberPop Collections — CyberPop Studio</title><link rel="stylesheet" href="/site.css"></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090b0c"><title>CyberPop Studio — Collectible 3D Printable Designs</title><meta name="description" content="Explore CyberPop Studio’s monthly collections of bold, multipart 3D printable figures. Discover the archive and request collection access or a custom design."><link rel="canonical" href="https://cyberpopstudio.com/"><meta property="og:title" content="CyberPop Studio — Collectible 3D Printable Designs"><meta property="og:description" content="Bold forms. Made to print. Explore our monthly collections and custom designs."><meta property="og:image" content="https://cyberpopstudio.com/images/cults/2026-09.webp"><meta property="og:type" content="website"><link rel="stylesheet" href="/site.css"></head>
 <body>
 <header class="site-header">
   <a class="brand-lockup" href="/">CYBERPOP</a>
-  <button class="menu-toggle" aria-label="Menu">☰</button>
+  <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
   <nav class="site-nav">
     <a class="active" href="/collections">Collections</a>
+    <a href="/access">Get Access</a>
     <a href="/request">Custom Design</a>
     <a href="/library">Library</a>
     <a class="account-chip" href="/account"><span data-account-label>Account</span></a>
@@ -15,7 +16,9 @@
   <section id="homeHero" class="collection-showcase" aria-label="CyberPop collections">
     <div id="heroFeature" class="showcase-feature">
       <div class="showcase-feature-copy">
+        <span id="heroCollectionLabel" class="hero-collection-label">MULTIPART / NO AMS</span>
         <h1 id="heroStudioCaption">CYBERPOP STUDIO</h1>
+        <div class="hero-feature-actions"><a id="heroCollectionLink" class="hero-feature-link" href="/collections">Explore collection <span aria-hidden="true">↗</span></a><a class="hero-feature-access" href="/access">Get collection access →</a></div>
       </div>
     </div>
     <div id="heroPreviews" class="showcase-previews studio-action-grid" aria-label="Explore CyberPop Studio">
@@ -44,7 +47,7 @@
       <div><span class="eyebrow">MONTH BY MONTH</span><h2 class="section-title">Collection Archive</h2></div>
       <a class="text-link" href="/collections">View All →</a>
     </div>
-    <div id="homeCollections" class="collection-grid"></div>
+    <div id="homeCollections" class="collection-grid" aria-live="polite"><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div></div>
   </section>
 
   <section class="site-shell section portfolio-section" id="newReleases" hidden>

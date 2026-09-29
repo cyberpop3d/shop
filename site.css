@@ -520,3 +520,18 @@ a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,s
 .direct-collection-archive .collection-tile-copy p{font-size:10px}
 .direct-collection-archive .collection-tile-media{border:1px solid rgba(201,205,223,.13)}
 @media(max-width:760px){.direct-collection-archive{padding-top:12px}.direct-collection-archive .collection-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 10px}}
+
+/* Storefront finishing: let the work lead, with clear actions and quiet motion. */
+.hero-collection-label{display:block;color:#d5d2e1;font-size:10px;letter-spacing:.17em;text-transform:uppercase;margin-bottom:13px}
+.hero-feature-actions{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-top:22px}
+.hero-feature-link{display:inline-flex;gap:28px;align-items:center;min-height:44px;padding:12px 17px;background:#f5f2ed;color:#13121a;font-size:12px;font-weight:750;border-radius:4px;transition:background .2s,transform .2s}
+.hero-feature-link:hover{background:#ddd0f9;transform:translateY(-2px)}
+.hero-feature-access{font-size:11px;color:#ebe8f3;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.35)}
+.showcase-feature.has-artwork:after{background:linear-gradient(0deg,rgba(5,7,13,.96),rgba(5,7,13,.48) 24%,transparent 58%)}
+.provider-status{font-size:12px!important;color:#b8b3c8!important;margin:0!important;line-height:1.5}
+.google-btn{min-height:48px;cursor:pointer;transition:background .2s,box-shadow .2s}
+.google-btn:not(:disabled):hover{background:#e9e1f4;box-shadow:0 3px 16px #0003}
+.google-btn:disabled{opacity:.55;cursor:not-allowed}
+.auth-divider{display:flex;align-items:center;gap:12px}.auth-divider:before,.auth-divider:after{content:'';height:1px;background:var(--line);flex:1}
+@media(max-width:760px){.hero-feature-actions{gap:13px;margin-top:17px}.hero-collection-label{font-size:9px}.showcase-feature{height:500px!important;min-height:0!important}.showcase-feature-media img{object-position:center 35%}.hero-feature-link{font-size:11px;padding:11px 13px;gap:18px}.hero-feature-access{font-size:10px}.account-layout{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

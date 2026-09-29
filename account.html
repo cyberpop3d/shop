@@ -34,20 +34,21 @@
       <h2>Enter CyberPop.</h2>
       <p id="authIntro">Use a verified email address to create or sign in to your CyberPop account.</p>
       <div id="authMethods" class="auth-methods">
-        <button id="googleButton" class="google-btn" type="button" hidden>Continue with Google</button>
+        <button id="googleButton" class="google-btn" type="button" disabled>Continue with Google</button>
+        <p id="googleProviderStatus" class="provider-status" role="status" hidden></p>
         <div id="googleDivider" class="auth-divider" hidden><span>or</span></div>
         <div class="auth-mode-tabs">
           <button type="button" class="auth-mode active" data-auth-mode="signin">Sign in</button>
           <button type="button" class="auth-mode" data-auth-mode="signup">Create account</button>
         </div>
         <form id="emailForm" class="auth-email-form">
-          <input id="emailInput" class="field" type="email" required autocomplete="email" placeholder="Email address">
-          <input id="passwordInput" class="field" type="password" required minlength="8" autocomplete="current-password" placeholder="Password">
-          <input id="passwordConfirmInput" class="field" type="password" minlength="8" autocomplete="new-password" placeholder="Confirm password" hidden>
+          <input id="emailInput" class="field" type="email" required autocomplete="email" aria-label="Email address" placeholder="Email address">
+          <input id="passwordInput" class="field" type="password" required minlength="8" autocomplete="current-password" aria-label="Password" placeholder="Password">
+          <input id="passwordConfirmInput" class="field" type="password" minlength="8" autocomplete="new-password" aria-label="Confirm password" placeholder="Confirm password" hidden>
           <button id="emailSubmitButton" class="btn btn-primary" type="submit">Sign in</button>
         </form>
       </div>
-      <div id="authStatus" class="notice" style="margin-top:14px"><span>Your password is handled by Supabase Auth and is never stored in CyberPop application tables.</span></div>
+      <div id="authStatus" role="status" aria-live="polite" class="notice" style="margin-top:14px"><span>Sign in to manage your collections, requests and payment links.</span></div>
     </div>
 
     <div id="accountPanel" class="account-card">

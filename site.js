@@ -118,14 +118,27 @@ export async function ensureCustomerProfile(session){
 }
 export async function googleProviderReady(){
   try{
-    const response=await fetch(SUPABASE_URL+'/auth/v1/settings',{headers:{apikey:SUPABASE_PUBLISHABLE_KEY}});
-    if(!response.ok)return false;
+    const response=await fetch(SUPABASE_URL+'/auth/v1/settings',{
+      headers:{apikey:SUPABASE_PUBLISHABLE_KEY},signal:AbortSignal.timeout(8000)
+    });
+    if(!response.ok)return null;
     const data=await response.json();
-    return Boolean(data&&data.external&&data.external.google);
-  }catch(_){return false}
+    return Boolean(data?.external?.google);
+  }catch(_){return null}
+}
+export function safeAccountPath(value,fallback='/account'){
+  try{
+    if(typeof value!=='string'||!value.startsWith('/'))return fallback;
+    const url=new URL(value,PUBLIC_ORIGIN);
+    if(url.origin!==PUBLIC_ORIGIN)return fallback;
+    return url.pathname+url.search;
+  }catch(_){return fallback}
 }
 export async function signInGoogle(redirectPath='/account'){
-  return supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo:PUBLIC_ORIGIN+redirectPath}});
+  return supabase.auth.signInWithOAuth({provider:'google',options:{
+    redirectTo:PUBLIC_ORIGIN+safeAccountPath(redirectPath),
+    queryParams:{prompt:'select_account'}
+  }});
 }
 export async function signInWithPassword(email,password){
   return supabase.auth.signInWithPassword({email,password});
@@ -159,7 +172,12 @@ export function syncHeader(session,creditBalance=0,handle=null){
   const nav=document.querySelector('.site-nav');
   nav?.querySelector('.credit-chip')?.remove();
   const toggle=document.querySelector('.menu-toggle');
-  if(toggle&&nav)toggle.onclick=()=>nav.classList.toggle('open');
+  if(toggle&&nav){
+    toggle.setAttribute('aria-expanded',String(nav.classList.contains('open')));
+    toggle.onclick=()=>{const open=nav.classList.toggle('open');toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Close navigation':'Open navigation')};
+    nav.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{nav.classList.remove('open');toggle.setAttribute('aria-expanded','false')}));
+    document.addEventListener('keydown',event=>{if(event.key==='Escape'){nav.classList.remove('open');toggle.setAttribute('aria-expanded','false')}});
+  }
 }
 export function ensureGlobalLegalFooter(){
   const footer=document.querySelector('.footer');

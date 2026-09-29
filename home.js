@@ -37,22 +37,28 @@ function collectionCard(c,models,snapshotItems=[]){
     '<span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name)+'</h3>'+
     (Number(c.product_count||0)?'<p>'+Number(c.product_count)+' models</p>':'')+'</div></a>';
 }
-function renderShowcase(collections,models,slots){
+function renderShowcase(collections,models,slots,snapshot={}){
   const current=collections.filter(c=>c.starts_on<=new Date().toISOString().slice(0,10));
   const visible=current.length?current:collections;
   const feature=visible[0];
   const settings=slots.home_hero?.content_json||{};
-  const featureArt=slots.home_hero?.asset_url||'';
+  const featureItems=snapshot[feature?.slug]||[];
+  const featureArt=slots.home_hero?.asset_url||featureItems.find(p=>p.imageUrl&&!/\.(mp4|webm|mov)(?:$|[?#])/i.test(p.imageUrl))?.imageUrl||collectionImage(feature||{},models)||'/images/cults/2026-09.webp';
   const featurePanel=document.querySelector('#heroFeature');
   featurePanel.classList.toggle('has-artwork',!!featureArt);
+  featurePanel.querySelector('.showcase-feature-media')?.remove();
   if(featureArt){
     featurePanel.insertAdjacentHTML('afterbegin','<div class="showcase-feature-media">'+image(featureArt,feature?.display_name||'CyberPop collection',true)+'</div>');
   }
   document.querySelector('#heroStudioCaption').textContent=settings.studio_caption||'CYBERPOP STUDIO';
+  const label=document.querySelector('#heroCollectionLabel');
+  if(label)label.textContent=feature?month(feature)+' / '+Number(feature.product_count||featureItems.length||0)+' models':'MULTIPART / NO AMS';
+  const link=document.querySelector('#heroCollectionLink');
+  if(link)link.href=feature?collectionHref(feature):'/collections';
 }
 
 async function loadHome(){
-  await initChrome();
+  await initChrome().catch(error=>console.warn('Account header unavailable',error));
   const [mediaResult,overviewResult,collectionsResult,productsResult,snapshotResult]=await Promise.allSettled([
     getSiteMediaSlots(),
     supabase.from('membership_collection_overview').select('*').order('starts_on',{ascending:false}),
@@ -77,15 +83,16 @@ async function loadHome(){
     return row;
   });
   const models=productsResult.status==='fulfilled'&&!productsResult.value.error?(productsResult.value.data||[]).filter(p=>p.thumbnail_url):[];
-  if(collections[0])collections[0].is_latest_collection=true;
-  renderShowcase(collections,models,slots);
+  const current=collections.find(c=>c.starts_on<=new Date().toISOString().slice(0,10));
+  if(current)current.is_latest_collection=true;
+  renderShowcase(collections,models,slots,snapshot);
 
   const selectedPool=Object.entries(snapshot).flatMap(([collectionSlug,items])=>{
     const collection=collections.find(c=>c.slug===collectionSlug);
     const collectionName=collection?.display_name||monthLabel(collectionSlug+'-01');
     return (items||[]).map((item,index)=>({thumbnail_url:item.imageUrl,collection_slug:collectionSlug,collection_name:collectionName,display_label:collectionName+' #'+String(index+1)}));
   }).filter(x=>x.thumbnail_url);
-  for(let i=selectedPool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[selectedPool[i],selectedPool[j]]=[selectedPool[j],selectedPool[i]]}
+  selectedPool.sort((a,b)=>b.collection_slug.localeCompare(a.collection_slug));
   const dbSelected=models.map((p,index)=>({...p,collection_slug:collections.find(c=>c.id===p.collection_id)?.slug,display_label:(p.collection_name||'CyberPop Collection')+' #'+String(index+1)}));
   const selected=(selectedPool.length?selectedPool:dbSelected).slice(0,5);
   document.querySelector('#newReleases').hidden=!selected.length;
