@@ -3,7 +3,9 @@
   "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
-  "alias": ["cyberpopstudio.com"],
+  "alias": [
+    "cyberpopstudio.com"
+  ],
   "redirects": [
     {
       "source": "/:path*",
@@ -19,6 +21,15 @@
     }
   ],
   "rewrites": [
-    { "source": "/", "destination": "/index.html" }
-  ]
+    {
+      "source": "/",
+      "destination": "/index.html"
+    }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "*": false,
+      "main": true
+    }
+  }
 }
