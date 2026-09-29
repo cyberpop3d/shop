@@ -229,7 +229,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;bac
 @media(max-width:760px){.archive-hero-inner{min-height:0;grid-template-columns:1fr;gap:34px;padding:46px 0}.archive-hero-copy h1{font-size:58px;margin:18px 0 12px}.collection-detail-hero{min-height:0;grid-template-columns:1fr;padding:35px 16px 42px;gap:26px}.collection-back{margin-bottom:32px}.collection-detail-copy h1{font-size:48px}.collection-detail-art{max-width:none;grid-row:1}.collection-detail-copy{grid-row:2}}
 
 /* Collection showcase: one lead artwork, then progressively smaller monthly previews. */
-.collection-showcase{width:min(1600px,100%);margin:auto;padding:18px 28px 28px;display:grid;grid-template-columns:minmax(0,1.65fr) minmax(360px,1fr);gap:14px;min-height:650px;height:min(760px,calc(100svh - 72px))}
+.collection-showcase{width:min(1600px,100%);margin:auto;padding:18px 28px 28px;display:grid;grid-template-columns:minmax(0,1.65fr) minmax(360px,1fr);gap:14px;min-height:600px;height:min(670px,calc(100svh - 72px))}
 .showcase-feature{isolation:isolate;position:relative;min-width:0;overflow:hidden;background:radial-gradient(ellipse at 72% 35%,#1b1e20 0%,#101214 42%,#080909 80%);border:1px solid rgba(255,255,255,.13)}
 .showcase-feature:after{content:"";position:absolute;z-index:1;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(4,5,6,.82) 0%,rgba(4,5,6,.48) 34%,transparent 76%),linear-gradient(0deg,rgba(4,5,6,.58),transparent 38%)}
 .showcase-feature-media{position:absolute;inset:0;display:grid;place-items:center}
@@ -241,7 +241,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;bac
 .showcase-feature .hero-text-link{font-size:10px;color:#f4f4f2;text-shadow:0 1px 10px #000}
 .showcase-feature-link{position:absolute;z-index:2;right:24px;bottom:24px;font-size:10px;font-weight:700;letter-spacing:.025em;color:#fff;text-shadow:0 1px 10px #000}
 .showcase-feature-link span{margin-left:8px}
-.showcase-previews{min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:minmax(0,1fr) minmax(0,.72fr);gap:14px}
+.showcase-previews{min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:minmax(0,2.5fr) minmax(0,1fr);gap:14px}
 .showcase-previews[hidden]{display:none}
 .showcase-preview{isolation:isolate;position:relative;min-width:0;overflow:hidden;background:#101214;border:1px solid rgba(255,255,255,.13);transition:border-color .25s,transform .35s}
 .showcase-preview-wide{grid-column:1/-1}
