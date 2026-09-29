@@ -100,10 +100,16 @@ async function toggleFavorite(productId){
 }
 
 async function loadLibrary(){
-  session=await initChrome();
+  session=await Promise.race([
+    initChrome(),
+    new Promise(resolve=>setTimeout(()=>resolve(null),5000))
+  ]);
   document.querySelector('#modelLibraryGrid').innerHTML=loadingMarkup(8,'card');
-  const slots=await getSiteMediaSlots();
-  setMediaImage(document.querySelector('#libraryHero'),slots.library_hero?.asset_url,'LIBRARY HERO · 1920 × 640');
+  const slots=await Promise.race([
+    getSiteMediaSlots().catch(()=>({})),
+    new Promise(resolve=>setTimeout(()=>resolve({}),3500))
+  ]);
+  setMediaImage(document.querySelector('#libraryHero'),slots.library_hero?.asset_url||'/images/cults/2026-09.webp','CYBERPOP');
   const notice=document.querySelector('#libraryNotice');
   const cta=document.querySelector('#libraryAccountCta');
 

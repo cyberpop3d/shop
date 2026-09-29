@@ -33,9 +33,10 @@ async function load(){
   if(pRes.error)throw pRes.error;products=pRes.data||[];
   if(!products.length){
     const snapshot=await fetch('/data/cults-collections.json').then(r=>r.ok?r.json():null).catch(()=>null);
-    products=(snapshot?.collections?.[collection.slug]||[]).map((item,index)=>({
+    const snapshotProducts=snapshot?.collections?.[collection.slug]||[];
+    products=snapshotProducts.map((item,index)=>({
       public_title:String(item.title||'').replace(/\s+Multipart\b.*$/i,'').trim(),
-      thumbnail_url:item.imageUrl,collection_name:collection.display_name,product_number:index+1,
+      thumbnail_url:item.imageUrl,collection_name:collection.display_name,product_number:snapshotProducts.length-index,
       public_preview_url:item.url,has_access:false
     }));
     document.querySelector('#collectionFilters').hidden=true;
