@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090b0c"><title>CyberPop — Custom 3D Design Studio</title><link rel="stylesheet" href="/site.css"></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090b0c"><title>CyberPop Collections — CyberPop Studio</title><link rel="stylesheet" href="/site.css"></head>
 <body>
 <header class="site-header">
   <a class="brand-lockup" href="/">CYBERPOP</a>
@@ -12,38 +12,25 @@
   </nav>
 </header>
 <main>
-  <section id="homeHero" class="portfolio-hero">
-    <div class="portfolio-hero-copy">
-      <span class="eyebrow">CYBERPOP STUDIO · 3D CHARACTER DESIGN</span>
-      <h1>CYBERPOP<br><span>COLLECTIONS</span></h1>
-      <div class="store-hero-actions">
-        <a class="btn btn-light" href="/access">Get Collection Access <span aria-hidden="true">↗</span></a>
-        <a class="hero-text-link" href="/collections">Explore Collections <span aria-hidden="true">↓</span></a>
+  <section id="homeHero" class="collection-showcase" aria-label="CyberPop collections">
+    <div id="heroFeature" class="showcase-feature">
+      <div class="showcase-feature-copy">
+        <h1>CYBERPOP<br>COLLECTIONS</h1>
+        <div class="store-hero-actions">
+          <a class="btn btn-light" href="/access">Purchase Collection <span aria-hidden="true">↗</span></a>
+          <a class="hero-text-link" href="/collections">Explore Collections <span aria-hidden="true">↗</span></a>
+        </div>
       </div>
     </div>
-    <div class="hero-artwork" aria-label="Selected CyberPop character designs">
-      <figure class="hero-art hero-art-main"><img src="/images/covers/bison.webp" alt="M. Bison CyberPop 3D figure" fetchpriority="high"></figure>
-      <figure class="hero-art hero-art-cammy"><img src="/images/covers/cammy.png" alt="Cammy CyberPop 3D figure"></figure>
-      <figure class="hero-art hero-art-guile"><img src="/images/covers/guile.webp" alt="Guile CyberPop 3D figure"></figure>
-      <figure class="hero-art hero-art-magik"><img src="/images/covers/magik.webp" alt="Magik CyberPop 3D figure"></figure>
-      <span class="hero-art-index">FIGURES · 2026</span>
-    </div>
+    <div id="heroPreviews" class="showcase-previews" aria-label="Collection previews"></div>
   </section>
 
-  <section class="site-shell section portfolio-section" id="latestSection">
-    <div class="section-head">
-      <div><span class="eyebrow">THE ARCHIVE</span><h2 class="section-title">Latest Collection</h2><p id="latestMeta" class="section-copy"></p></div>
-      <a class="text-link" href="/collections">Archive →</a>
-    </div>
-    <div id="latestCollectionBanner" class="latest-banner skeleton"><span></span></div>
-  </section>
-
-  <section class="site-shell section portfolio-section" id="newReleases">
+  <section class="site-shell section portfolio-section" id="newReleases" hidden>
     <div class="section-head">
       <div><span class="eyebrow">SELECTED MODELS</span><h2 class="section-title">Selected Works</h2></div>
       <a class="text-link" href="/collections">Explore Archive →</a>
     </div>
-    <div id="newReleaseGrid" class="store-product-grid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div id="newReleaseGrid" class="store-product-grid"></div>
   </section>
 
   <section class="site-shell section portfolio-section">
@@ -52,10 +39,6 @@
       <a class="text-link" href="/collections">View All →</a>
     </div>
     <div id="homeCollections" class="collection-grid"></div>
-  </section>
-  <section class="site-shell studio-note" aria-label="CyberPop Studio">
-    <span class="eyebrow">CYBERPOP STUDIO</span>
-    <a href="/request">Custom Design <span aria-hidden="true">↗</span></a>
   </section>
 </main>
 <footer class="footer"><div class="site-shell footer-grid"><div><strong>CYBERPOP</strong></div><div><div class="footer-label">Explore</div><div class="footer-links"><a href="/collections">Collections</a><a href="/request">Custom Design</a><a href="/library">Library</a></div></div><div><div class="footer-label">Account</div><div class="footer-links"><a href="/account">Profile</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></div></div></div></footer>
