@@ -1,11 +1,11 @@
-import { supabase,initChrome,getSiteMediaSlots,setMediaImage,monthLabel,stateMarkup,loadingMarkup,friendlyError,showToast,esc } from '/site.js';
+import { supabase,initChrome,getSiteMediaSlots,setMediaImage,mediaMarkup,monthLabel,stateMarkup,loadingMarkup,friendlyError,showToast,esc } from '/site.js';
 
 let session=null,collections=[],products=[],favorites=[],customDeliverables=[],productCodes=[],activeFilter='all',searchTerm='',sortMode='newest';
 
 function collectionCard(c,previewImage){
   const open=Boolean(c.has_access);
   const image=c.cover_image_url||previewImage;
-  const media=image?'<img src="'+esc(image)+'" alt="'+esc(c.display_name||monthLabel(c.starts_on))+'">':'<div class="media-placeholder"><span>COLLECTION COVER</span></div>';
+  const media=image?mediaMarkup(image,c.display_name||monthLabel(c.starts_on)):'<div class="media-placeholder"><span>COLLECTION COVER</span></div>';
   return '<a class="collection-tile" href="/collection?slug='+encodeURIComponent(c.slug)+'"><div class="collection-tile-media">'+media+'</div><div class="collection-tile-copy"><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name||monthLabel(c.starts_on))+'</h3><p>'+Number(c.product_count||0)+' models · '+(open?'Collection access active':'Browse collection')+'</p></div></a>';
 }
 
@@ -15,7 +15,7 @@ function modelCard(p){
   const favorite=isFavorite(p.id);
   const code=productCodes.find(x=>x.product_id===p.id&&x.is_active!==false);
   const media=p.thumbnail_url
-    ? '<div class="library-model-media"><img src="'+esc(p.thumbnail_url)+'" alt="'+esc(p.public_title)+'" loading="lazy"></div>'
+    ? '<div class="library-model-media">'+mediaMarkup(p.thumbnail_url,p.public_title)+'</div>'
     : '<div class="library-model-media placeholder"><div class="media-placeholder"><span>1200 × 1400</span></div></div>';
   const cultsUrl=code?.cults_url||p.cults_url||null;
   const primary=cultsUrl
@@ -32,7 +32,7 @@ function modelCard(p){
 
 function customDeliveryCard(d){
   const media=d.thumbnail_url
-    ? '<div class="library-model-media"><img src="'+esc(d.thumbnail_url)+'" alt="'+esc(d.title)+'" loading="lazy"></div>'
+    ? '<div class="library-model-media">'+mediaMarkup(d.thumbnail_url,d.title)+'</div>'
     : '<div class="library-model-media placeholder"><div class="media-placeholder"><span>PRIVATE DELIVERY</span></div></div>';
   const action=d.download_url
     ? '<a class="library-action" href="'+esc(d.download_url)+'" target="_blank" rel="noopener">Open delivery ↗</a>'

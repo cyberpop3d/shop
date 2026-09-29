@@ -1,9 +1,9 @@
-import { supabase,initChrome,setMediaImage,stateMarkup,loadingMarkup,friendlyError,esc } from '/site.js';
+import { supabase,initChrome,setMediaImage,mediaMarkup,stateMarkup,loadingMarkup,friendlyError,esc } from '/site.js';
 const slug=new URLSearchParams(location.search).get('slug');let session=null,collection=null,products=[],filter='all',sort='newest';
 const curatedHero=/^2026-(04|05|06|07|08|09|10)$/.test(slug||'')?'/images/cults/'+slug+'.webp':'';
 if(curatedHero)setMediaImage(document.querySelector('#collectionHero'),curatedHero,'COLLECTION ARTWORK');
 function card(p){
-  const media=p.thumbnail_url?'<img src="'+esc(p.thumbnail_url)+'" alt="'+esc(p.public_title)+'" loading="lazy">':'<div class="media-placeholder"><span>CYBERPOP</span></div>';
+  const media=p.thumbnail_url?mediaMarkup(p.thumbnail_url,p.public_title):'<div class="media-placeholder"><span>CYBERPOP</span></div>';
   const href=p.public_preview_url||'/product?slug='+encodeURIComponent(p.slug||'');
   const badge=p.public_preview_url?'':p.has_access?'<span class="store-product-badge owned-badge">IN YOUR LIBRARY</span>':'';
   return '<a class="store-product-card" href="'+esc(href)+'"'+(p.public_preview_url?' target="_blank" rel="noopener noreferrer"':'')+'><div class="store-product-media">'+media+badge+'</div><div class="store-product-body"><h3>'+esc(p.public_title)+'</h3><p>'+esc(p.collection_name||'Collection')+'</p></div></a>';

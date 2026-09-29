@@ -1,4 +1,4 @@
-import { supabase,initChrome,getSession,stateMarkup,loadingMarkup,friendlyError,showToast,esc } from '/site.js';
+import { supabase,initChrome,getSession,mediaMarkup,stateMarkup,loadingMarkup,friendlyError,showToast,esc } from '/site.js';
 
 const slug=new URLSearchParams(location.search).get('slug');
 let currentProduct=null;
@@ -6,7 +6,7 @@ let currentSession=null;
 
 function card(p){
   const media=p.thumbnail_url
-    ? '<img src="'+esc(p.thumbnail_url)+'" alt="'+esc(p.public_title)+'">'
+    ? mediaMarkup(p.thumbnail_url,p.public_title)
     : '<div class="media-placeholder"><span>1200 × 1400</span></div>';
   return '<a class="store-product-card" href="/product?slug='+encodeURIComponent(p.slug||'')+'">'+
     '<div class="store-product-media">'+media+(p.has_access?'<span class="store-product-badge">OWNED</span>':'')+'</div>'+
@@ -108,9 +108,9 @@ async function load(){
   const images=[...(g.data||[])];
   if(p.thumbnail_url&&!images.some(x=>x.image_url===p.thumbnail_url))images.unshift({image_url:p.thumbnail_url});
   const main=document.querySelector('#galleryMain'),thumbs=document.querySelector('#galleryThumbs');
-  function setMain(url){main.innerHTML=url?'<img src="'+esc(url)+'" alt="'+esc(p.public_title)+'">':'<div class="media-placeholder"><span>PRODUCT GALLERY · 1600 × 1600</span></div>'}
+  function setMain(url){main.innerHTML=url?mediaMarkup(url,p.public_title,{priority:true,controls:true}):'<div class="media-placeholder"><span>PRODUCT GALLERY · 1600 × 1600</span></div>'}
   setMain(images[0]?.image_url||null);
-  thumbs.innerHTML=images.map((x,i)=>'<button class="gallery-thumb" data-i="'+i+'"><img src="'+esc(x.image_url)+'" alt=""></button>').join('');
+  thumbs.innerHTML=images.map((x,i)=>'<button class="gallery-thumb" data-i="'+i+'">'+mediaMarkup(x.image_url,'')+'</button>').join('');
   thumbs.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>setMain(images[Number(b.dataset.i)].image_url));
 
   const favButton=document.querySelector('#favoriteProduct');

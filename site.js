@@ -62,12 +62,29 @@ export async function getSiteMediaSlots(){
   if(r.error)throw r.error;
   return Object.fromEntries((r.data||[]).map(x=>[x.slot_key,x]));
 }
+export function isVideoUrl(url=''){
+  return /(?:videos\.cults3d\.com|\.(?:mp4|webm|mov)(?:$|[?#]))/i.test(String(url));
+}
+export function mediaMarkup(url,alt='',options={}){
+  if(!url)return '';
+  const priority=Boolean(options.priority);
+  if(isVideoUrl(url)){
+    const controls=options.controls?' controls':'';
+    return '<video src="'+esc(url)+'" aria-label="'+esc(alt)+'" muted loop autoplay playsinline preload="'+(priority?'auto':'metadata')+'"'+controls+'></video>';
+  }
+  return '<img src="'+esc(url)+'" alt="'+esc(alt)+'" '+(priority?'fetchpriority="high"':'loading="lazy"')+'>';
+}
 export function setMediaImage(container,imageUrl,label='MEDIA'){
   if(!container)return;
   const img=container.querySelector('img');
   const placeholder=container.querySelector('.media-placeholder');
-  if(imageUrl&&img){img.src=imageUrl;img.hidden=false;if(placeholder)placeholder.hidden=true}
-  else{if(img){img.removeAttribute('src');img.hidden=true}if(placeholder){placeholder.hidden=false;const span=placeholder.querySelector('span');if(span&&label)span.textContent=label}}
+  let video=container.querySelector('video[data-media-asset]');
+  if(imageUrl&&isVideoUrl(imageUrl)){
+    if(!video){video=document.createElement('video');video.dataset.mediaAsset='';video.muted=true;video.defaultMuted=true;video.loop=true;video.autoplay=true;video.playsInline=true;video.preload='auto';container.prepend(video)}
+    video.src=imageUrl;video.hidden=false;if(img)img.hidden=true;if(placeholder)placeholder.hidden=true;
+    video.play().catch(()=>{});
+  }else if(imageUrl&&img){if(video){video.removeAttribute('src');video.hidden=true}img.src=imageUrl;img.hidden=false;if(placeholder)placeholder.hidden=true}
+  else{if(video){video.removeAttribute('src');video.hidden=true}if(img){img.removeAttribute('src');img.hidden=true}if(placeholder){placeholder.hidden=false;const span=placeholder.querySelector('span');if(span&&label)span.textContent=label}}
 }
 export async function getSession(){
   const r=await supabase.auth.getSession();

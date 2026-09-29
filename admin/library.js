@@ -125,7 +125,8 @@ function renderCultsInventory(){
   $('#cultsInventory').innerHTML=visible.map(item=>{
     const source=sourceForCults(item);
     const existing=products.find(p=>p.id===source?.product_id);
-    const image=item.imageUrl?'<img src="'+esc(item.imageUrl)+'" alt="" loading="lazy">':'<span class="record-thumb empty">CP</span>';
+    const isVideo=item.imageUrl&&/(?:videos\.cults3d\.com|\.(?:mp4|webm|mov)(?:$|[?#]))/i.test(item.imageUrl);
+    const image=isVideo?'<video src="'+esc(item.imageUrl)+'" muted loop autoplay playsinline preload="metadata"></video>':item.imageUrl?'<img src="'+esc(item.imageUrl)+'" alt="" loading="lazy">':'<span class="record-thumb empty">CP</span>';
     return '<label class="cults-inventory-row"><input type="checkbox" data-cults-id="'+esc(item.externalId||item.url)+'" '+(cultsSelected.has(item.externalId||item.url)?'checked':'')+'>'+image+
       '<span><strong>'+esc(item.name)+'</strong><small>'+esc(item.publishedAt?.slice(0,10)||'Unpublished on Cults')+' · '+(item.images?.length||0)+' images</small></span>'+
       '<span class="badge '+(source?'on':'warn')+'">'+(source?esc(collectionName(existing?.collection_id)):'NEW')+'</span></label>';

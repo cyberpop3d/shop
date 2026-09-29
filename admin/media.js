@@ -18,10 +18,16 @@ function safeName(name){return name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-').
 function publicUrl(path){return supabase.storage.from('cyberpop-media').getPublicUrl(path).data.publicUrl}
 function fileDimensions(file){
   return new Promise((resolve,reject)=>{
-    const url=URL.createObjectURL(file);const img=new Image();
+    const url=URL.createObjectURL(file);
+    if(file.type.startsWith('video/')){
+      const video=document.createElement('video');video.preload='metadata';
+      video.onloadedmetadata=()=>{resolve({width:video.videoWidth,height:video.videoHeight});URL.revokeObjectURL(url)};
+      video.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Could not read video dimensions.'))};
+      video.src=url;return;
+    }
+    const img=new Image();
     img.onload=()=>{resolve({width:img.naturalWidth,height:img.naturalHeight});URL.revokeObjectURL(url)};
-    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Could not read image dimensions.'))};
-    img.src=url;
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Could not read image dimensions.'))};img.src=url;
   });
 }
 async function ensureAdmin(){
@@ -43,7 +49,9 @@ async function removePath(path){
   if(r.error)console.warn(r.error);
 }
 function preview(url,label,w=16,h=9){
-  return '<div class="media-preview" style="aspect-ratio:'+Number(w)+'/'+Number(h)+'">'+(url?'<img src="'+esc(url)+'" alt="'+esc(label)+'">':'<div class="media-empty">NO IMAGE</div>')+'</div>';
+  const video=url&&/(?:videos\.cults3d\.com|\.(?:mp4|webm|mov)(?:$|[?#]))/i.test(url);
+  const media=video?'<video src="'+esc(url)+'" aria-label="'+esc(label)+'" muted loop autoplay playsinline preload="metadata"></video>':url?'<img src="'+esc(url)+'" alt="'+esc(label)+'">':'<div class="media-empty">NO MEDIA</div>';
+  return '<div class="media-preview" style="aspect-ratio:'+Number(w)+'/'+Number(h)+'">'+media+'</div>';
 }
 function dimStatus(originalW,originalH,targetW,targetH){
   if(!originalW||!originalH)return 'No image uploaded';
@@ -57,17 +65,17 @@ function siteSlotCard(s){
   return '<article class="media-admin-card">'+preview(s.asset_url,s.label,s.recommended_width,s.recommended_height)+
     '<div class="media-admin-copy"><div class="record-head"><div><span class="eyebrow">'+esc(s.page_name)+'</span><h3>'+esc(s.label)+'</h3></div><span class="badge">'+ratioLabel(s.recommended_width,s.recommended_height)+'</span></div>'+
     '<p>'+esc(s.description||'')+'</p><div class="media-spec"><strong>'+s.recommended_width+' × '+s.recommended_height+' px</strong><span>'+esc(dimStatus(s.original_width,s.original_height,s.recommended_width,s.recommended_height))+'</span></div>'+
-    '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif" data-site-file="'+esc(s.slot_key)+'"></label>'+(s.asset_url?'<button class="ghost" data-site-remove="'+esc(s.slot_key)+'">Remove</button>':'')+'</div></div></article>';
+    '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif,video/mp4,video/webm" data-site-file="'+esc(s.slot_key)+'"></label>'+(s.asset_url?'<button class="ghost" data-site-remove="'+esc(s.slot_key)+'">Remove</button>':'')+'</div></div></article>';
 }
 function collectionCard(c){
   return '<article class="media-admin-card">'+preview(c.cover_image_url,c.display_name+' card',1200,900)+
     '<div class="media-admin-copy"><div class="record-head"><div><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name)+' · Card</h3></div><span class="badge">4:3</span></div>'+
     '<p>Collection grid/card artwork.</p><div class="media-spec"><strong>1200 × 900 px</strong><span>Off-ratio images remain centered on black.</span></div>'+
-    '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif" data-collection-cover="'+c.id+'"></label>'+(c.cover_image_url?'<button class="ghost" data-collection-cover-remove="'+c.id+'">Remove</button>':'')+'</div></div></article>'+
+    '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif,video/mp4,video/webm" data-collection-cover="'+c.id+'"></label>'+(c.cover_image_url?'<button class="ghost" data-collection-cover-remove="'+c.id+'">Remove</button>':'')+'</div></div></article>'+
     '<article class="media-admin-card">'+preview(c.hero_image_url,c.display_name+' hero',1920,900)+
     '<div class="media-admin-copy"><div class="record-head"><div><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name)+' · Hero</h3></div><span class="badge">32:15</span></div>'+
     '<p>Wide artwork for the collection detail header.</p><div class="media-spec"><strong>1920 × 900 px</strong><span>Off-ratio images remain centered on black.</span></div>'+
-    '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif" data-collection-hero="'+c.id+'"></label>'+(c.hero_image_url?'<button class="ghost" data-collection-hero-remove="'+c.id+'">Remove</button>':'')+'</div></div></article>';
+    '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif,video/mp4,video/webm" data-collection-hero="'+c.id+'"></label>'+(c.hero_image_url?'<button class="ghost" data-collection-hero-remove="'+c.id+'">Remove</button>':'')+'</div></div></article>';
 }
 function productName(p){const priv=privateRows.find(x=>x.product_id===p.id);return priv?.internal_name||p.public_title}
 function renderProductEditor(){
@@ -75,8 +83,8 @@ function renderProductEditor(){
   if(!p){$('#productMediaEditor').innerHTML='<p class="small">No model selected.</p>';return}
   const images=gallery.filter(x=>x.product_id===p.id).sort((a,b)=>a.sort_order-b.sort_order);
   $('#productMediaEditor').innerHTML='<div class="media-product-main">'+
-    '<article class="media-admin-card">'+preview(p.thumbnail_url,productName(p),1200,1400)+'<div class="media-admin-copy"><span class="eyebrow">CARD THUMBNAIL</span><h3>'+esc(productName(p))+'</h3><p>Used in product grids, library cards and related model cards.</p><div class="media-spec"><strong>1200 × 1400 px</strong><span>6:7 target · contain + black background.</span></div><div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif" data-product-thumb="'+p.id+'"></label>'+(p.thumbnail_url?'<button class="ghost" data-product-thumb-remove="'+p.id+'">Remove</button>':'')+'</div></div></article>'+
-    '<article class="media-admin-card media-gallery-add"><div class="media-admin-copy"><span class="eyebrow">PRODUCT GALLERY</span><h3>Add gallery image</h3><p>Recommended 1600 × 1600 px. The original file is stored unchanged.</p><div class="media-spec"><strong>1600 × 1600 px</strong><span>1:1 target · contain + black background.</span></div><label class="admin-btn media-file-label">Add image<input type="file" accept="image/png,image/jpeg,image/webp,image/avif" data-gallery-add="'+p.id+'"></label></div></article>'+
+    '<article class="media-admin-card">'+preview(p.thumbnail_url,productName(p),1200,1400)+'<div class="media-admin-copy"><span class="eyebrow">CARD MEDIA</span><h3>'+esc(productName(p))+'</h3><p>Used in product grids, library cards and related model cards.</p><div class="media-spec"><strong>1200 × 1400 px</strong><span>6:7 target · contain + black background.</span></div><div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif,video/mp4,video/webm" data-product-thumb="'+p.id+'"></label>'+(p.thumbnail_url?'<button class="ghost" data-product-thumb-remove="'+p.id+'">Remove</button>':'')+'</div></div></article>'+
+    '<article class="media-admin-card media-gallery-add"><div class="media-admin-copy"><span class="eyebrow">PRODUCT GALLERY</span><h3>Add gallery media</h3><p>Recommended 1600 × 1600 px. The original image or video is stored unchanged.</p><div class="media-spec"><strong>1600 × 1600 px</strong><span>Image or video · contain + black background.</span></div><label class="admin-btn media-file-label">Add media<input type="file" accept="image/png,image/jpeg,image/webp,image/avif,video/mp4,video/webm" data-gallery-add="'+p.id+'"></label></div></article>'+
     '</div><div class="media-gallery-grid">'+(images.length?images.map((g,i)=>'<article class="media-gallery-item">'+preview(g.image_url,'Gallery '+(i+1),1600,1600)+'<div class="media-gallery-meta"><span>#'+(i+1)+' · '+(g.original_width||'?')+' × '+(g.original_height||'?')+'</span><button class="ghost" data-gallery-remove="'+g.id+'">Remove</button></div></article>').join(''):'<div class="record"><p class="small">No gallery images yet.</p></div>')+'</div>';
   bindProductEvents();
 }

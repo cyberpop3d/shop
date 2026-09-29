@@ -1,4 +1,4 @@
-import { supabase,initChrome,getSiteMediaSlots,monthLabel,stateMarkup,esc } from '/site.js';
+import { supabase,initChrome,getSiteMediaSlots,monthLabel,stateMarkup,mediaMarkup,esc } from '/site.js';
 
 const collectionHref=c=>'/collection?slug='+encodeURIComponent(c.slug);
 const productHref=p=>'/product?slug='+encodeURIComponent(p.slug||'');
@@ -23,9 +23,7 @@ const archiveFallback=Array.from({length:7},(_,i)=>{
   return {id:slug,slug,starts_on:slug+'-01',display_name:monthLabel(slug+'-01'),product_count:0};
 });
 
-function image(url,alt,priority=false){
-  return url?'<img src="'+esc(url)+'" alt="'+esc(alt)+'" '+(priority?'fetchpriority="high"':'loading="lazy"')+'>':'';
-}
+const image=(url,alt,priority=false)=>mediaMarkup(url,alt,{priority});
 function collectionImage(c,models){
   return c.cover_image_url||c.hero_image_url||models.find(p=>p.collection_id===c.id&&p.thumbnail_url)?.thumbnail_url||curatedCover(c);
 }

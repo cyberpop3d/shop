@@ -271,3 +271,10 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;bac
 @media(max-width:760px){.collection-showcase{height:auto;min-height:0;display:block;padding:0 0 15px}.showcase-feature{height:min(650px,75svh);min-height:460px;border-left:0;border-right:0}.showcase-feature-copy{left:20px;right:20px;bottom:62px}.showcase-feature h1{font-size:clamp(43px,10.5vw,70px);margin-bottom:22px}.showcase-feature .store-hero-actions{gap:12px;align-items:flex-start;flex-direction:column}.showcase-feature-link{right:18px;bottom:17px}.showcase-previews{margin:10px 10px 0;grid-template-rows:220px 148px;gap:8px}.showcase-preview-label strong{font-size:14px}.showcase-preview-wide .showcase-preview-label strong{font-size:25px}.showcase-arrow{display:none}}
 @media(max-width:420px){.showcase-previews{grid-template-rows:180px 112px}.showcase-preview-label{left:7px;bottom:8px}.showcase-preview-label small{font-size:6px}.showcase-preview-label strong{font-size:12px}.showcase-preview-wide .showcase-preview-label strong{font-size:24px}}
 @media(prefers-reduced-motion:reduce){.showcase-preview,.showcase-preview img{transition:none}}
+
+/* Image and Cults video assets share the same uncropped presentation rules. */
+.media-letterbox video,.store-product-media video,.collection-tile-media video,.library-model-media video,.gallery-main video,.gallery-thumb video,.collection-detail-art video,.showcase-feature-media video,.showcase-preview video{display:block;width:100%;height:100%;object-fit:contain;object-position:center;background:#050606}
+.media-letterbox video,.collection-detail-art video{position:absolute;inset:0}
+.store-product-media video,.collection-tile-media video,.showcase-preview video{transition:transform .65s cubic-bezier(.2,.7,.2,1)}
+.store-product-card:hover .store-product-media video,.collection-tile:hover .collection-tile-media video,.showcase-preview:hover video{transform:scale(1.025)}
+@media(prefers-reduced-motion:reduce){.store-product-media video,.collection-tile-media video,.showcase-preview video{transition:none}}
