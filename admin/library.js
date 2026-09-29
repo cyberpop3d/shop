@@ -24,6 +24,23 @@ function addMonths(dateStr,n){const d=new Date(dateStr+'T12:00:00Z');d.setUTCMon
 function customerName(id){const c=customers.find(x=>x.user_id===id);return c?(c.full_name||c.email):id}
 function collectionName(id){const c=collections.find(x=>x.id===id);return c?c.display_name:id}
 
+async function loadCachedCultsInventory(){
+  const response=await fetch('/data/cults-collections.json',{cache:'no-store'});
+  if(!response.ok)throw new Error('Cached Cults catalog is unavailable.');
+  const snapshot=await response.json();
+  const items=Object.values(snapshot.collections||{}).flat().map(item=>({
+    externalId:item.id,
+    name:item.title,
+    slug:String(item.url||'').split('/').filter(Boolean).pop()||null,
+    url:item.url,
+    publishedAt:item.publishedAt,
+    imageUrl:item.imageUrl,
+    images:item.imageUrl?[{url:item.imageUrl,position:0}]:[],
+    source:'verified_snapshot'
+  }));
+  return [...new Map(items.map(item=>[item.externalId||item.url,item])).values()];
+}
+
 async function checkCultsConnection(){
   const badge=$('#cultsConnectionBadge'),button=$('#cultsSyncButton'),status=$('#cultsSyncStatus');
   badge.textContent='CHECKING';badge.className='badge warn';button.disabled=true;
@@ -36,12 +53,20 @@ async function checkCultsConnection(){
       button.disabled=!data.ok;
       status.textContent=data.ok?'Cults API connected. Ready to import your own designs.':(data.error||'Cults API error.');
     }else{
-      badge.textContent='NOT CONFIGURED';badge.className='badge warn';
-      status.textContent='Add the rotated CULTS_API_KEY_ROTATED secret to the Vercel preview environment to enable sync.';
+      const cached=await loadCachedCultsInventory().catch(()=>[]);
+      badge.textContent=cached.length?'SNAPSHOT READY':'NOT CONFIGURED';badge.className='badge '+(cached.length?'on':'warn');
+      button.disabled=!cached.length;
+      status.textContent=cached.length
+        ? cached.length+' current collection designs are ready. Live API sync will add the complete catalog when the preview secret is available.'
+        : 'Add the rotated CULTS_API_KEY_ROTATED secret to the Vercel preview environment to enable sync.';
     }
   }catch(error){
-    badge.textContent='UNAVAILABLE';badge.className='badge warn';
-    status.textContent=error.message||'Could not check Cults API.';
+    const cached=await loadCachedCultsInventory().catch(()=>[]);
+    badge.textContent=cached.length?'SNAPSHOT READY':'UNAVAILABLE';badge.className='badge '+(cached.length?'on':'warn');
+    button.disabled=!cached.length;
+    status.textContent=cached.length
+      ? cached.length+' current collection designs are ready from the verified snapshot.'
+      : (error.message||'Could not check Cults API.');
   }
 }
 
@@ -66,8 +91,16 @@ async function syncFromCults(){
     renderCultsInventory();
     status.textContent='Cults catalog ready · '+cultsInventory.length+' designs. Choose a collection, then import the selected models as drafts.';
   }catch(error){
-    status.textContent=error.message||'Cults catalog could not be loaded.';
-    notify(status.textContent,'error');
+    try{
+      cultsInventory=await loadCachedCultsInventory();
+      $('#cultsInventoryPanel').hidden=false;
+      renderCultsInventory();
+      status.textContent='Verified Cults snapshot ready · '+cultsInventory.length+' current collection designs. Choose a collection, then import selected models as drafts.';
+      notify('Cached Cults catalog loaded.');
+    }catch(_){
+      status.textContent=error.message||'Cults catalog could not be loaded.';
+      notify(status.textContent,'error');
+    }
   }finally{
     setSync('Ready');button.disabled=false;
   }
