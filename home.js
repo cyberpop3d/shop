@@ -1,5 +1,5 @@
 import { supabase,initChrome,getSiteMediaSlots,monthLabel,stateMarkup,mediaMarkup,esc } from '/site.js';
-import {mosaicMedia,bindCollectionPreviews} from '/collection-mosaic.js';
+import {mosaicMedia} from '/collection-mosaic.js';
 
 const collectionHref=c=>'/collection?slug='+encodeURIComponent(c.slug);
 const month=c=>monthLabel(c.starts_on);
@@ -37,14 +37,6 @@ function collectionCard(c,models,snapshotItems=[]){
     '<span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name)+'</h3>'+
     (Number(c.product_count||0)?'<p>'+Number(c.product_count)+' models</p>':'')+'</div></a>';
 }
-function previewCard(c,models,large=false,slot={},settings={},index=1){
-  const artwork=slot.asset_url||collectionImage(c,models);
-  const label=settings['preview_'+index+'_label']||month(c);
-  const href=settings['preview_'+index+'_href']||collectionHref(c);
-  return '<a class="showcase-preview '+(large?'showcase-preview-wide ':'')+(!artwork?'unfilled':'')+'" href="'+esc(href)+'">'+
-    image(artwork,label)+'<span class="showcase-preview-shade"></span><span class="showcase-preview-label">'+
-    '<small>COLLECTION</small><strong>'+esc(label)+'</strong></span><span class="showcase-arrow" aria-hidden="true">↗</span></a>';
-}
 function renderShowcase(collections,models,slots){
   const current=collections.filter(c=>c.starts_on<=new Date().toISOString().slice(0,10));
   const visible=current.length?current:collections;
@@ -72,6 +64,13 @@ async function loadHome(){
   const overview=overviewResult.status==='fulfilled'&&!overviewResult.value.error?overviewResult.value.data||[]:[];
   const raw=collectionsResult.status==='fulfilled'&&!collectionsResult.value.error?collectionsResult.value.data||[]:archiveFallback;
   const snapshot=snapshotResult.status==='fulfilled'?snapshotResult.value:{};
+  const months=Object.keys(snapshot).sort().reverse();
+  const mosaicQueue=[];
+  for(let index=0;index<16;index++)for(const slug of months){
+    const item=snapshot[slug]?.[index];
+    if(item?.imageUrl&&!/\.(mp4|webm|mov)(?:$|[?#])/i.test(item.imageUrl))mosaicQueue.push(item.imageUrl);
+  }
+  document.querySelector('#monthlyDropMosaic').innerHTML=mosaicQueue.slice(0,48).map(url=>'<img src="'+esc(url)+'" alt="" loading="lazy">').join('');
   const collections=(raw.length?raw:archiveFallback).map(c=>{
     const row={...c,...(overview.find(x=>x.id===c.id)||{})};
     if(!Number(row.product_count||0))row.product_count=(snapshot[c.slug]||[]).length;
@@ -94,7 +93,10 @@ async function loadHome(){
   document.querySelector('#homeCollections').innerHTML=collections.length?
     collections.map(c=>collectionCard(c,models,snapshot[c.slug]||[])).join(''):
     stateMarkup('empty','Collections are being prepared','');
-  bindCollectionPreviews(document.querySelector('#homeCollections'));
+  document.querySelectorAll('.drop-access-card').forEach(card=>{
+    const reveal=()=>card.classList.add('is-revealed');
+    card.addEventListener('pointerenter',reveal,{once:true});card.addEventListener('focusin',reveal,{once:true});
+  });
 }
 
 loadHome().catch(error=>{

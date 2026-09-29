@@ -1,5 +1,5 @@
 import { supabase,initChrome,getSiteMediaSlots,monthLabel,stateMarkup,loadingMarkup,friendlyError,esc } from '/site.js';
-import {mosaicMedia,bindCollectionPreviews} from '/collection-mosaic.js';
+import {mosaicMedia} from '/collection-mosaic.js';
 let rows=[],active='all',snapshotCollections={};
 function card(c){
   const artwork=cover(c);
@@ -19,7 +19,6 @@ function renderHero(collections,slot){
 function render(){
   const filtered=active==='all'?rows:rows.filter(x=>String(x.year)===active);
   document.querySelector('#collectionsGrid').innerHTML=filtered.length?filtered.map(card).join(''):stateMarkup('empty','No collections','Nothing matches this year filter.');
-  bindCollectionPreviews(document.querySelector('#collectionsGrid'));
 }
 async function load(){
   await initChrome();
