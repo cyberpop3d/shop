@@ -1,7 +1,23 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
+  "alias": ["cyberpopstudio.com"],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "header",
+          "key": "host",
+          "value": ".*\\.vercel\\.app"
+        }
+      ],
+      "destination": "https://cyberpopstudio.com/:path*",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     { "source": "/", "destination": "/index.html" }
   ]
