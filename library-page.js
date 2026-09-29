@@ -1,165 +1,52 @@
-import { supabase,initChrome,getSiteMediaSlots,setMediaImage,mediaMarkup,monthLabel,stateMarkup,loadingMarkup,friendlyError,showToast,esc } from '/site.js';
+import { supabase,initChrome,getSiteMediaSlots,setMediaImage,mediaMarkup,monthLabel,stateMarkup,friendlyError,esc } from '/site.js';
 
-let session=null,collections=[],products=[],favorites=[],customDeliverables=[],productCodes=[],activeFilter='all',searchTerm='',sortMode='newest';
+let session=null,collections=[],products=[],collectionCodes=[],customDeliverables=[];
 
-function collectionCard(c,previewImage){
-  const open=Boolean(c.has_access);
-  const image=c.cover_image_url||previewImage;
-  const media=image?mediaMarkup(image,c.display_name||monthLabel(c.starts_on)):'<div class="media-placeholder"><span>COLLECTION COVER</span></div>';
-  return '<a class="collection-tile" href="/collection?slug='+encodeURIComponent(c.slug)+'"><div class="collection-tile-media">'+media+'</div><div class="collection-tile-copy"><span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name||monthLabel(c.starts_on))+'</h3><p>'+Number(c.product_count||0)+' models · '+(open?'Collection access active':'Browse collection')+'</p></div></a>';
-}
-
-function isFavorite(productId){return favorites.some(x=>x.product_id===productId)}
-
-function modelCard(p){
-  const favorite=isFavorite(p.id);
-  const code=productCodes.find(x=>x.product_id===p.id&&x.is_active!==false);
-  const media=p.thumbnail_url
-    ? '<div class="library-model-media">'+mediaMarkup(p.thumbnail_url,p.public_title)+'</div>'
-    : '<div class="library-model-media placeholder"><div class="media-placeholder"><span>1200 × 1400</span></div></div>';
-  const cultsUrl=code?.cults_url||p.cults_url||null;
-  const primary=cultsUrl
-    ? '<a class="library-action" href="'+esc(cultsUrl)+'" target="_blank" rel="noopener">Open on Cults ↗</a>'
-    : '<a class="library-action muted-action" href="/product?slug='+encodeURIComponent(p.slug||'')+'">Open model</a>';
-  const codeRow=code
-    ? '<div class="cults-code-row"><span>CULTS CODE</span><code>'+esc(code.cults_code)+'</code><button type="button" data-copy-code="'+esc(code.cults_code)+'">Copy</button></div>'
-    : '';
-  return '<article class="library-model-card" data-product-id="'+p.id+'">'+media+
-    '<div class="library-model-copy"><div class="library-model-top"><span class="badge open">OWNED</span><button class="favorite-btn '+(favorite?'active':'')+'" data-favorite="'+p.id+'" type="button" aria-label="Favorite">'+(favorite?'★':'☆')+'</button></div>'+
-    '<h3><a href="/product?slug='+encodeURIComponent(p.slug||'')+'">'+esc(p.public_title)+'</a></h3><p>'+esc(p.collection_name||'Collection')+' · v'+esc(p.version||'1.0')+'</p>'+
-    codeRow+'<div class="library-model-actions">'+primary+'</div></div></article>';
+function collectionCard(c){
+  const active=Boolean(c.has_access);
+  const preview=products.find(p=>p.collection_id===c.id&&p.thumbnail_url)?.thumbnail_url;
+  const artwork=c.cover_image_url||c.hero_image_url||preview||(/^2026-(04|05|06|07|08|09|10)$/.test(c.slug||'')?'/images/cults/'+c.slug+'.webp':'');
+  const media=artwork?mediaMarkup(artwork,c.display_name||monthLabel(c.starts_on)):'<div class="media-placeholder"><span>COLLECTION</span></div>';
+  const code=collectionCodes.find(x=>x.collection_id===c.id&&x.is_active!==false);
+  return '<a class="library-collection-card '+(active?'is-active':'is-locked')+'" href="/collection?slug='+encodeURIComponent(c.slug)+'">'+
+    '<div class="library-collection-media">'+media+'<span class="library-access-state">'+(active?'ACTIVE':'LOCKED')+'</span></div>'+
+    '<div class="library-collection-copy"><span>'+esc(c.slug)+'</span><h2>'+esc(c.display_name||monthLabel(c.starts_on))+'</h2><p>'+(active?(code?.cults_code?'Cults code available':'Code pending'):'View collection')+'</p></div></a>';
 }
 
 function customDeliveryCard(d){
-  const media=d.thumbnail_url
-    ? '<div class="library-model-media">'+mediaMarkup(d.thumbnail_url,d.title)+'</div>'
-    : '<div class="library-model-media placeholder"><div class="media-placeholder"><span>PRIVATE DELIVERY</span></div></div>';
-  const action=d.download_url
-    ? '<a class="library-action" href="'+esc(d.download_url)+'" target="_blank" rel="noopener">Open delivery ↗</a>'
-    : '<span class="library-action muted-action">Delivery link pending</span>';
-  return '<article class="library-model-card">'+media+
-    '<div class="library-model-copy"><div class="library-model-top"><span class="badge open">CUSTOM</span></div>'+
-    '<h3>'+esc(d.title)+'</h3><p>'+esc(d.description||'Private design delivered to your account.')+'</p>'+
-    '<div class="library-model-actions">'+action+'</div></div></article>';
-}
-function renderCustomDeliveries(){
-  const section=document.querySelector('#customDeliveriesSection');
-  const grid=document.querySelector('#customDeliveryGrid');
-  if(!section||!grid)return;
-  if(!session||!customDeliverables.length){section.hidden=true;grid.innerHTML='';return}
-  section.hidden=false;
-  grid.innerHTML=customDeliverables.map(customDeliveryCard).join('');
-}
-
-function filteredProducts(){
-  let rows=[...products];
-  if(activeFilter==='favorites')rows=rows.filter(x=>isFavorite(x.id));
-  if(activeFilter==='updated')rows=rows.filter(x=>{
-    const updated=new Date(x.product_updated_at||0).getTime();
-    const released=new Date(x.release_date||x.collection_starts_on||0).getTime();
-    return updated>released+(24*60*60*1000);
-  });
-  if(searchTerm)rows=rows.filter(x=>(x.public_title+' '+(x.collection_name||'')).toLowerCase().includes(searchTerm));
-  rows.sort((a,b)=>{
-    if(sortMode==='az')return String(a.public_title).localeCompare(String(b.public_title));
-    const ad=new Date(a.release_date||a.collection_starts_on||0).getTime();
-    const bd=new Date(b.release_date||b.collection_starts_on||0).getTime();
-    return sortMode==='oldest'?ad-bd:bd-ad;
-  });
-  return rows;
-}
-
-function renderModels(){
-  const grid=document.querySelector('#modelLibraryGrid');
-  if(!session){
-    grid.innerHTML=stateMarkup('auth','Sign in to open your Library','Ownership is loaded from your verified account entitlements.',{href:'/account?returnTo=%2Flibrary',label:'Sign in'});
-    return;
-  }
-  const rows=filteredProducts();
-  document.querySelector('#libraryModelMeta').textContent=products.length+' owned models · '+favorites.length+' favorites';
-  grid.innerHTML=rows.length?rows.map(modelCard).join(''):stateMarkup('empty',activeFilter==='favorites'?'No favorites yet':'Library empty',activeFilter==='favorites'?'Favorite an owned model and it will appear here.':'Unlock a model or receive collection access and it will appear here automatically.',{href:'/collections',label:'Browse collections'});
-  document.querySelectorAll('[data-favorite]').forEach(btn=>btn.onclick=()=>toggleFavorite(btn.dataset.favorite));
-  document.querySelectorAll('[data-copy-code]').forEach(btn=>btn.onclick=async()=>{
-    try{await navigator.clipboard.writeText(btn.dataset.copyCode);showToast('Cults3D code copied.')}
-    catch(_){showToast('Copy the code manually.','error')}
-  });
-}
-
-async function toggleFavorite(productId){
-  if(!session)return;
-  if(isFavorite(productId)){
-    const r=await supabase.from('member_favorites').delete().eq('product_id',productId);
-    if(r.error){showToast('Favorite could not be updated.','error');return}
-    favorites=favorites.filter(x=>x.product_id!==productId);showToast('Removed from favorites.');
-  }else{
-    const r=await supabase.from('member_favorites').insert({user_id:session.user.id,product_id:productId});
-    if(r.error){showToast('Favorite could not be updated.','error');return}
-    favorites.push({user_id:session.user.id,product_id:productId});showToast('Added to favorites.');
-  }
-  renderModels();
+  const media=d.thumbnail_url?mediaMarkup(d.thumbnail_url,d.title):'<div class="media-placeholder"><span>PRIVATE DELIVERY</span></div>';
+  return '<article class="library-model-card"><div class="library-model-media">'+media+'</div><div class="library-model-copy"><span class="badge open">CUSTOM</span><h3>'+esc(d.title)+'</h3>'+(d.download_url?'<a class="library-action" href="'+esc(d.download_url)+'" target="_blank" rel="noopener">Open delivery ↗</a>':'')+'</div></article>';
 }
 
 async function loadLibrary(){
-  session=await Promise.race([
-    initChrome(),
-    new Promise(resolve=>setTimeout(()=>resolve(null),5000))
-  ]);
-  document.querySelector('#modelLibraryGrid').innerHTML=loadingMarkup(8,'card');
-  const slots=await Promise.race([
-    getSiteMediaSlots().catch(()=>({})),
-    new Promise(resolve=>setTimeout(()=>resolve({}),3500))
-  ]);
-  setMediaImage(document.querySelector('#libraryHero'),slots.library_hero?.asset_url||'/images/cults/2026-09.webp','CYBERPOP');
+  session=await Promise.race([initChrome(),new Promise(resolve=>setTimeout(()=>resolve(null),5000))]);
+  const slots=await Promise.race([getSiteMediaSlots().catch(()=>({})),new Promise(resolve=>setTimeout(()=>resolve({}),3500))]);
+  setMediaImage(document.querySelector('#libraryHero'),slots.library_hero?.asset_url||'/images/cults/2026-09.webp','CyberPop Library');
   const notice=document.querySelector('#libraryNotice');
-  const cta=document.querySelector('#libraryAccountCta');
-
   if(!session){
     notice.className='notice accent';
-    notice.innerHTML='<div><strong>You are browsing as a guest.</strong><span> Sign in to load your verified Library.</span></div><a class="btn btn-light" href="/account?returnTo=%2Flibrary">Sign in</a>';
-    cta.textContent='Sign in';
-    document.querySelector('#collectionGrid').innerHTML='';
-    customDeliverables=[];
-    renderCustomDeliveries();
-    renderModels();
+    notice.innerHTML='<div><strong>Sign in to open your Library.</strong><span> Collection access is loaded from your verified account.</span></div><a class="btn btn-light" href="/account?returnTo=%2Flibrary">Sign in</a>';
+    document.querySelector('#collectionGrid').innerHTML=stateMarkup('auth','Your collections are private','Sign in to view active and locked collection months.',{href:'/account?returnTo=%2Flibrary',label:'Sign in'});
     return;
   }
-
-  notice.className='notice';
-  notice.innerHTML='<div><strong>Verified Library</strong><span> Models below are returned from backend ownership state, not browser flags.</span></div>';
-  cta.textContent='Manage account';
-
+  notice.innerHTML='<div><strong>Your Collection Library</strong><span> Access is verified by your account.</span></div><a class="text-link" href="/account">Open Account →</a>';
   const results=await Promise.all([
-    supabase.from('member_owned_products').select('*'),
-    supabase.from('member_favorites').select('*'),
     supabase.from('membership_collection_overview').select('*').order('starts_on',{ascending:false}),
     supabase.from('membership_collections').select('*').eq('is_published',true),
-    supabase.from('custom_deliverables').select('*').eq('is_active',true).order('created_at',{ascending:false}),
-    supabase.from('membership_product_codes').select('*').eq('is_active',true).order('created_at',{ascending:false})
+    supabase.from('member_owned_products').select('collection_id,thumbnail_url'),
+    supabase.from('membership_collection_codes').select('*').eq('is_active',true),
+    supabase.from('custom_deliverables').select('*').eq('is_active',true).order('created_at',{ascending:false})
   ]);
-  const err=results.find(x=>x.error);if(err)throw err.error;
-
-  products=results[0].data||[];
-  favorites=results[1].data||[];
-  const overview=results[2].data||[],rawCollections=results[3].data||[];
-  customDeliverables=results[4].data||[];
-  productCodes=results[5].data||[];
-  collections=overview.map(c=>({...c,...(rawCollections.find(x=>x.id===c.id)||{})}));
-
-  document.querySelector('#collectionGrid').innerHTML=collections.length?collections.map(c=>collectionCard(c,products.find(p=>p.collection_id===c.id)?.thumbnail_url)).join(''):stateMarkup('','No collection months yet','Published monthly drops will appear here automatically.');
-  renderCustomDeliveries();
-  renderModels();
+  const failed=results.find(x=>x.error);if(failed)throw failed.error;
+  const overview=results[0].data||[],raw=results[1].data||[];
+  products=results[2].data||[];collectionCodes=results[3].data||[];customDeliverables=results[4].data||[];
+  collections=overview.map(c=>({...c,...(raw.find(x=>x.id===c.id)||{})}));
+  document.querySelector('#collectionGrid').innerHTML=collections.length?collections.map(collectionCard).join(''):stateMarkup('','No collections yet','Published monthly collections will appear here.');
+  const customSection=document.querySelector('#customDeliveriesSection');
+  if(customDeliverables.length){customSection.hidden=false;document.querySelector('#customDeliveryGrid').innerHTML=customDeliverables.map(customDeliveryCard).join('')}
 }
-
-document.querySelector('#librarySearch').addEventListener('input',e=>{searchTerm=e.target.value.trim().toLowerCase();renderModels()});
-document.querySelector('#librarySort').addEventListener('change',e=>{sortMode=e.target.value;renderModels()});
-document.querySelectorAll('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{
-  activeFilter=btn.dataset.filter;
-  document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===btn));
-  renderModels();
-}));
 
 loadLibrary().catch(err=>{
   console.error(err);
-  document.querySelector('#collectionGrid').innerHTML='';
-  document.querySelector('#modelLibraryGrid').innerHTML=stateMarkup('error','Library unavailable',friendlyError(err,'Your verified ownership could not be loaded right now.'),{href:'/library',label:'Retry'});
+  document.querySelector('#collectionGrid').innerHTML=stateMarkup('error','Library unavailable',friendlyError(err,'Your collection access could not be loaded.'),{href:'/library',label:'Retry'});
 });

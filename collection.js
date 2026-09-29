@@ -2,11 +2,11 @@ import { supabase,initChrome,setMediaImage,mediaMarkup,stateMarkup,loadingMarkup
 const slug=new URLSearchParams(location.search).get('slug');let session=null,collection=null,products=[],filter='all',sort='newest';
 const curatedHero=/^2026-(04|05|06|07|08|09|10)$/.test(slug||'')?'/images/cults/'+slug+'.webp':'';
 if(curatedHero)setMediaImage(document.querySelector('#collectionHero'),curatedHero,'COLLECTION ARTWORK');
-function card(p){
-  const media=p.thumbnail_url?mediaMarkup(p.thumbnail_url,p.public_title):'<div class="media-placeholder"><span>CYBERPOP</span></div>';
-  const href=p.public_preview_url||'/product?slug='+encodeURIComponent(p.slug||'');
-  const badge=p.public_preview_url?'':p.has_access?'<span class="store-product-badge owned-badge">IN YOUR LIBRARY</span>':'';
-  return '<a class="store-product-card" href="'+esc(href)+'"'+(p.public_preview_url?' target="_blank" rel="noopener noreferrer"':'')+'><div class="store-product-media">'+media+badge+'</div><div class="store-product-body"><h3>'+esc(p.public_title)+'</h3><p>'+esc(p.collection_name||'Collection')+'</p></div></a>';
+function card(p,index){
+  const label=(collection?.display_name||'CyberPop Collection')+' #'+String(index+1);
+  const media=p.thumbnail_url?mediaMarkup(p.thumbnail_url,label):'<div class="media-placeholder"><span>CYBERPOP</span></div>';
+  const badge=p.has_access?'<span class="store-product-badge owned-badge">IN YOUR LIBRARY</span>':'';
+  return '<article class="store-product-card"><div class="store-product-media">'+media+badge+'</div><div class="store-product-body"><h3>'+esc(label)+'</h3><p>'+esc(p.collection_name||'Collection')+'</p></div></article>';
 }
 function render(){
   let rows=[...products];
@@ -20,9 +20,10 @@ async function load(){
   if(!slug)throw new Error('Missing collection slug');
   session=await initChrome();
   document.querySelector('#productGrid').innerHTML=loadingMarkup(6,'card');
-  const [cRes,oRes]=await Promise.all([
+  const [cRes,oRes,codeRes]=await Promise.all([
     supabase.from('membership_collections').select('*').eq('slug',slug).eq('is_published',true).maybeSingle(),
-    supabase.from('membership_collection_overview').select('*').eq('slug',slug).maybeSingle()
+    supabase.from('membership_collection_overview').select('*').eq('slug',slug).maybeSingle(),
+    session?supabase.from('membership_collection_codes').select('*').eq('is_active',true):Promise.resolve({data:[],error:null})
   ]);
   if(cRes.error)throw cRes.error;if(!cRes.data)throw new Error('Collection not found.');
   collection={...cRes.data,...(oRes.data||{})};
@@ -46,10 +47,12 @@ async function load(){
   document.querySelector('#collectionMeta').innerHTML='<span>'+products.length+' MODELS</span><span>'+(collection.has_access?'ACCESS ACTIVE':'ARCHIVE')+'</span>';
   render();
   setMediaImage(document.querySelector('#collectionHero'),collection.cover_image_url||products.find(p=>p.thumbnail_url)?.thumbnail_url||collection.hero_image_url||curatedHero,'COLLECTION ARTWORK');
+  const code=(codeRes.data||[]).find(x=>x.collection_id===collection.id);
   const area=document.querySelector('#accessArea');area.hidden=false;
   area.innerHTML=collection.has_access
-    ? '<div class="notice"><div><strong>Collection access active.</strong><span> Owned models are available through your verified Library.</span></div><a class="btn btn-light" href="/library">Open Library →</a></div>'
+    ? '<div class="collection-code-panel"><div><span class="eyebrow">YOUR CULTS CODE</span><strong>'+(code?.cults_code?esc(code.cults_code):'CODE PENDING')+'</strong></div><div class="collection-code-actions">'+(code?.cults_code?'<button class="btn btn-ghost" type="button" id="copyCollectionCode">Copy Code</button>':'')+(code?.cults_url?'<a class="btn btn-light" href="'+esc(code.cults_url)+'" target="_blank" rel="noopener">Open on Cults ↗</a>':'')+'</div></div>'
     : '<div class="notice accent"><div><strong>Explore the collection.</strong><span> Request access when you’re ready.</span></div><a class="btn btn-ghost" href="/access">Request Access →</a></div>';
+  const copyButton=document.querySelector('#copyCollectionCode');if(copyButton)copyButton.onclick=async()=>{await navigator.clipboard.writeText(code.cults_code);copyButton.textContent='Copied'};
 }
 document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));render()});
 document.querySelector('#collectionSort').onchange=e=>{sort=e.target.value;render()};

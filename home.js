@@ -1,18 +1,8 @@
 import { supabase,initChrome,getSiteMediaSlots,monthLabel,stateMarkup,mediaMarkup,esc } from '/site.js';
 
 const collectionHref=c=>'/collection?slug='+encodeURIComponent(c.slug);
-const productHref=p=>'/product?slug='+encodeURIComponent(p.slug||'');
 const month=c=>monthLabel(c.starts_on);
 const curatedCover=c=>/^2026-(04|05|06|07|08|09|10)$/.test(c.slug||'')?'/images/cults/'+c.slug+'.webp':'';
-const curatedWorks=[
-  {public_title:'Ghost Rider',collection_name:'September 2026',thumbnail_url:'/images/cults/2026-09.webp',cults_public_url:'https://cults3d.com/en/3d-model/art/ghost-rider-multipart-no-ams'},
-  {public_title:'Morrigan Aensland',collection_name:'August 2026',thumbnail_url:'/images/cults/2026-08.webp',cults_public_url:'https://cults3d.com/en/3d-model/art/morrigan-aensland-multipart-no-ams'},
-  {public_title:'Jin Kazama',collection_name:'July 2026',thumbnail_url:'/images/cults/2026-07.webp',cults_public_url:'https://cults3d.com/en/3d-model/art/arcade-fighter'},
-  {public_title:'Carnage',collection_name:'June 2026',thumbnail_url:'/images/cults/2026-06.webp',cults_public_url:'https://cults3d.com/en/3d-model/art/carnage-multipart-no-ams'},
-  {public_title:'Raiden',collection_name:'May 2026',thumbnail_url:'/images/cults/2026-05.webp',cults_public_url:'https://cults3d.com/en/3d-model/art/raiden-mortal-kombat-fan-art-no-ams-multi-part-3mf'},
-  {public_title:'Red-Eyes Black Dragon',collection_name:'April 2026',thumbnail_url:'/images/cults/2026-04.webp',cults_public_url:'https://cults3d.com/en/3d-model/art/red-eyes-black-dragon-pet-multi-color-fdm'}
-];
-const cleanTitle=title=>String(title||'').replace(/\s+Multipart\b.*$/i,'').trim();
 async function publicSnapshot(){
   const response=await fetch('/data/cults-collections.json',{cache:'no-store'});
   return response.ok?(await response.json()).collections||{}:{};
@@ -27,12 +17,13 @@ const image=(url,alt,priority=false)=>mediaMarkup(url,alt,{priority});
 function collectionImage(c,models){
   return c.cover_image_url||c.hero_image_url||models.find(p=>p.collection_id===c.id&&p.thumbnail_url)?.thumbnail_url||curatedCover(c);
 }
-function productCard(p){
-  const href=p.cults_public_url||productHref(p);
-  return '<a class="store-product-card" href="'+esc(href)+'"'+(p.cults_public_url?' target="_blank" rel="noopener noreferrer"':'')+'><div class="store-product-media">'+
-    image(p.thumbnail_url,p.public_title)+
-    (p.has_access?'<span class="work-access">IN YOUR LIBRARY</span>':'')+
-    '</div><div class="store-product-body"><h3>'+esc(p.public_title)+'</h3><p>'+esc(p.collection_name||'CyberPop Collection')+'</p></div></a>';
+function productCard(p,index){
+  const collectionName=p.collection_name||'CyberPop Collection';
+  const label=p.display_label||collectionName+' #'+String(index+1);
+  const href=p.collection_slug?collectionHref({slug:p.collection_slug}):'/collections';
+  return '<a class="selected-work-card '+(index===0?'selected-work-feature':'')+'" href="'+esc(href)+'"><div class="selected-work-media">'+
+    image(p.thumbnail_url,label)+(p.has_access?'<span class="work-access">IN YOUR LIBRARY</span>':'')+
+    '<span class="selected-work-shade"></span><span class="selected-work-label">'+esc(label)+'</span></div></a>';
 }
 function collectionCard(c,models){
   const artwork=collectionImage(c,models);
@@ -87,10 +78,14 @@ async function loadHome(){
   const models=productsResult.status==='fulfilled'&&!productsResult.value.error?(productsResult.value.data||[]).filter(p=>p.thumbnail_url):[];
   renderShowcase(collections,models,slots);
 
-  const currentWorks=(snapshot['2026-09']||[]).slice(0,8).map(item=>({
-    public_title:cleanTitle(item.title),collection_name:'September 2026',thumbnail_url:item.imageUrl,cults_public_url:item.url
-  }));
-  const selected=models.length?models.slice(0,8):(currentWorks.length?currentWorks:curatedWorks);
+  const selectedPool=Object.entries(snapshot).flatMap(([collectionSlug,items])=>{
+    const collection=collections.find(c=>c.slug===collectionSlug);
+    const collectionName=collection?.display_name||monthLabel(collectionSlug+'-01');
+    return (items||[]).map((item,index)=>({thumbnail_url:item.imageUrl,collection_slug:collectionSlug,collection_name:collectionName,display_label:collectionName+' #'+String(index+1)}));
+  }).filter(x=>x.thumbnail_url);
+  for(let i=selectedPool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[selectedPool[i],selectedPool[j]]=[selectedPool[j],selectedPool[i]]}
+  const dbSelected=models.map((p,index)=>({...p,collection_slug:collections.find(c=>c.id===p.collection_id)?.slug,display_label:(p.collection_name||'CyberPop Collection')+' #'+String(index+1)}));
+  const selected=(selectedPool.length?selectedPool:dbSelected).slice(0,5);
   document.querySelector('#newReleases').hidden=!selected.length;
   document.querySelector('#newReleaseGrid').innerHTML=selected.map(productCard).join('');
   document.querySelector('#homeCollections').innerHTML=collections.length?

@@ -5,12 +5,13 @@ let currentProduct=null;
 let currentSession=null;
 
 function card(p){
+  const label=(p.collection_name||'CyberPop Collection')+' #'+String(p.product_number||1);
   const media=p.thumbnail_url
-    ? mediaMarkup(p.thumbnail_url,p.public_title)
+    ? mediaMarkup(p.thumbnail_url,label)
     : '<div class="media-placeholder"><span>1200 × 1400</span></div>';
   return '<a class="store-product-card" href="/product?slug='+encodeURIComponent(p.slug||'')+'">'+
     '<div class="store-product-media">'+media+(p.has_access?'<span class="store-product-badge">OWNED</span>':'')+'</div>'+
-    '<div class="store-product-body"><h3>'+esc(p.public_title)+'</h3><p>'+esc(p.collection_name||'Collection')+'</p></div></a>';
+    '<div class="store-product-body"><h3>'+esc(label)+'</h3><p>'+esc(p.collection_name||'Collection')+'</p></div></a>';
 }
 
 function safeReturnPath(){
@@ -98,17 +99,18 @@ async function load(){
     currentSession?supabase.from('member_favorites').select('product_id').eq('product_id',p.id).maybeSingle():Promise.resolve({data:null,error:null})
   ]);
 
-  document.title=p.public_title+' — CyberPop';
+  const publicLabel=(p.collection_name||'CyberPop Collection')+' #'+String(p.product_number||1);
+  document.title=publicLabel+' — CyberPop';
   document.querySelector('#productEyebrow').textContent=p.collection_name||'MODEL';
-  document.querySelector('#productName').textContent=p.public_title;
-  document.querySelector('#productDescription').textContent=raw.data?.description||'CyberPop multipart collectible model.';
+  document.querySelector('#productName').textContent=publicLabel;
+  document.querySelector('#productDescription').textContent='CyberPop multipart collectible model.';
   document.querySelector('#productTags').innerHTML='<span>'+(p.multipart?'MULTIPART':'MODEL')+'</span><span>'+(p.ams_required?'AMS':'NO AMS')+'</span>'+(p.height_mm?'<span>'+p.height_mm+' MM</span>':'')+'<span>'+(p.license_scope==='PHYSICAL_COMMERCIAL'?'PHYSICAL PRINT PERMISSION':'PERSONAL LICENSE')+'</span>';
   renderRightsNotices(p);
 
   const images=[...(g.data||[])];
   if(p.thumbnail_url&&!images.some(x=>x.image_url===p.thumbnail_url))images.unshift({image_url:p.thumbnail_url});
   const main=document.querySelector('#galleryMain'),thumbs=document.querySelector('#galleryThumbs');
-  function setMain(url){main.innerHTML=url?mediaMarkup(url,p.public_title,{priority:true,controls:true}):'<div class="media-placeholder"><span>PRODUCT GALLERY · 1600 × 1600</span></div>'}
+  function setMain(url){main.innerHTML=url?mediaMarkup(url,publicLabel,{priority:true,controls:true}):'<div class="media-placeholder"><span>PRODUCT GALLERY · 1600 × 1600</span></div>'}
   setMain(images[0]?.image_url||null);
   thumbs.innerHTML=images.map((x,i)=>'<button class="gallery-thumb" data-i="'+i+'">'+mediaMarkup(x.image_url,'')+'</button>').join('');
   thumbs.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>setMain(images[Number(b.dataset.i)].image_url));
