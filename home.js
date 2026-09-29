@@ -33,16 +33,19 @@ function collectionCard(c,models){
     '<span class="eyebrow">'+esc(c.slug)+'</span><h3>'+esc(c.display_name)+'</h3>'+
     (Number(c.product_count||0)?'<p>'+Number(c.product_count)+' models</p>':'')+'</div></a>';
 }
-function previewCard(c,models,large=false){
-  const artwork=collectionImage(c,models);
-  return '<a class="showcase-preview '+(large?'showcase-preview-wide ':'')+(!artwork?'unfilled':'')+'" href="'+collectionHref(c)+'">'+
-    image(artwork,c.display_name)+'<span class="showcase-preview-shade"></span><span class="showcase-preview-label">'+
-    '<small>COLLECTION</small><strong>'+esc(month(c))+'</strong></span><span class="showcase-arrow" aria-hidden="true">↗</span></a>';
+function previewCard(c,models,large=false,slot={},settings={},index=1){
+  const artwork=slot.asset_url||collectionImage(c,models);
+  const label=settings['preview_'+index+'_label']||month(c);
+  const href=settings['preview_'+index+'_href']||collectionHref(c);
+  return '<a class="showcase-preview '+(large?'showcase-preview-wide ':'')+(!artwork?'unfilled':'')+'" href="'+esc(href)+'">'+
+    image(artwork,label)+'<span class="showcase-preview-shade"></span><span class="showcase-preview-label">'+
+    '<small>COLLECTION</small><strong>'+esc(label)+'</strong></span><span class="showcase-arrow" aria-hidden="true">↗</span></a>';
 }
 function renderShowcase(collections,models,slots){
   const current=collections.filter(c=>c.starts_on<=new Date().toISOString().slice(0,10));
   const visible=current.length?current:collections;
   const feature=visible[0];
+  const settings=slots.home_hero?.content_json||{};
   const featureArt=slots.home_hero?.asset_url||(feature?collectionImage(feature,models):'');
   const featurePanel=document.querySelector('#heroFeature');
   featurePanel.classList.toggle('has-artwork',!!featureArt);
@@ -50,10 +53,15 @@ function renderShowcase(collections,models,slots){
     featurePanel.insertAdjacentHTML('afterbegin','<div class="showcase-feature-media">'+image(featureArt,feature?.display_name||'CyberPop collection',true)+'</div>');
   }
   if(feature){
-    featurePanel.insertAdjacentHTML('beforeend','<a class="showcase-feature-link" href="'+collectionHref(feature)+'">'+esc(month(feature))+' <span aria-hidden="true">↗</span></a>');
+    featurePanel.insertAdjacentHTML('beforeend','<a class="showcase-feature-link" href="'+esc(settings.feature_href||collectionHref(feature))+'">'+esc(settings.feature_label||month(feature))+' <span aria-hidden="true">↗</span></a>');
   }
+  document.querySelector('#heroTitleLine1').textContent=settings.title_line_1||'CYBERPOP';
+  document.querySelector('#heroTitleLine2').textContent=settings.title_line_2||'COLLECTIONS';
+  const primary=document.querySelector('#heroPrimaryAction'),secondary=document.querySelector('#heroSecondaryAction');
+  primary.href=settings.primary_href||'/access';primary.querySelector('span').textContent=settings.primary_label||'Purchase Collection';
+  secondary.href=settings.secondary_href||'/collections';secondary.querySelector('span').textContent=settings.secondary_label||'Explore Collections';
   const previews=visible.slice(1,5);
-  document.querySelector('#heroPreviews').innerHTML=previews.map((c,i)=>previewCard(c,models,i===0)).join('');
+  document.querySelector('#heroPreviews').innerHTML=previews.map((c,i)=>previewCard(c,models,i===0,slots['home_preview_'+(i+1)]||{},settings,i+1)).join('');
   document.querySelector('#heroPreviews').hidden=!previews.length;
 }
 

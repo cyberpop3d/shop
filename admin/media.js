@@ -78,6 +78,27 @@ function collectionCard(c){
     '<div class="media-upload-row"><label class="admin-btn media-file-label">Upload / replace<input type="file" accept="image/png,image/jpeg,image/webp,image/avif,video/mp4,video/webm" data-collection-hero="'+c.id+'"></label>'+(c.hero_image_url?'<button class="ghost" data-collection-hero-remove="'+c.id+'">Remove</button>':'')+'</div></div></article>';
 }
 function productName(p){const priv=privateRows.find(x=>x.product_id===p.id);return priv?.internal_name||p.public_title}
+function heroField(key,label,value,type='text'){
+  return '<label>'+esc(label)+'<input type="'+type+'" data-hero-field="'+esc(key)+'" value="'+esc(value||'')+'"></label>';
+}
+function renderHeroComposer(){
+  const slot=slots.find(x=>x.slot_key==='home_hero');if(!slot)return;
+  const c=slot.content_json||{};
+  const groups=[
+    ['Main copy',heroField('title_line_1','Title line 1',c.title_line_1)+heroField('title_line_2','Title line 2',c.title_line_2)+heroField('primary_label','Primary button',c.primary_label)+heroField('primary_href','Primary link',c.primary_href)+heroField('secondary_label','Secondary button',c.secondary_label)+heroField('secondary_href','Secondary link',c.secondary_href)],
+    ['Main artwork label',heroField('feature_label','Collection label',c.feature_label)+heroField('feature_href','Collection link',c.feature_href)],
+    ['Preview 1 · wide',heroField('preview_1_label','Label',c.preview_1_label)+heroField('preview_1_href','Link',c.preview_1_href)],
+    ['Preview 2 · small',heroField('preview_2_label','Label',c.preview_2_label)+heroField('preview_2_href','Link',c.preview_2_href)],
+    ['Preview 3 · small',heroField('preview_3_label','Label',c.preview_3_label)+heroField('preview_3_href','Link',c.preview_3_href)],
+    ['Preview 4 · small',heroField('preview_4_label','Label',c.preview_4_label)+heroField('preview_4_href','Link',c.preview_4_href)]
+  ];
+  $('#heroComposer').innerHTML=groups.map(g=>'<div class="hero-composer-group"><h3>'+g[0]+'</h3>'+g[1]+'</div>').join('');
+}
+async function saveHeroComposer(){
+  const content={};document.querySelectorAll('[data-hero-field]').forEach(input=>content[input.dataset.heroField]=input.value.trim());
+  const r=await supabase.from('site_media_slots').update({content_json:content,updated_by:session.user.id,updated_at:new Date().toISOString()}).eq('slot_key','home_hero');
+  if(r.error)return toast(r.error.message,'error');toast('Homepage hero updated.');await load();
+}
 function renderProductEditor(){
   const id=$('#mediaProductSelect').value;const p=products.find(x=>x.id===id);
   if(!p){$('#productMediaEditor').innerHTML='<p class="small">No model selected.</p>';return}
@@ -95,6 +116,7 @@ function bindProductEvents(){
   document.querySelectorAll('[data-gallery-remove]').forEach(btn=>btn.onclick=()=>removeGallery(btn.dataset.galleryRemove));
 }
 function render(){
+  renderHeroComposer();
   $('#siteSlots').innerHTML=slots.map(siteSlotCard).join('');
   $('#collectionMedia').innerHTML=collections.map(collectionCard).join('')||'<p class="small">No collections yet.</p>';
   $('#mediaProductSelect').innerHTML=products.map(p=>'<option value="'+p.id+'">'+esc(productName(p))+' · '+esc(p.public_title)+'</option>').join('');
@@ -193,6 +215,7 @@ async function removeGallery(id){
 }
 
 $('#mediaProductSelect').addEventListener('change',renderProductEditor);
+$('#saveHeroComposer').onclick=()=>saveHeroComposer();
 $('#refreshMedia').onclick=()=>load().catch(e=>toast(e.message,'error'));
 $('#mediaLoginForm').addEventListener('submit',async e=>{
   e.preventDefault();$('#mediaLoginStatus').textContent='Sending sign-in link…';

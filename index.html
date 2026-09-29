@@ -15,33 +15,14 @@
   <section id="homeHero" class="collection-showcase" aria-label="CyberPop collections">
     <div id="heroFeature" class="showcase-feature">
       <div class="showcase-feature-copy">
-        <h1>CYBERPOP<br>COLLECTIONS</h1>
+        <h1><span id="heroTitleLine1">CYBERPOP</span><br><span id="heroTitleLine2">COLLECTIONS</span></h1>
         <div class="store-hero-actions">
-          <a class="btn btn-light" href="/access">Purchase Collection <span aria-hidden="true">↗</span></a>
-          <a class="hero-text-link" href="/collections">Explore Collections <span aria-hidden="true">↗</span></a>
+          <a id="heroPrimaryAction" class="btn btn-light" href="/access"><span>Purchase Collection</span> <i aria-hidden="true">↗</i></a>
+          <a id="heroSecondaryAction" class="hero-text-link" href="/collections"><span>Explore Collections</span> <i aria-hidden="true">↗</i></a>
         </div>
       </div>
     </div>
     <div id="heroPreviews" class="showcase-previews" aria-label="Collection previews"></div>
-  </section>
-
-  <section class="site-shell section portfolio-section" id="newReleases" hidden>
-    <div class="section-head">
-      <div><span class="eyebrow">SELECTED MODELS</span><h2 class="section-title">Selected Works</h2></div>
-      <a class="text-link" href="/collections">Explore Archive →</a>
-    </div>
-    <div id="newReleaseGrid" class="selected-work-grid"></div>
-  </section>
-
-  <section class="drop-access-section" aria-labelledby="dropAccessTitle">
-    <div class="site-shell drop-access-inner">
-      <div class="drop-access-heading"><span class="eyebrow">COLLECTION ACCESS</span><h2 id="dropAccessTitle">Join Monthly Drop</h2></div>
-      <div class="drop-access-options">
-        <a href="/access?package=monthly-drop" class="drop-access-card"><span>MONTHLY DROP</span><strong>$20</strong><small>Current monthly collection</small><b>JOIN MONTHLY →</b></a>
-        <a href="/access?package=past-collections" class="drop-access-card"><span>PAST COLLECTIONS</span><strong>$30</strong><small>Per selected collection</small><b>SELECT COLLECTIONS →</b></a>
-        <a href="/access?package=annual-plus-3" class="drop-access-card featured"><span>ANNUAL ACCESS</span><strong>$200</strong><small>12 months + 3 past collections</small><b>CHOOSE ANNUAL →</b></a>
-      </div>
-    </div>
   </section>
 
   <section class="site-shell section portfolio-section">
@@ -50,6 +31,25 @@
       <a class="text-link" href="/collections">View All →</a>
     </div>
     <div id="homeCollections" class="collection-grid"></div>
+  </section>
+
+  <section class="drop-access-section" aria-labelledby="dropAccessTitle">
+    <div class="site-shell drop-access-inner">
+      <div class="drop-access-heading"><span class="eyebrow">COLLECTION ACCESS</span><h2 id="dropAccessTitle">Join Monthly Drop</h2></div>
+      <div class="drop-access-options">
+        <a href="/access?package=monthly-drop" class="drop-access-card monthly"><span>MONTHLY DROP</span><strong>$20</strong><small>Current monthly collection</small><b>JOIN MONTHLY →</b></a>
+        <a href="/access?package=past-collections" class="drop-access-card archive"><span>PAST COLLECTIONS</span><strong>$30</strong><small>Per selected collection</small><b>SELECT COLLECTIONS →</b></a>
+        <a href="/access?package=annual-plus-3" class="drop-access-card featured"><span>ANNUAL ACCESS</span><strong>$200</strong><small>12 months + 3 past collections</small><b>CHOOSE ANNUAL →</b></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="site-shell section portfolio-section" id="newReleases" hidden>
+    <div class="section-head">
+      <div><span class="eyebrow">SELECTED MODELS</span><h2 class="section-title">Selected Works</h2></div>
+      <a class="text-link" href="/collections">Explore Archive →</a>
+    </div>
+    <div id="newReleaseGrid" class="selected-work-grid"></div>
   </section>
 </main>
 <footer class="footer"><div class="site-shell footer-grid"><div><strong>CYBERPOP</strong></div><div><div class="footer-label">Explore</div><div class="footer-links"><a href="/collections">Collections</a><a href="/request">Custom Order</a><a href="/library">Library</a></div></div><div><div class="footer-label">Account</div><div class="footer-links"><a href="/account">Profile</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></div></div></div></footer>
