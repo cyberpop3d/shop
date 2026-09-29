@@ -197,8 +197,11 @@ async function render(){
   activeSession=await initChrome();
   const google=await googleProviderReady();
   const googleButton=document.querySelector('#googleButton');
+  const googleDivider=document.querySelector('#googleDivider');
+  googleButton.hidden=!google;
   googleButton.disabled=!google;
-  googleButton.title=google?'Sign in with Google':'Google OAuth setup is pending';
+  googleButton.title=google?'Sign in with Google':'';
+  if(googleDivider)googleDivider.hidden=!google;
 
   const authMethods=document.querySelector('#authMethods');
   const authCard=document.querySelector('#authCard');
