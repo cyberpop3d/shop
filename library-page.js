@@ -16,6 +16,10 @@ function customDeliveryCard(d){
   const media=d.thumbnail_url?mediaMarkup(d.thumbnail_url,d.title):'<div class="media-placeholder"><span>PRIVATE DELIVERY</span></div>';
   return '<article class="library-model-card"><div class="library-model-media">'+media+'</div><div class="library-model-copy"><span class="badge open">CUSTOM</span><h3>'+esc(d.title)+'</h3>'+(d.download_url?'<a class="library-action" href="'+esc(d.download_url)+'" target="_blank" rel="noopener">Open delivery ↗</a>':'')+'</div></article>';
 }
+function individualModelCard(p){
+  const media=p.thumbnail_url?mediaMarkup(p.thumbnail_url,p.public_title):'<div class="media-placeholder"><span>CYBERPOP</span></div>';
+  return '<article class="library-model-card"><div class="library-model-media">'+media+'</div><div class="library-model-copy"><span class="badge open">GRANTED</span><h3>'+esc(p.public_title||p.collection_name+' #'+p.product_number)+'</h3><p>'+esc(p.collection_name||'Collection')+'</p><a class="library-action" href="/product?slug='+encodeURIComponent(p.slug)+'">Open model ↗</a></div></article>';
+}
 
 async function loadLibrary(){
   session=await Promise.race([initChrome(),new Promise(resolve=>setTimeout(()=>resolve(null),5000))]);
@@ -31,15 +35,20 @@ async function loadLibrary(){
   const results=await Promise.all([
     supabase.from('membership_collection_overview').select('*').order('starts_on',{ascending:false}),
     supabase.from('membership_collections').select('*').eq('is_published',true),
-    supabase.from('member_owned_products').select('collection_id,thumbnail_url'),
+    supabase.from('member_owned_products').select('id,collection_id,thumbnail_url,public_title,product_number,collection_name,slug'),
     supabase.from('membership_collection_codes').select('*').eq('user_id',session.user.id).eq('is_active',true),
-    supabase.from('custom_deliverables').select('*').eq('user_id',session.user.id).eq('is_active',true).order('created_at',{ascending:false})
+    supabase.from('custom_deliverables').select('*').eq('user_id',session.user.id).eq('is_active',true).order('created_at',{ascending:false}),
+    supabase.from('product_entitlements').select('product_id').eq('user_id',session.user.id).is('revoked_at',null)
   ]);
   const failed=results.find(x=>x.error);if(failed)throw failed.error;
   const overview=results[0].data||[],raw=results[1].data||[];
   products=results[2].data||[];collectionCodes=results[3].data||[];customDeliverables=results[4].data||[];
   collections=overview.filter(c=>c.has_access===true).map(c=>({...c,...(raw.find(x=>x.id===c.id)||{})}));
   document.querySelector('#collectionGrid').innerHTML=collections.length?collections.map(collectionCard).join(''):stateMarkup('','No collections in your Library yet','Browse the archive to request access.',{href:'/collections',label:'Browse Collections'});
+  const individuallyGranted=new Set((results[5].data||[]).map(x=>x.product_id));
+  const individualProducts=products.filter(p=>individuallyGranted.has(p.id)&&!collections.some(c=>c.id===p.collection_id));
+  document.querySelector('#individualModelsSection').hidden=!individualProducts.length;
+  document.querySelector('#individualModelsGrid').innerHTML=individualProducts.map(individualModelCard).join('');
   document.querySelector('#customDeliveryGrid').innerHTML=customDeliverables.length?customDeliverables.map(customDeliveryCard).join(''):stateMarkup('','No custom designs yet','Private design deliveries will appear here when ready.');
 }
 
