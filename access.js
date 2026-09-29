@@ -53,7 +53,28 @@ async function init(){
     document.querySelector('#accessAuth').hidden=false;document.querySelector('#accessAuth h2').textContent='Verify your email first.';
     document.querySelector('#accessAuth p').textContent='Verify your CyberPop email, then return here to request access.';return;
   }
-  document.querySelector('#accessAuth').hidden=true;document.querySelector('#accessApp').hidden=false;
+  const profile=await supabase.from('member_profiles').select('country_code').eq('user_id',session.user.id).maybeSingle();
+  if(profile.error)throw profile.error;
+  const auth=document.querySelector('#accessAuth');
+  const app=document.querySelector('#accessApp');
+  const authAction=auth.querySelector('a');
+  if(!profile.data?.country_code){
+    auth.hidden=false;app.hidden=true;
+    auth.querySelector('h2').textContent='Complete your profile first.';
+    auth.querySelector('p').textContent='Choose your country / region in your CyberPop account before requesting access.';
+    authAction.href='/account?returnTo='+encodeURIComponent('/access?package='+selectedPackage);
+    authAction.textContent='Complete profile ↗';
+    return;
+  }
+  if(String(profile.data.country_code).toUpperCase()==='TR'){
+    auth.hidden=false;app.hidden=true;
+    auth.querySelector('h2').textContent='Service unavailable in Türkiye.';
+    auth.querySelector('p').textContent='We do not currently provide services in Türkiye.';
+    authAction.href='/account';
+    authAction.textContent='Open account ↗';
+    return;
+  }
+  auth.hidden=true;app.hidden=false;
   document.querySelector('#accessEmail').textContent=session.user.email||'';
   const monthStart=new Date().toISOString().slice(0,7)+'-01';
   const r=await supabase.from('membership_collections').select('slug,display_name,starts_on').eq('is_published',true).lt('starts_on',monthStart).order('starts_on',{ascending:false});
