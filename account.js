@@ -115,7 +115,7 @@ function renderServiceRequests(rows){
     const report=r.customer_payment_reported_at
       ? '<span class="payment-report-state">PAYMENT REPORTED · VERIFYING</span>'
       : (r.status==='payment_requested'&&r.payoneer_payment_url?'<button class="payment-report-button" type="button" data-report-payment="'+r.id+'">I’ve sent the payment</button>':'');
-    return '<div class="legal-version-row"><div><strong>'+esc(r.request_code)+' · '+esc(r.subject||r.request_type)+'</strong><span>'+new Date(r.created_at).toLocaleDateString()+' · '+esc(r.status.replaceAll('_',' ').toUpperCase())+'</span></div><div>'+payment+'</div><div>'+report+'</div></div>';
+    return '<div class="legal-version-row"><div><strong>Order ID: '+esc(r.request_code)+' · '+esc(r.subject||r.request_type)+'</strong><span>'+new Date(r.created_at).toLocaleDateString()+' · '+esc(r.status.replaceAll('_',' ').toUpperCase())+'</span></div><div>'+payment+'</div><div>'+report+'</div></div>';
   }).join('')+'</div>';
   target.querySelectorAll('[data-report-payment]').forEach(button=>button.onclick=async()=>{
     button.disabled=true;button.textContent='Sending…';
