@@ -1,5 +1,7 @@
 import { supabase,initChrome,setMediaImage,stateMarkup,loadingMarkup,friendlyError,esc } from '/site.js';
 const slug=new URLSearchParams(location.search).get('slug');let session=null,collection=null,products=[],filter='all',sort='newest';
+const curatedHero=/^2026-(04|05|06|07|08|09|10)$/.test(slug||'')?'/images/cults/'+slug+'.webp':'';
+if(curatedHero)setMediaImage(document.querySelector('#collectionHero'),curatedHero,'COLLECTION ARTWORK');
 function card(p){
   const media=p.thumbnail_url?'<img src="'+esc(p.thumbnail_url)+'" alt="'+esc(p.public_title)+'" loading="lazy">':'<div class="media-placeholder"><span>CYBERPOP</span></div>';
   const href=p.public_preview_url||'/product?slug='+encodeURIComponent(p.slug||'');
@@ -43,8 +45,7 @@ async function load(){
   }
   document.querySelector('#collectionMeta').innerHTML='<span>'+products.length+' MODELS</span><span>'+(collection.has_access?'ACCESS ACTIVE':'ARCHIVE')+'</span>';
   render();
-  const curated=/^2026-(04|05|06|07|08|09|10)$/.test(collection.slug)?'/images/cults/'+collection.slug+'.webp':'';
-  setMediaImage(document.querySelector('#collectionHero'),collection.cover_image_url||products.find(p=>p.thumbnail_url)?.thumbnail_url||collection.hero_image_url||curated,'COLLECTION ARTWORK');
+  setMediaImage(document.querySelector('#collectionHero'),collection.cover_image_url||products.find(p=>p.thumbnail_url)?.thumbnail_url||collection.hero_image_url||curatedHero,'COLLECTION ARTWORK');
   const area=document.querySelector('#accessArea');area.hidden=false;
   area.innerHTML=collection.has_access
     ? '<div class="notice"><div><strong>Collection access active.</strong><span> Owned models are available through your verified Library.</span></div><a class="btn btn-light" href="/library">Open Library →</a></div>'
