@@ -278,3 +278,23 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;bac
 .store-product-media video,.collection-tile-media video,.showcase-preview video{transition:transform .65s cubic-bezier(.2,.7,.2,1)}
 .store-product-card:hover .store-product-media video,.collection-tile:hover .collection-tile-media video,.showcase-preview:hover video{transform:scale(1.025)}
 @media(prefers-reduced-motion:reduce){.store-product-media video,.collection-tile-media video,.showcase-preview video{transition:none}}
+
+/* Keep the entire collection mosaic inside its own section so lower content never blocks its links. */
+.collection-showcase{overflow:hidden}
+.collection-showcase>.showcase-feature,.collection-showcase>.showcase-previews,.showcase-preview{min-height:0;height:100%}
+.showcase-preview img,.showcase-preview video{position:absolute;inset:0}
+.collection-showcase+#newReleases{margin-top:34px;border-top:1px solid rgba(255,255,255,.1)}
+
+.drop-access-section{border-top:1px solid rgba(255,255,255,.13);border-bottom:1px solid rgba(255,255,255,.13);background:#0c0e0f}
+.drop-access-inner{padding:76px 0 82px;display:grid;grid-template-columns:minmax(220px,.58fr) minmax(0,1.42fr);gap:clamp(44px,7vw,110px);align-items:start}
+.drop-access-heading h2{font-size:clamp(48px,5.5vw,84px);line-height:.88;letter-spacing:-.07em;font-weight:650;margin:21px 0 0;max-width:430px}
+.drop-access-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid rgba(255,255,255,.65)}
+.drop-access-card{min-height:270px;padding:25px 22px 21px;border-right:1px solid rgba(255,255,255,.14);display:flex;flex-direction:column;transition:background .25s}
+.drop-access-card:first-child{border-left:1px solid rgba(255,255,255,.14)}
+.drop-access-card:hover,.drop-access-card.featured{background:#151918}
+.drop-access-card>span{font-size:8px;letter-spacing:.16em;color:#aeb4b0;font-weight:800}
+.drop-access-card>strong{font-size:clamp(42px,4vw,62px);letter-spacing:-.07em;font-weight:620;margin:35px 0 8px}
+.drop-access-card>small{font-size:10px;line-height:1.5;color:#949a96;max-width:150px}
+.drop-access-card>b{margin-top:auto;font-size:9px;letter-spacing:.08em;font-weight:800}
+@media(max-width:900px){.drop-access-inner{grid-template-columns:1fr;gap:38px}.drop-access-heading h2{max-width:none}.drop-access-card{min-height:230px}}
+@media(max-width:680px){.collection-showcase+#newReleases{margin-top:24px}.drop-access-inner{padding:52px 0}.drop-access-options{grid-template-columns:1fr}.drop-access-card{min-height:175px;border-left:1px solid rgba(255,255,255,.14);border-bottom:1px solid rgba(255,255,255,.14)}.drop-access-card>strong{margin:24px 0 7px}.drop-access-card>b{margin-top:28px}}

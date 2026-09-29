@@ -14,7 +14,7 @@
   <button class="menu-toggle" aria-label="Menu">☰</button>
   <nav class="site-nav">
     <a href="/">Collections</a>
-    <a href="/request">Custom Design</a>
+    <a href="/request">Custom Order</a>
     <a href="/library">Library</a>
     <a class="account-chip" href="/account"><span data-account-label>Account</span></a>
   </nav>
@@ -37,9 +37,13 @@
       </section>
 
       <section id="accessApp" hidden>
-        <div class="purchase-panel-head"><span>01 / Access period</span><span id="accessEmail"></span></div>
+        <div class="purchase-panel-head"><span>01 / Choose package</span><span id="accessEmail"></span></div>
         <form id="accessForm">
-          <fieldset class="purchase-options"><legend class="sr-only">Choose collection access period</legend><div id="accessPlans" class="purchase-plans"></div></fieldset>
+          <fieldset class="purchase-options"><legend class="sr-only">Choose collection package</legend><div id="accessPlans" class="purchase-plans"></div></fieldset>
+          <section id="pastCollectionChooser" class="past-collection-chooser" hidden>
+            <div class="purchase-details-head"><span id="pastCollectionTitle">Choose past collections</span><span id="pastCollectionCount"></span></div>
+            <div id="pastCollectionOptions" class="past-collection-options"></div>
+          </section>
           <div class="purchase-details-head"><span>02 / Request details</span><span>Optional</span></div>
           <div class="purchase-fields">
             <label>Patreon / Founder code<input id="accessCoupon" class="field" maxlength="64" autocomplete="off" placeholder="Enter code if you have one"></label>

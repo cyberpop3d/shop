@@ -1,44 +1,62 @@
 import { supabase,initChrome,setButtonBusy,esc } from '/site.js';
 
-let session=null,plans=[],selectedPlan=null;
+let session=null,selectedPackage='monthly-drop',pastCollections=[],selectedCollections=new Set();
+const packages=[
+  {slug:'monthly-drop',label:'Monthly Drop',price:20,suffix:'USD',description:'Current monthly collection'},
+  {slug:'past-collections',label:'Past Collections',price:30,suffix:'EACH',description:'Choose one or more archive months'},
+  {slug:'annual-plus-3',label:'Annual + 3 Past',price:200,suffix:'USD',description:'12 months and 3 past collections'}
+];
 
-function planLabel(p){
-  const months=Number(p.billing_months);
-  return months===1?'1 Month':months+' Months';
-}
+const displayedPrice=p=>p.slug==='past-collections'?p.price*Math.max(1,selectedCollections.size):p.price;
 function renderPlans(){
   const target=document.querySelector('#accessPlans');
-  target.innerHTML=plans.map(p=>
-    '<button type="button" class="purchase-plan '+(selectedPlan===p.slug?'selected':'')+'" data-plan="'+esc(p.slug)+'" aria-pressed="'+(selectedPlan===p.slug)+'">'+
-      '<span class="purchase-plan-dot" aria-hidden="true"></span><span class="purchase-plan-label">'+esc(planLabel(p))+'</span><strong>$'+Number(p.amount).toFixed(0)+'</strong><span class="purchase-plan-currency">USD</span>'+
+  target.innerHTML=packages.map(p=>
+    '<button type="button" class="purchase-plan '+(selectedPackage===p.slug?'selected':'')+'" data-plan="'+p.slug+'" aria-pressed="'+(selectedPackage===p.slug)+'">'+
+      '<span class="purchase-plan-dot" aria-hidden="true"></span><span><span class="purchase-plan-label">'+esc(p.label)+'</span><small>'+esc(p.description)+'</small></span><strong>$'+displayedPrice(p).toFixed(0)+'</strong><span class="purchase-plan-currency">'+p.suffix+'</span>'+
     '</button>'
   ).join('');
   target.querySelectorAll('[data-plan]').forEach(btn=>btn.onclick=()=>{
-    selectedPlan=btn.dataset.plan;renderPlans();
+    selectedPackage=btn.dataset.plan;
+    if(selectedPackage==='monthly-drop')selectedCollections.clear();
+    if(selectedPackage==='annual-plus-3'&&selectedCollections.size>3)selectedCollections=new Set([...selectedCollections].slice(0,3));
+    renderPlans();renderCollectionChooser();
+  });
+}
+function renderCollectionChooser(){
+  const chooser=document.querySelector('#pastCollectionChooser');
+  const needsCollections=selectedPackage!=='monthly-drop';
+  chooser.hidden=!needsCollections;
+  if(!needsCollections)return;
+  const annual=selectedPackage==='annual-plus-3';
+  document.querySelector('#pastCollectionTitle').textContent=annual?'Choose 3 included past collections':'Choose past collections · $30 each';
+  document.querySelector('#pastCollectionCount').textContent=annual?selectedCollections.size+' / 3 selected':selectedCollections.size+' selected · $'+(selectedCollections.size*30);
+  document.querySelector('#pastCollectionOptions').innerHTML=pastCollections.map(c=>{
+    const checked=selectedCollections.has(c.slug);
+    const disabled=annual&&!checked&&selectedCollections.size>=3;
+    return '<label class="past-collection-option '+(checked?'selected ':'')+(disabled?'disabled':'')+'"><input type="checkbox" value="'+esc(c.slug)+'" '+(checked?'checked ':'')+(disabled?'disabled':'')+'><span><strong>'+esc(c.display_name)+'</strong><small>'+esc(c.slug)+'</small></span><b>'+((annual&&checked)?'INCLUDED':'$30')+'</b></label>';
+  }).join('');
+  document.querySelectorAll('#pastCollectionOptions input').forEach(input=>input.onchange=()=>{
+    if(input.checked)selectedCollections.add(input.value);else selectedCollections.delete(input.value);
+    renderPlans();renderCollectionChooser();
   });
 }
 async function init(){
   session=await initChrome();
+  const requested=new URLSearchParams(location.search).get('package');
+  if(packages.some(p=>p.slug===requested))selectedPackage=requested;
   if(!session){
-    document.querySelector('#accessAuth').hidden=false;
-    document.querySelector('#accessApp').hidden=true;
-    return;
+    document.querySelector('#accessAuth').hidden=false;document.querySelector('#accessApp').hidden=true;
+    document.querySelector('#accessAuth a').href='/account?returnTo='+encodeURIComponent('/access?package='+selectedPackage);return;
   }
   if(!session.user.email_confirmed_at){
-    document.querySelector('#accessAuth').hidden=false;
-    document.querySelector('#accessAuth h2').textContent='Verify your email first.';
-    document.querySelector('#accessAuth p').textContent='Verify your CyberPop email, then return here to request access.';
-    return;
+    document.querySelector('#accessAuth').hidden=false;document.querySelector('#accessAuth h2').textContent='Verify your email first.';
+    document.querySelector('#accessAuth p').textContent='Verify your CyberPop email, then return here to request access.';return;
   }
-  document.querySelector('#accessAuth').hidden=true;
-  document.querySelector('#accessApp').hidden=false;
+  document.querySelector('#accessAuth').hidden=true;document.querySelector('#accessApp').hidden=false;
   document.querySelector('#accessEmail').textContent=session.user.email||'';
-  const r=await supabase.from('membership_plans').select('slug,name,amount,currency,billing_months').eq('is_active',true).in('billing_months',[1,3,12]).order('billing_months');
-  if(r.error)throw r.error;
-  plans=r.data||[];
-  if(!plans.length){document.querySelector('#accessStatus').textContent='Access periods are temporarily unavailable.';document.querySelector('#accessSubmit').disabled=true;return}
-  selectedPlan=plans[0]?.slug||null;
-  renderPlans();
+  const monthStart=new Date().toISOString().slice(0,7)+'-01';
+  const r=await supabase.from('membership_collections').select('slug,display_name,starts_on').eq('is_published',true).lt('starts_on',monthStart).order('starts_on',{ascending:false});
+  if(r.error)throw r.error;pastCollections=r.data||[];renderPlans();renderCollectionChooser();
 }
 function requestNote(){
   const note=document.querySelector('#accessNote').value.trim();
@@ -49,27 +67,15 @@ function requestNote(){
 }
 document.querySelector('#accessForm').addEventListener('submit',async e=>{
   e.preventDefault();
-  const status=document.querySelector('#accessStatus');
-  const success=document.querySelector('#accessSuccess');
-  const button=document.querySelector('#accessSubmit');
-  if(!selectedPlan){status.textContent='Choose an access period.';return}
-  const note=requestNote();
-  if(note&&note.length>1200){status.textContent='Please shorten the note or invoice details.';return}
-  setButtonBusy(button,true,'Sending…');
-  status.textContent='';
-  const r=await supabase.rpc('submit_collection_access_request',{
-    p_plan_slug:selectedPlan,
-    p_note:note,
-    p_coupon_code:document.querySelector('#accessCoupon').value.trim()||null
-  });
-  setButtonBusy(button,false);
-  if(r.error){status.textContent=r.error.message;return}
-  document.querySelector('#accessForm').hidden=true;
-  success.hidden=false;
+  const status=document.querySelector('#accessStatus'),success=document.querySelector('#accessSuccess'),button=document.querySelector('#accessSubmit');
+  const selected=[...selectedCollections];
+  if(selectedPackage==='past-collections'&&!selected.length){status.textContent='Choose at least one past collection.';return}
+  if(selectedPackage==='annual-plus-3'&&selected.length!==3){status.textContent='Choose exactly 3 past collections for annual access.';return}
+  const note=requestNote();if(note&&note.length>1200){status.textContent='Please shorten the note or invoice details.';return}
+  setButtonBusy(button,true,'Sending…');status.textContent='';
+  const r=await supabase.rpc('submit_collection_package_request',{p_package_slug:selectedPackage,p_collection_slugs:selected,p_note:note,p_coupon_code:document.querySelector('#accessCoupon').value.trim()||null});
+  setButtonBusy(button,false);if(r.error){status.textContent=r.error.message;return}
+  document.querySelector('#accessForm').hidden=true;success.hidden=false;
   success.innerHTML='<span class="purchase-success-mark">✓</span><span class="eyebrow">REQUEST RECEIVED</span><h2>Thank you.</h2><p>'+esc(r.data?.request_code||'')+'</p><p>We will review your request and email the Payoneer payment link.</p><a href="/account">Open account ↗</a>';
 });
-init().catch(err=>{
-  console.error(err);
-  document.querySelector('#accessApp').hidden=false;
-  document.querySelector('#accessStatus').textContent='Access request page could not be loaded.';
-});
+init().catch(err=>{console.error(err);document.querySelector('#accessApp').hidden=false;document.querySelector('#accessStatus').textContent='Access request page could not be loaded.'});
