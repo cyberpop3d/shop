@@ -100,6 +100,15 @@ function renderLegalHistory(docs,acceptances){
   const accept=document.querySelector('#acceptActionLegal');
   if(accept)accept.onclick=acceptRequiredActionLegal;
 }
+function renderPatreonTransition(row){
+  const section=document.querySelector('#patreonTransitionSection');
+  const target=document.querySelector('#patreonTransition');
+  if(!row){section.hidden=true;target.innerHTML='';return}
+  section.hidden=false;
+  const paidMonth=row.last_charge_date?new Intl.DateTimeFormat('en-US',{month:'long',year:'numeric'}).format(new Date(row.last_charge_date)):'Patreon';
+  const founder=row.founder_status?'<span class="badge open">FOUNDER PRICING PRESERVED</span>':'';
+  target.innerHTML='<div class="notice"><div><strong>Patreon linked · '+esc(paidMonth)+'</strong><span> Your paid Patreon month is active here. Future access can continue through CyberPop without waiting for the next Patreon billing date.</span></div>'+founder+'</div>';
+}
 function renderServiceRequests(rows){
   const target=document.querySelector('#serviceRequestHistory');
   if(!rows.length){
@@ -175,6 +184,7 @@ async function render(){
   const returnTo=safeReturnTo();
 
   ['#profileSection','#credits','#legalSection','#sellerLicenseSection','#purchaseSection','#serviceRequestSection'].forEach(s=>document.querySelector(s).hidden=!activeSession);
+  if(!activeSession)document.querySelector('#patreonTransitionSection').hidden=true;
   if(!activeSession){
     document.querySelector('#onboardingSection').hidden=true;
     authMethods.hidden=false;
@@ -203,7 +213,8 @@ async function render(){
     supabase.from('legal_acceptances').select('*').order('accepted_at',{ascending:false}),
     supabase.from('seller_licenses').select('*').eq('user_id',activeSession.user.id).maybeSingle(),
     supabase.from('payments').select('*').order('created_at',{ascending:false}).limit(30),
-    supabase.from('service_requests').select('*').eq('user_id',activeSession.user.id).order('created_at',{ascending:false}).limit(50)
+    supabase.from('service_requests').select('*').eq('user_id',activeSession.user.id).order('created_at',{ascending:false}).limit(50),
+    supabase.from('patreon_account_links').select('*').eq('user_id',activeSession.user.id).maybeSingle()
   ]);
   const err=results.find(x=>x&&x.error);if(err)throw err.error;
 
@@ -218,6 +229,7 @@ async function render(){
   const sellerLicense=results[8].data||null;
   const payments=results[9].data||[];
   const serviceRequests=results[10].data||[];
+  const patreonLink=results[11].data||null;
   await loadLegalState();
 
   const needsOnboarding=!onboardingComplete();
@@ -251,6 +263,7 @@ async function render(){
   renderLegalHistory(legalDocs,acceptances);
   renderSellerLicense(sellerLicense);
   renderPayments(payments);
+  renderPatreonTransition(patreonLink);
   renderServiceRequests(serviceRequests);
 
   owned.innerHTML=unlocked.length?unlocked.map(collectionCard).join(''):stateMarkup('','No collection access yet','Permanent product unlocks can still appear in your Library independently of monthly collection access.');
