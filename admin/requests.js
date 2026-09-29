@@ -53,8 +53,8 @@ function render(){
     const plan=(r.plan_months||packageSlug)
       ? '<div class="admin-callout"><span><strong>'+esc(packageSlug?packageSlug.replaceAll('-',' ').toUpperCase():Number(r.plan_months)+' MONTH ACCESS')+'</strong> · $'+Number(r.plan_list_price||0).toFixed(0)+' '+esc(r.currency||'USD')+(selectedSlugs.length?' · '+esc(selectedSlugs.join(', ')):'')+(r.coupon_code?' · Coupon '+esc(r.coupon_code):'')+'</span></div>'
       : '';
-    const accessGrant=(r.request_type==='collection_access'&&(r.plan_months||packageSlug)&&r.user_id)
-      ? '<div class="actions"><input data-access-start="'+r.id+'" type="month" min="2026-04" value="'+currentMonth()+'"><button data-grant-request="'+r.id+'">Grant '+(packageSlug?'package':Number(r.plan_months)+' month'+(Number(r.plan_months)>1?'s':''))+'</button></div>'
+    const accessGrant=(r.request_type==='collection_access'&&(r.plan_months||packageSlug)&&r.user_id&&r.status!=='fulfilled')
+      ? '<div class="actions"><label>Access starts<input data-access-start="'+r.id+'" type="month" min="2026-04" value="'+currentMonth()+'"></label><button data-grant-request="'+r.id+'">Confirm payment & grant access</button><span class="small">Verify payment in Payoneer first. This immediately opens the selected collections.</span></div>'
       : '';
 
     return '<article class="record" data-request="'+r.id+'">'+
@@ -97,12 +97,13 @@ async function grantRequestAccess(id){
   if(!start){notify('Choose an access start month.','error');return}
   const row=rows.find(x=>x.id===id);
   if(!row)return;
-  if(row.status!=='paid'){notify('Mark the request Paid and save it first.','error');return}
-  if(!row.payment_reference){notify('Save the Payoneer payment reference first.','error');return}
-  const rpc=row.request_metadata?.package_slug?'admin_grant_package_from_request':'admin_grant_access_from_request';
-  const r=await supabase.rpc(rpc,{p_request_id:id,p_start_on:start+'-01'});
+  const reference=document.querySelector('[data-payment-ref="'+id+'"]')?.value.trim();
+  if(!reference){notify('Enter the verified Payoneer payment reference.','error');return}
+  const button=document.querySelector('[data-grant-request="'+id+'"]');button.disabled=true;
+  const r=await supabase.rpc('admin_confirm_payment_and_grant',{p_request_id:id,p_start_on:start+'-01',p_payment_reference:reference});
+  button.disabled=false;
   if(r.error){notify(r.error.message,'error');return}
-  notify('Collection access granted.');await load();
+  notify('Payment recorded and collection access granted.');await load();
 }
 async function linkMatchingAccount(id){
   const row=rows.find(x=>x.id===id);if(!row)return;
@@ -115,8 +116,11 @@ async function linkMatchingAccount(id){
   notify('Request linked to the matching CyberPop account.');await load();
 }
 async function saveRequest(id){
+  const row=rows.find(x=>x.id===id);
+  const status=document.querySelector('[data-status="'+id+'"]');
+  if(row?.request_type==='collection_access'&&status.value==='paid'){notify('Use Confirm payment & grant access after verifying Payoneer.','error');return}
   const patch={
-    status:document.querySelector('[data-status="'+id+'"]').value,
+    status:status.value,
     quote_amount:document.querySelector('[data-quote="'+id+'"]').value?Number(document.querySelector('[data-quote="'+id+'"]').value):null,
     currency:document.querySelector('[data-currency="'+id+'"]').value.trim().toUpperCase()||'USD',
     payoneer_payment_url:document.querySelector('[data-payment-url="'+id+'"]').value.trim()||null,
