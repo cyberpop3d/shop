@@ -77,6 +77,6 @@ document.querySelector('#accessForm').addEventListener('submit',async e=>{
   const r=await supabase.rpc('submit_collection_package_request',{p_package_slug:selectedPackage,p_collection_slugs:selected,p_note:note,p_coupon_code:document.querySelector('#accessCoupon').value.trim()||null});
   setButtonBusy(button,false);if(r.error){status.textContent=r.error.message;return}
   document.querySelector('#accessForm').hidden=true;success.hidden=false;
-  success.innerHTML='<span class="purchase-success-mark">✓</span><span class="eyebrow">REQUEST RECEIVED</span><h2>Thank you.</h2><p>'+esc(r.data?.request_code||'')+'</p><p>After review, your Payoneer payment link will appear in your account.</p><a href="/account">Open account ↗</a>';
+  success.innerHTML='<span class="purchase-success-mark">✓</span><span class="eyebrow">REQUEST RECEIVED</span><h2>Thank you.</h2><p><strong>Order ID: '+esc(r.data?.request_code||'—')+'</strong></p><p>After review, your Payoneer payment link will appear in your account. Keep this Order ID for reference.</p><a href="/account">Open account ↗</a>';
 });
 init().catch(err=>{console.error(err);document.querySelector('#accessApp').hidden=false;document.querySelector('#accessStatus').textContent='Access request page could not be loaded.'});
