@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <title>CyberPop Requests Admin</title>
+  <link rel="stylesheet" href="/adminsu/library.css">
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <a class="admin-brand" href="/adminsu/"><i></i><span>CYBERPOP</span></a>
+    <div class="admin-kicker">Workspace</div>
+    <nav class="admin-nav">
+      <a href="/adminsu/">Overview</a>
+      <a class="active" href="/adminsu/requests">Requests</a>
+      <a href="/adminsu/access">Access</a>
+      <a href="/adminsu/library">Library & Content</a>
+      <a href="/adminsu/media">Media Manager</a>
+      <a href="/adminsu/rights">Rights & Legal</a>
+      <a href="/">Customer site ↗</a>
+    </nav>
+    <div class="admin-sidebar-foot">Manual service sales & fulfillment.</div>
+  </aside>
+
+  <main class="admin-content">
+    <header class="admin-top">
+      <div><span class="eyebrow">SERVICE OPERATIONS</span><h1>Requests.</h1></div>
+      <div class="admin-actions"><span id="requestSync" class="sync-state">Ready</span><button id="requestRefresh" class="secondary">Refresh</button></div>
+    </header>
+
+    <section class="panel" id="requestLoginPanel">
+      <span class="eyebrow">ADMIN AUTH</span><h2>Sign in to continue.</h2>
+      <form id="requestLoginForm" class="inline-form"><input id="requestLoginEmail" type="email" required placeholder="finnrubber@gmail.com"><button>Send sign-in link</button></form>
+      <p id="requestLoginStatus" class="status-line"></p>
+    </section>
+
+    <div id="requestAdminApp" hidden>
+      <section id="requestStats" class="stats"></section>
+
+      <section class="panel">
+        <div class="section-head"><div><span class="eyebrow">QUEUE</span><h2>Customer requests</h2><p class="small">Quote, record the manual Payoneer request, payment, invoice and fulfillment state here. Customer payment reports refresh every 30 seconds while this page is open; always verify in Payoneer before confirming.</p></div></div>
+        <div class="admin-toolbar">
+          <input id="requestSearch" type="search" placeholder="Search request code, customer, email or brief…">
+          <select id="requestFilter">
+            <option value="open">Open requests</option>
+            <option value="all">All requests</option>
+            <option value="submitted">Submitted</option>
+            <option value="reviewing">Reviewing</option>
+            <option value="quoted">Quoted</option>
+            <option value="payment_requested">Payment requested</option>
+            <option value="customer_reported">Customer reports payment sent</option>
+            <option value="paid">Paid</option>
+            <option value="in_progress">In progress</option>
+            <option value="fulfilled">Fulfilled</option>
+            <option value="declined">Declined</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <span id="requestCount" class="admin-count"></span>
+        </div>
+        <div id="requestRows" class="stack"></div>
+      </section>
+    </div>
+  </main>
+</div>
+<div id="adminToast" class="toast"></div>
+<script type="module" src="/adminsu/requests.js"></script>
+</body>
+</html>
