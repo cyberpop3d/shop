@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <title>CyberPop Library Admin</title>
+  <link rel="stylesheet" href="/adminsu/library.css">
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <a class="admin-brand" href="/adminsu/"><i></i><span>CYBERPOP</span></a>
+    <div class="admin-kicker">Workspace</div>
+    <nav class="admin-nav">
+      <a href="/adminsu/">Overview</a>
+      <a href="/adminsu/requests">Requests</a>
+      <a href="/adminsu/access">Access</a>
+      <a class="active" href="/adminsu/library">Library & Content</a>
+      <a href="/adminsu/media">Media Manager</a>
+      <a href="/adminsu/rights">Rights & Legal</a>
+      <a href="/adminsu/memberships">Legacy Billing</a>
+      <a href="/">Customer site ↗</a>
+    </nav>
+    <div class="admin-sidebar-foot">Entitlement-aware content management.</div>
+  </aside>
+
+  <main class="admin-content">
+    <header class="admin-top">
+      <div><span class="eyebrow">LIBRARY OPERATIONS</span><h1>Collections & access.</h1></div>
+      <div class="admin-actions"><span id="syncState" class="sync-state">Ready</span><button id="refresh" class="secondary">Refresh</button></div>
+    </header>
+
+    <section class="panel" id="loginPanel">
+      <span class="eyebrow">ADMIN AUTH</span>
+      <h2>Sign in to continue.</h2>
+      <p class="small">Only accounts listed in the admin authorization table can open these controls.</p>
+      <form id="loginForm" class="inline-form">
+        <input id="loginEmail" type="email" required placeholder="finnrubber@gmail.com">
+        <button>Send sign-in link</button>
+      </form>
+      <p id="loginStatus" class="status-line"></p>
+    </section>
+
+    <div id="adminApp" hidden>
+      <section id="stats" class="stats"></section>
+
+      <div class="section-label">Catalog source</div>
+      <section class="panel">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">CULTS API</span>
+            <h2>Sync your Cults catalog</h2>
+            <p class="small">Review the full Cults catalog, choose its CyberPop collection, and import models as drafts. Existing models keep their collection and publishing choices during sync.</p>
+          </div>
+          <span id="cultsConnectionBadge" class="badge warn">CHECKING</span>
+        </div>
+        <div class="actions">
+          <button id="cultsSyncButton" type="button" disabled>Load Cults catalog</button>
+          <button id="cultsCheckButton" type="button" class="secondary">Check connection</button>
+        </div>
+        <p id="cultsSyncStatus" class="status-line">Cults credentials are stored server-side only.</p>
+        <div id="cultsInventoryPanel" hidden>
+          <div class="admin-toolbar">
+            <input id="cultsInventorySearch" type="search" placeholder="Search Cults models…" aria-label="Search Cults models">
+            <select id="cultsCollection" aria-label="Collection for new imports"></select>
+            <button id="cultsSelectVisible" type="button" class="secondary">Select visible</button>
+            <button id="cultsImportSelected" type="button">Import selected as drafts</button>
+          </div>
+          <p id="cultsInventoryCount" class="small"></p>
+          <div id="cultsInventory" class="cults-inventory"></div>
+        </div>
+      </section>
+
+      <div class="section-label">Content</div>
+      <section class="panel">
+        <div class="section-head">
+          <div><span class="eyebrow">COLLECTION MONTHS</span><h2>Archive structure</h2><p class="small">Create the month first, then attach products to it.</p></div>
+        </div>
+        <form id="collectionForm" class="form-grid">
+          <label>Year<input id="collectionYear" type="number" min="2020" max="2100" value="2026" required></label>
+          <label>Month<select id="collectionMonth" required></select></label>
+          <label>Visibility<select id="collectionPublished"><option value="true">Published</option><option value="false">Draft</option></select></label>
+          <button>Add collection month</button>
+        </form>
+        <div id="collections" class="stack"></div>
+      </section>
+
+      <section class="panel">
+        <span class="eyebrow">CATALOG</span><h2>Add a model</h2>
+        <p class="small">Internal character names stay admin-only. Public names are generated automatically as “Month Collection Product #N”.</p>
+        <form id="productForm" class="form-grid">
+          <label>Collection<select id="productCollection" required></select></label>
+          <label>Internal name<input id="productInternalName" required placeholder="Character name — admin only"></label>
+          <label>Product number<input id="productNumber" type="number" min="1" required></label>
+          <label>Thumbnail URL<input id="productThumbnail" type="url" placeholder="optional"></label>
+          <label>Cults product URL<input id="productCultsUrl" type="url" placeholder="optional"></label>
+          <label>IP Class<select id="productIpClass"><option value="ORIGINAL">ORIGINAL</option><option value="RIGHTS_CLEARED">RIGHTS_CLEARED</option><option value="UNOFFICIAL_FAN_WORK">UNOFFICIAL_FAN_WORK</option></select></label>
+          <label>License Scope<select id="productLicenseScope"><option value="PERSONAL">PERSONAL</option><option value="PHYSICAL_COMMERCIAL">PHYSICAL_COMMERCIAL</option></select></label>
+          <label>Subscription access<select id="productSubscriptionAccess"><option value="true">Included</option><option value="false">Excluded</option></select></label>
+          <label>Commercial physical print<select id="productCommercialPrint"><option value="false">No</option><option value="true">Yes</option></select></label>
+          <label>Fan-art notice<select id="productFanDisclaimer"><option value="false">Off</option><option value="true">On</option></select></label>
+          <label>Rights property key<input id="productRightsPropertyKey" placeholder="admin-only · e.g. property-key"></label>
+          <label class="wide">Admin note<input id="productNote" placeholder="optional"></label>
+          <button class="wide">Add product · included by default</button>
+        </form>
+        <p id="productStatus" class="status-line"></p>
+      </section>
+
+      <section class="panel">
+        <div class="section-head"><div><span class="eyebrow">MODEL SETTINGS</span><h2>Catalog, license & legal state</h2><p class="small">IP class, license scope, subscription access and takedown controls drive customer-facing behavior automatically.</p></div><a class="secondary" href="/adminsu/rights">Open Rights & Legal →</a></div>
+        <div class="admin-toolbar">
+          <input id="productAdminSearch" type="search" placeholder="Search public title, internal name, collection or property key…">
+          <select id="productAdminFilter">
+            <option value="all">All products</option>
+            <option value="published">Published</option>
+            <option value="draft">Hidden / draft</option>
+            <option value="legal">Legal review / takedown</option>
+            <option value="fan">Unofficial fan work</option>
+            <option value="commercial">Physical commercial</option>
+            <option value="missing">Missing setup</option>
+          </select>
+          <span id="productAdminCount" class="admin-count"></span>
+        </div>
+        <div id="products" class="stack"></div>
+      </section>
+
+      <div class="section-label">Credits & ownership</div>
+      <section class="panel">
+        <span class="eyebrow">CREDIT LEDGER</span><h2>Manual credit adjustment</h2>
+        <p class="small">Testing/support only. Adjustments are appended to the credit ledger; existing transactions are never edited or deleted.</p>
+        <form id="creditAdjustForm" class="form-grid">
+          <label>Customer<select id="creditCustomer" required></select></label>
+          <label>Amount<input id="creditAmount" type="number" step="1" placeholder="100 or -40" required></label>
+          <label>Description<input id="creditDescription" placeholder="Test grant / support adjustment" required></label>
+          <button class="wide">Apply ledger adjustment</button>
+        </form>
+        <p id="creditAdjustStatus" class="status-line"></p>
+      </section>
+
+      <div class="section-label">Access</div>
+      <section class="panel">
+        <span class="eyebrow">ACCESS LAB</span><h2>Membership grants</h2>
+        <p class="small">Use manual grants while Payoneer automation is disconnected.</p>
+        <div class="two-col">
+          <form id="monthlyAccessForm" class="form-grid">
+            <h3 class="wide">Monthly entitlement</h3>
+            <label>Customer<select id="monthlyCustomer" required></select></label>
+            <label>Collection<select id="monthlyCollection" required></select></label>
+            <button id="grantMonthly" type="submit">Grant month</button>
+            <button id="revokeMonthly" type="button" class="secondary">Revoke month</button>
+          </form>
+          <form id="annualAccessForm" class="form-grid">
+            <h3 class="wide">Annual entitlement</h3>
+            <label>Customer<select id="annualCustomer" required></select></label>
+            <label>Start month<input id="annualStart" type="month" value="2026-10" required></label>
+            <button type="submit">Grant 12 months</button>
+            <button id="revokeAnnual" type="button" class="secondary">Revoke annual</button>
+          </form>
+        </div>
+        <p id="accessStatus" class="status-line"></p>
+      </section>
+
+      <section class="panel">
+        <span class="eyebrow">DIRECT MODEL ACCESS</span><h2>Grant a model to one account</h2>
+        <p class="small">Use this for gifts, manual purchases, support unlocks, or any individual model that should appear permanently in a customer's Library.</p>
+        <form id="productGrantForm" class="form-grid">
+          <label>Customer<select id="productGrantCustomer" required></select></label>
+          <label>Model<select id="productGrantProduct" required></select></label>
+          <label>Reason<select id="productGrantSource"><option value="manual_grant">Manual grant</option><option value="promotion">Gift / promotion</option><option value="purchase">Paid purchase</option></select></label>
+          <label>Reference<input id="productGrantReference" placeholder="invoice / request / note"></label>
+          <button type="submit">Grant model</button>
+          <button id="revokeProductGrant" type="button" class="secondary">Revoke model</button>
+        </form>
+        <p id="productGrantStatus" class="status-line"></p>
+      </section>
+
+      <section class="panel">
+        <span class="eyebrow">CUSTOM DELIVERY</span><h2>Deliver a private custom design</h2>
+        <p class="small">Private files created for one customer. They are visible only in that customer's Library and in admin.</p>
+        <form id="customDeliveryForm" class="form-grid">
+          <label>Customer<select id="customCustomer" required></select></label>
+          <label>Title<input id="customTitle" required placeholder="Custom mascot head — final"></label>
+          <label>Delivery URL<input id="customDownloadUrl" type="url" placeholder="secure file / Drive / Cults URL"></label>
+          <label>Thumbnail URL<input id="customThumbnailUrl" type="url" placeholder="optional"></label>
+          <label>Type<select id="customSourceKind"><option value="custom_order">Custom order</option><option value="purchase">Purchase</option><option value="gift">Gift</option><option value="support">Support delivery</option></select></label>
+          <label>Reference<input id="customReference" placeholder="invoice / request ID"></label>
+          <label class="wide">Description<input id="customDescription" placeholder="customer-visible note"></label>
+          <label class="wide">Admin note<input id="customAdminNote" placeholder="internal only"></label>
+          <button class="wide" type="submit">Add private delivery</button>
+        </form>
+        <p id="customDeliveryStatus" class="status-line"></p>
+        <div id="customDeliverables" class="stack"></div>
+      </section>
+
+      <section class="panel">
+        <span class="eyebrow">CULTS DELIVERY</span><h2>Customer-specific code override</h2>
+        <p class="small">The standard collection code is saved on each month in Archive structure above. Use this only when one customer needs a different code.</p>
+        <form id="codeForm" class="form-grid">
+          <label>Customer<select id="codeCustomer" required></select></label>
+          <label>Collection<select id="codeCollection" required></select></label>
+          <label>Cults code<input id="cultsCode" placeholder="OCT-XXXX"></label>
+          <label>Cults URL<input id="cultsUrl" type="url" placeholder="https://cults3d.com/..."></label>
+          <label class="wide">Note<input id="codeNote" placeholder="optional"></label>
+          <button class="wide">Save code</button>
+        </form>
+        <p id="codeStatus" class="status-line"></p>
+      </section>
+
+      <div class="section-label">Commercial setup</div>
+      <section class="panel">
+        <span class="eyebrow">PLANS</span><h2>Monthly / annual pricing</h2>
+        <p class="small">This controls what the customer-facing site displays. Payment buttons remain disconnected until the gateway is ready.</p>
+        <div id="plans" class="stack"></div>
+      </section>
+    </div>
+  </main>
+</div>
+<div id="adminToast" class="toast"></div>
+<script type="module" src="/adminsu/library.js"></script>
+</body>
+</html>
