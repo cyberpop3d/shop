@@ -171,7 +171,7 @@ async function introspect(apiKey) {
     status: result.status,
     mutationTypeName: mutationType?.name || null,
     mutationFields: fields,
-    creationPricingFields: creationFields.filter(field => /price|curr|open/i.test(field.name)),
+    creationPricingFields: creationFields.filter(field => /price|curr|open|discount|promo|sale/i.test(field.name)),
     moneyFields,
     errors: result.body?.errors || null,
     rateLimit: result.rateLimit
