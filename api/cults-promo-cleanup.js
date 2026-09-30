@@ -274,7 +274,7 @@ module.exports = async function handler(req, res) {
         matched: matches.length,
         imageLineMatches: before.items.filter(x => String(x.description || '').includes(IMAGE_LINE)).length,
         patreonLineMatches: before.items.filter(x => String(x.description || '').includes(PATREON_LINE)).length,
-        examples: matches.slice(0, 12).map(x => ({ name: x.name, url: x.url, downloadPrice: x.downloadPrice, currency: x.currency, openPriced: x.openPriced })),
+        examples: matches.slice(0, 12).map(x => ({ name: x.name, url: x.url, price: x.price, openPriced: x.openPriced })),
         rateLimit: before.rateLimit
       });
       return;
