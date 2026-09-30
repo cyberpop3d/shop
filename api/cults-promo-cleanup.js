@@ -107,6 +107,7 @@ const PATREON_LINE = 'Patreon: [link](https://www.patreon.com/cw/CyberPop)';
 
 function cleanDescription(text) {
   if (typeof text !== 'string') return text;
+  if (!text.includes(IMAGE_LINE) && !text.includes(PATREON_LINE)) return text;
   const newline = text.includes('\r\n') ? '\r\n' : '\n';
   const lines = text.split(/\r?\n/);
   const filtered = lines.filter(line => {
