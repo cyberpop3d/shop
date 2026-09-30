@@ -55,7 +55,8 @@
           "value": "landing.cyberpopstudio.com"
         }
       ],
-      "dest": "/landing/index.html"
+      "dest": "/landing/index.html",
+      "override": true
     },
     {
       "src": "^/(.*)$",
