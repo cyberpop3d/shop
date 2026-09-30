@@ -31,6 +31,7 @@ async function load(){
   document.querySelector('#collectionCrumb').textContent='COLLECTIONS / '+collection.slug;
   document.querySelector('#collectionTitle').textContent=collection.display_name.toUpperCase();
   document.querySelector('#collectionDescription').textContent=collection.description||'';
+  const purchaseCta=document.querySelector('.collection-access-cta');if(purchaseCta)purchaseCta.hidden=Boolean(collection.has_access);
   document.querySelector('#collectionMeta').innerHTML=(Number(collection.product_count||0)?'<span>'+Number(collection.product_count)+' MODELS</span>':'')+'<span>'+(collection.has_access?'ACCESS ACTIVE':'ARCHIVE')+'</span>';
   const pRes=await supabase.from('membership_library_products').select('*').eq('collection_id',collection.id).order('product_number');
   if(pRes.error)throw pRes.error;products=pRes.data||[];
