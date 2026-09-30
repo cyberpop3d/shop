@@ -2,6 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.117.1';
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '/supabase-config.js';
 
 const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const ADMIN_EMAIL='finnrubber@gmail.com';
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 let session=null,rows=[],searchTerm='',filter='open';
@@ -170,6 +171,7 @@ async function load(){
 $('#requestLoginForm').addEventListener('submit',async e=>{
   e.preventDefault();
   $('#requestLoginStatus').textContent='Sending sign-in link…';
+  if($('#requestLoginEmail').value.trim().toLowerCase()!==ADMIN_EMAIL){alert('This admin panel is restricted to the authorized account.');return}
   const r=await supabase.auth.signInWithOtp({email:$('#requestLoginEmail').value.trim(),options:{emailRedirectTo:location.origin+'/adminsu/requests'}});
   $('#requestLoginStatus').textContent=r.error?r.error.message:'Check your email for the admin sign-in link.';
 });
