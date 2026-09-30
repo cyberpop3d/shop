@@ -2,6 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.117.1';
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '/supabase-config.js';
 
 const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const ADMIN_EMAIL='finnrubber@gmail.com';
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -577,6 +578,7 @@ async function savePlan(id){
 
 $('#loginForm').addEventListener('submit',async e=>{
   e.preventDefault();setText('#loginStatus','Sending sign-in link…');
+  if($('#loginEmail').value.trim().toLowerCase()!==ADMIN_EMAIL){alert('This admin panel is restricted to the authorized account.');return}
   const r=await supabase.auth.signInWithOtp({email:$('#loginEmail').value.trim(),options:{emailRedirectTo:location.origin+'/adminsu/library.html'}});
   setText('#loginStatus',r.error?r.error.message:'Check your email for the admin sign-in link.');
 });
