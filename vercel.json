@@ -14,18 +14,6 @@
         {
           "type": "header",
           "key": "host",
-          "value": "landing\\.cyberpopstudio\\.com"
-        }
-      ],
-      "destination": "https://cyberpopstudio.com/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "header",
-          "key": "host",
           "value": ".*\\.vercel\\.app"
         }
       ],
@@ -34,6 +22,28 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "host",
+          "value": "landing\\.cyberpopstudio\\.com"
+        }
+      ],
+      "destination": "/landing/index.html"
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "header",
+          "key": "host",
+          "value": "landing\\.cyberpopstudio\\.com"
+        }
+      ],
+      "destination": "/landing/:path*"
+    },
     {
       "source": "/",
       "destination": "/index.html"
