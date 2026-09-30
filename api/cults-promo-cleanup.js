@@ -74,8 +74,6 @@ async function scanAll(apiKey) {
             name(locale: EN)
             description(locale: EN)
             url(locale: EN)
-            downloadPrice
-            currency
             openPriced
           }
         }
@@ -148,7 +146,13 @@ async function introspect(apiKey) {
           }
         }
       }
-      __type(name: "Creation") {
+      creationType: __type(name: "Creation") {
+        fields {
+          name
+          type { kind name ofType { kind name ofType { kind name } } }
+        }
+      }
+      moneyType: __type(name: "Money") {
         fields {
           name
           type { kind name ofType { kind name ofType { kind name } } }
@@ -159,13 +163,15 @@ async function introspect(apiKey) {
   const result = await gql(apiKey, query);
   const mutationType = result.body?.data?.__schema?.mutationType || null;
   const fields = mutationType?.fields || [];
-  const creationFields = result.body?.data?.__type?.fields || [];
+  const creationFields = result.body?.data?.creationType?.fields || [];
+  const moneyFields = result.body?.data?.moneyType?.fields || [];
   return {
     ok: result.ok,
     status: result.status,
     mutationTypeName: mutationType?.name || null,
     mutationFields: fields,
     creationPricingFields: creationFields.filter(field => /price|curr|open/i.test(field.name)),
+    moneyFields,
     errors: result.body?.errors || null,
     rateLimit: result.rateLimit
   };
@@ -247,6 +253,7 @@ module.exports = async function handler(req, res) {
         mutationTypeName: info.mutationTypeName,
         mutationFields: info.mutationFields,
         creationPricingFields: info.creationPricingFields,
+        moneyFields: info.moneyFields,
         errors: info.errors,
         rateLimit: info.rateLimit
       });
