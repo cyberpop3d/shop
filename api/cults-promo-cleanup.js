@@ -148,16 +148,24 @@ async function introspect(apiKey) {
           }
         }
       }
+      __type(name: "Creation") {
+        fields {
+          name
+          type { kind name ofType { kind name ofType { kind name } } }
+        }
+      }
     }
   `;
   const result = await gql(apiKey, query);
   const mutationType = result.body?.data?.__schema?.mutationType || null;
   const fields = mutationType?.fields || [];
+  const creationFields = result.body?.data?.__type?.fields || [];
   return {
     ok: result.ok,
     status: result.status,
     mutationTypeName: mutationType?.name || null,
     mutationFields: fields,
+    creationPricingFields: creationFields.filter(field => /price|curr|open/i.test(field.name)),
     errors: result.body?.errors || null,
     rateLimit: result.rateLimit
   };
@@ -238,6 +246,7 @@ module.exports = async function handler(req, res) {
         credentialSlot: picked.slot,
         mutationTypeName: info.mutationTypeName,
         mutationFields: info.mutationFields,
+        creationPricingFields: info.creationPricingFields,
         errors: info.errors,
         rateLimit: info.rateLimit
       });
