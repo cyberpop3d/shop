@@ -159,6 +159,12 @@ async function introspect(apiKey) {
           type { kind name ofType { kind name ofType { kind name } } }
         }
       }
+      discountType: __type(name: "Discount") {
+        fields {
+          name
+          type { kind name ofType { kind name ofType { kind name } } }
+        }
+      }
     }
   `;
   const result = await gql(apiKey, query);
@@ -166,6 +172,7 @@ async function introspect(apiKey) {
   const fields = mutationType?.fields || [];
   const creationFields = result.body?.data?.creationType?.fields || [];
   const moneyFields = result.body?.data?.moneyType?.fields || [];
+  const discountFields = result.body?.data?.discountType?.fields || [];
   return {
     ok: result.ok,
     status: result.status,
@@ -173,6 +180,7 @@ async function introspect(apiKey) {
     mutationFields: fields,
     creationPricingFields: creationFields.filter(field => /price|curr|open|discount|promo|sale/i.test(field.name)),
     moneyFields,
+    discountFields,
     errors: result.body?.errors || null,
     rateLimit: result.rateLimit
   };
@@ -255,6 +263,7 @@ module.exports = async function handler(req, res) {
         mutationFields: info.mutationFields,
         creationPricingFields: info.creationPricingFields,
         moneyFields: info.moneyFields,
+        discountFields: info.discountFields,
         errors: info.errors,
         rateLimit: info.rateLimit
       });
