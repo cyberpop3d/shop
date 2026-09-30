@@ -74,6 +74,7 @@ async function scanAll(apiKey) {
             name(locale: EN)
             description(locale: EN)
             url(locale: EN)
+            price { cents currency formatted value }
             openPriced
           }
         }
