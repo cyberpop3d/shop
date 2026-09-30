@@ -4,9 +4,22 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "alias": [
-    "cyberpopstudio.com"
+    "cyberpopstudio.com",
+    "landing.cyberpopstudio.com"
   ],
   "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "header",
+          "key": "host",
+          "value": "landing\\.cyberpopstudio\\.com"
+        }
+      ],
+      "destination": "https://cyberpopstudio.com/:path*",
+      "permanent": true
+    },
     {
       "source": "/:path*",
       "has": [
