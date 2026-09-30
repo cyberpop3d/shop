@@ -148,7 +148,7 @@ async function introspect(apiKey) {
   return {
     ok: result.ok,
     status: result.status,
-    updateCreation: fields.filter(field => field.name === 'updateCreation'),
+    creationMutations: fields.filter(field => /creation/i.test(field.name)),
     errors: result.body?.errors || null,
     rateLimit: result.rateLimit
   };
@@ -227,7 +227,7 @@ module.exports = async function handler(req, res) {
         ok: info.ok,
         mode,
         credentialSlot: picked.slot,
-        updateCreation: info.updateCreation,
+        creationMutations: info.creationMutations,
         errors: info.errors,
         rateLimit: info.rateLimit
       });
