@@ -53,15 +53,19 @@ async function init(){
     document.querySelector('#accessAuth').hidden=false;document.querySelector('#accessAuth h2').textContent='Verify your email first.';
     document.querySelector('#accessAuth p').textContent='Verify your CyberPop email, then return here to request access.';return;
   }
-  const profile=await supabase.from('member_profiles').select('country_code').eq('user_id',session.user.id).maybeSingle();
+  const [profile,customer]=await Promise.all([
+    supabase.from('member_profiles').select('country_code').eq('user_id',session.user.id).maybeSingle(),
+    supabase.from('membership_customers').select('full_name').eq('user_id',session.user.id).maybeSingle()
+  ]);
   if(profile.error)throw profile.error;
+  if(customer.error)throw customer.error;
   const auth=document.querySelector('#accessAuth');
   const app=document.querySelector('#accessApp');
   const authAction=auth.querySelector('a');
-  if(!profile.data?.country_code){
+  if(!String(customer.data?.full_name||'').trim()||!profile.data?.country_code){
     auth.hidden=false;app.hidden=true;
-    auth.querySelector('h2').textContent='Complete your profile first.';
-    auth.querySelector('p').textContent='Choose your country / region in your CyberPop account before requesting access.';
+    auth.querySelector('h2').textContent='Complete your purchase profile first.';
+    auth.querySelector('p').textContent='Add your full name and country / region in your CyberPop account before requesting access.';
     authAction.href='/account?returnTo='+encodeURIComponent('/access?package='+selectedPackage);
     authAction.textContent='Complete profile ↗';
     return;
