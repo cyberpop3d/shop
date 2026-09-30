@@ -26,9 +26,8 @@
       "source": "/",
       "has": [
         {
-          "type": "header",
-          "key": "host",
-          "value": "landing\\.cyberpopstudio\\.com"
+          "type": "host",
+          "value": "landing.cyberpopstudio.com"
         }
       ],
       "destination": "/landing/index.html"
@@ -37,9 +36,8 @@
       "source": "/:path*",
       "has": [
         {
-          "type": "header",
-          "key": "host",
-          "value": "landing\\.cyberpopstudio\\.com"
+          "type": "host",
+          "value": "landing.cyberpopstudio.com"
         }
       ],
       "destination": "/landing/:path*"
