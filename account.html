@@ -24,7 +24,7 @@
     <span class="eyebrow">MEMBER ACCOUNT</span>
     <div class="page-hero-row"><div>
       <h1>Your CyberPop identity.</h1>
-      <p class="section-copy">Your public username and private payment identity are separate. Legal name is not required to browse, favorite models or build a Library.</p>
+      <p class="section-copy">Your public username and private payment identity are separate. Full name and country / region are required before purchase requests and remain private.</p>
     </div></div>
   </section>
 
@@ -65,13 +65,17 @@
   <section class="section-tight" id="onboardingSection" hidden>
     <div class="section-head">
       <div><span class="eyebrow">WELCOME TO CYBERPOP</span><h2 class="section-title">Finish your account.</h2></div>
-      <p class="section-copy">Choose your public username and private country/region. We do not ask for your legal name here.</p>
+      <p class="section-copy">Choose your public username and add your private full name and country / region. Full name and country are required before purchase requests.</p>
     </div>
     <div class="account-card">
       <form id="onboardingForm" class="profile-form">
         <label>Username
           <input id="onboardingHandle" class="field" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" placeholder="@modelmaker" required>
           <span class="field-help">3–24 characters. Letters, numbers and underscore. Usernames are case-insensitively unique.</span>
+        </label>
+        <label>Full name
+          <input id="onboardingFullName" class="field" autocomplete="name" maxlength="160" placeholder="First and last name" required>
+          <span class="field-help">PRIVATE — used for purchase requests, payment and invoicing.</span>
         </label>
         <label>Country / Region
           <input id="onboardingCountry" class="field" list="countryOptions" autocomplete="off" placeholder="Search country / region" required>
@@ -90,13 +94,14 @@
   <section class="section-tight" id="profileSection" hidden>
     <div class="section-head">
       <div><span class="eyebrow">PROFILE</span><h2 class="section-title">Account details.</h2></div>
-      <p class="section-copy">Username is your CyberPop identity. Country remains private and is not shown on public activity.</p>
+      <p class="section-copy">Username is your public CyberPop identity. Full name and country / region remain private and are required before purchase requests.</p>
     </div>
     <div class="account-card">
       <form id="profileForm" class="profile-form">
         <label>Username<input id="profileHandle" class="field" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" placeholder="@username"></label>
+        <label>Full name<input id="profileFullName" class="field" autocomplete="name" maxlength="160" placeholder="First and last name" required><span class="field-help">PRIVATE — required for purchases and invoicing.</span></label>
         <label>Email<input id="profileEmail" class="field" disabled></label>
-        <label>Country / Region<input id="profileCountry" class="field" list="countryOptions" autocomplete="off" placeholder="Search country / region"><span class="field-help">PRIVATE — never displayed publicly.</span><span id="profileCountryStatus" class="field-help" role="alert" aria-live="polite" hidden></span></label>
+        <label>Country / Region<input id="profileCountry" class="field" list="countryOptions" autocomplete="off" placeholder="Search country / region" required><span class="field-help">PRIVATE — never displayed publicly.</span><span id="profileCountryStatus" class="field-help" role="alert" aria-live="polite" hidden></span></label>
         <label>Primary printer<input id="profilePrinter" class="field" maxlength="120" placeholder="Optional"></label>
         <label class="profile-wide">Bio<textarea id="profileBio" class="field profile-textarea" maxlength="280" placeholder="Optional short profile bio"></textarea></label>
         <div class="profile-wide profile-actions"><button id="profileSaveButton" class="btn btn-primary" type="submit">Save account</button><span id="profileStatus" class="small"></span></div>
@@ -114,8 +119,8 @@
 
   <section class="section-tight" id="sellerLicenseSection" hidden>
     <div class="section-head">
-      <div><span class="eyebrow">SELLER LICENSE</span><h2 class="section-title">Physical print permission.</h2></div>
-      <p class="section-copy">Digital redistribution is never included. Any physical-print permission covers only rights CyberPop is legally entitled to grant.</p>
+      <div><span class="eyebrow">SELLER LICENSE</span><h2 class="section-title">Seller License.</h2></div>
+      <p class="section-copy">We’re working on this. Seller License options are being prepared and will become available here later.</p>
     </div>
     <div id="sellerLicenseCard" class="account-card"></div>
   </section>
