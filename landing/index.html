@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
+<script>
+(function () {
+  if (window.location.hostname === "landing.cyberpopstudio.com" && window.location.pathname === "/landing/index.html") {
+    window.history.replaceState(null, "", "/");
+  }
+})();
+</script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="description" content="CyberPop Studio patron guide and ready-to-use Bambu Studio print settings." />
