@@ -37,7 +37,7 @@ module.exports = async function handler(req, res) {
   }
 
   const username = 'CyberPOP';
-  const apiKey = process.env.CULTS_API_KEY_ROTATED;
+  const apiKey = process.env.CULTS_API_KEY_ROTATED || process.env.CULTS_API_KEY;
   if (!apiKey) {
     res.status(503).json({ ok: false, error: 'Cults credential is not configured.' });
     return;
