@@ -7,6 +7,7 @@ import {
 let authMode='signin';
 let activeSession=null;
 let currentProfile=null;
+let currentCustomer=null;
 let accountRequirements=[];
 let missingAccountRequirements=[];
 let actionRequirements=[];
@@ -83,8 +84,11 @@ function renderOnboardingLegal(){
     }).join('')+
     '<p class="legal-summary">CyberPop digital files are licensed for personal use unless a separate Seller License applies. Digital redistribution is prohibited.</p>';
 }
+function purchaseProfileComplete(){
+  return Boolean(String(currentCustomer?.full_name||'').trim()&&currentProfile?.country_code&&!serviceCountryBlocked(currentProfile.country_code));
+}
 function onboardingComplete(){
-  return Boolean(currentProfile?.handle&&currentProfile?.country_code&&!serviceCountryBlocked(currentProfile.country_code)&&currentProfile?.onboarding_completed_at&&!missingAccountRequirements.length);
+  return Boolean(currentProfile?.handle&&purchaseProfileComplete()&&currentProfile?.onboarding_completed_at&&!missingAccountRequirements.length);
 }
 function renderLegalHistory(docs,acceptances){
   const target=document.querySelector('#legalAgreementList');
@@ -165,14 +169,9 @@ function renderPayments(rows){
   if(!rows.length){target.innerHTML=stateMarkup('','No payments yet','Verified Payoneer transactions will appear here when checkout is connected.');return}
   target.innerHTML='<div class="legal-version-list">'+rows.map(p=>'<div class="legal-version-row"><div><strong>'+esc(p.payment_type)+'</strong><span>'+esc(p.provider)+'</span></div><div>'+esc(p.status.toUpperCase())+'</div><strong>'+Number(p.amount).toFixed(2)+' '+esc(p.currency)+'</strong></div>').join('')+'</div>';
 }
-function renderSellerLicense(row){
+function renderSellerLicense(){
   const target=document.querySelector('#sellerLicenseCard');
-  if(!row){
-    target.innerHTML='<div class="notice"><div><strong>No active Seller License.</strong><span> Personal-use digital file rights do not include physical commercial sales.</span></div><a class="btn btn-ghost" href="/seller-license">View Seller License Terms →</a></div>';
-    return;
-  }
-  target.innerHTML='<div class="account-summary"><div class="mini-card"><span>Status</span><strong>'+esc(row.status.toUpperCase())+'</strong></div><div class="mini-card"><span>Scope</span><strong>Physical prints only</strong></div></div>'+
-    '<p class="section-copy" style="margin-top:14px">Digital redistribution is never included. Seller permission does not grant third-party character, trademark or franchise rights.</p>';
+  target.innerHTML='<div class="notice"><div><strong>We’re working on this.</strong><span> Seller License options are being prepared and will become available here later. No Seller License can be activated from this page yet.</span></div></div>';
 }
 
 function uniqDocs(rows){return [...new Map(rows.map(x=>[x.document_id,x])).values()]}
@@ -237,7 +236,7 @@ async function render(){
     document.querySelector('#onboardingSection').hidden=true;
     authMethods.hidden=false;
     document.querySelector('#accountHeading').textContent='Not signed in';
-    document.querySelector('#accountCopy').textContent='Sign in or create an account. Legal name is not required.';
+    document.querySelector('#accountCopy').textContent='Sign in or create an account. Full name and country / region are required before purchase requests.';
     summary.innerHTML='<div class="mini-card"><span>Account</span><strong>Guest</strong></div><div class="mini-card"><span>Library</span><strong>Sign in required</strong></div>';
     owned.innerHTML=stateMarkup('','No account loaded','Sign in above to load your account state.');
     document.querySelector('#signOutArea').hidden=true;
@@ -260,7 +259,8 @@ async function render(){
     supabase.from('seller_licenses').select('*').eq('user_id',activeSession.user.id).maybeSingle(),
     supabase.from('payments').select('*').order('created_at',{ascending:false}).limit(30),
     supabase.from('service_requests').select('*').eq('user_id',activeSession.user.id).order('created_at',{ascending:false}).limit(50),
-    supabase.from('patreon_account_links').select('*').eq('user_id',activeSession.user.id).maybeSingle()
+    supabase.from('patreon_account_links').select('*').eq('user_id',activeSession.user.id).maybeSingle(),
+    supabase.from('membership_customers').select('full_name,country').eq('user_id',activeSession.user.id).maybeSingle()
   ]);
   const err=results.find(x=>x&&x.error);if(err)throw err.error;
 
@@ -274,12 +274,14 @@ async function render(){
   const payments=results[7].data||[];
   const serviceRequests=results[8].data||[];
   const patreonLink=results[9].data||null;
+  currentCustomer=results[10].data||{};
   await loadLegalState();
 
   const needsOnboarding=!onboardingComplete();
   document.querySelector('#onboardingSection').hidden=!needsOnboarding;
   if(needsOnboarding){
     document.querySelector('#onboardingHandle').value=currentProfile.handle||'';
+    document.querySelector('#onboardingFullName').value=currentCustomer.full_name||'';
     document.querySelector('#onboardingCountry').value=countryDisplay(currentProfile.country_code);
     renderOnboardingLegal();
     syncCountryAvailability(
@@ -304,6 +306,7 @@ async function render(){
     '<div class="mini-card"><span>Account</span><strong>'+esc((currentProfile.account_status||'active').toUpperCase())+'</strong></div>';
 
   document.querySelector('#profileHandle').value=currentProfile.handle||'';
+  document.querySelector('#profileFullName').value=currentCustomer.full_name||'';
   document.querySelector('#profileEmail').value=activeSession.user.email||'';
   document.querySelector('#profileCountry').value=countryDisplay(currentProfile.country_code);
   document.querySelector('#profilePrinter').value=currentProfile.preferred_printer||'';
@@ -315,7 +318,7 @@ async function render(){
   );
 
   renderLegalHistory(legalDocs,acceptances);
-  renderSellerLicense(sellerLicense);
+  renderSellerLicense();
   renderPayments(payments);
   renderPatreonTransition(patreonLink);
   renderPaymentNotifications(serviceRequests);
@@ -374,6 +377,8 @@ document.querySelector('#onboardingForm').addEventListener('submit',async e=>{
   if(!session){status.textContent='Sign in first.';return}
   if(!session.user.email_confirmed_at){status.textContent='Verify your email before completing your account.';return}
 
+  const fullName=document.querySelector('#onboardingFullName').value.trim();
+  if(fullName.length<2){status.textContent='Enter your full name before continuing.';return}
   const country=countryCodeFromInput(document.querySelector('#onboardingCountry').value);
   if(!country){status.textContent='Choose a valid country / region from the list.';return}
   if(serviceCountryBlocked(country)){
@@ -392,8 +397,13 @@ document.querySelector('#onboardingForm').addEventListener('submit',async e=>{
   }
 
   const handle=document.querySelector('#onboardingHandle').value.trim().replace(/^@/,'');
+  const now=new Date().toISOString();
+  const customer=await supabase.from('membership_customers').update({
+    full_name:fullName,country,updated_at:now
+  }).eq('user_id',session.user.id);
+  if(customer.error){status.textContent=customer.error.message;return}
   const p=await supabase.from('member_profiles').update({
-    handle,country_code:country,onboarding_completed_at:new Date().toISOString(),updated_at:new Date().toISOString()
+    handle,country_code:country,onboarding_completed_at:now,updated_at:now
   }).eq('user_id',session.user.id);
   if(p.error){status.textContent=p.error.message;return}
   status.textContent='Welcome to CyberPop.';
@@ -407,7 +417,10 @@ document.querySelector('#profileForm').addEventListener('submit',async e=>{
   if(!session){status.textContent='Sign in first.';return}
   status.textContent='Saving…';
   const handle=document.querySelector('#profileHandle').value.trim().replace(/^@/,'')||null;
+  const fullName=document.querySelector('#profileFullName').value.trim();
+  if(fullName.length<2){status.textContent='Enter your full name before saving.';return}
   const selectedCountry=document.querySelector('#profileCountry').value?countryCodeFromInput(document.querySelector('#profileCountry').value):null;
+  if(!selectedCountry){status.textContent='Choose a valid country / region from the list.';return}
   if(serviceCountryBlocked(selectedCountry)){
     status.textContent='We do not currently provide services in Türkiye.';
     syncCountryAvailability(document.querySelector('#profileCountry'),document.querySelector('#profileCountryStatus'),document.querySelector('#profileSaveButton'));
@@ -420,7 +433,10 @@ document.querySelector('#profileForm').addEventListener('submit',async e=>{
     bio:document.querySelector('#profileBio').value.trim()||null,
     updated_at:new Date().toISOString()
   };
-  if(document.querySelector('#profileCountry').value&&!row.country_code){status.textContent='Choose a valid country / region from the list.';return}
+  const now=new Date().toISOString();
+  row.updated_at=now;
+  const customer=await supabase.from('membership_customers').update({full_name:fullName,country:selectedCountry,updated_at:now}).eq('user_id',session.user.id);
+  if(customer.error){status.textContent=customer.error.message;return}
   const r=await supabase.from('member_profiles').update(row).eq('user_id',session.user.id);
   status.textContent=r.error?r.error.message:'Account updated.';
   if(!r.error)setTimeout(()=>render(),300);
