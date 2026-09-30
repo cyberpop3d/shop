@@ -1,0 +1,210 @@
+.print-settings-nav {
+  background: var(--carbon);
+  border-color: var(--carbon);
+  color: var(--paper);
+}
+
+.print-settings-nav:hover {
+  background: var(--signal);
+  border-color: var(--signal);
+}
+
+.print-settings {
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+}
+
+.print-settings-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(440px, 1.1fr);
+  align-items: center;
+  gap: clamp(40px, 6vw, 94px);
+}
+
+.print-settings-hero h2,
+.tutorial-heading h2 {
+  margin: 0;
+  font: 900 clamp(58px, 8vw, 118px)/0.85 Impact, Arial Black, sans-serif;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.print-settings-lede,
+.tutorial-heading > p:last-child {
+  color: #5a544e;
+  max-width: 720px;
+  margin: 32px 0 0;
+  font-size: 19px;
+  line-height: 1.6;
+}
+
+.print-settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 30px;
+}
+
+.download-note {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.print-settings-hero img {
+  width: 100%;
+  border: 1px solid var(--line);
+  box-shadow: 18px 18px 0 var(--bone);
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  margin-top: 88px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.profile-card {
+  position: relative;
+  min-height: 330px;
+  padding: 28px 24px;
+  background: var(--paper);
+}
+
+.profile-card.recommended {
+  background: var(--signal);
+  color: white;
+}
+
+.profile-layer {
+  font: 900 28px/1 Impact, Arial Black, sans-serif;
+}
+
+.profile-card h3 {
+  margin: 52px 0 12px;
+  font-size: 25px;
+  text-transform: uppercase;
+}
+
+.profile-card p {
+  color: #5a544e;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.profile-card.recommended p { color: #fff; }
+.profile-card strong {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.tutorial-heading {
+  max-width: 980px;
+  margin-top: 128px;
+}
+
+.tutorial-steps {
+  margin-top: 58px;
+  border-top: 1px solid var(--line);
+}
+
+.tutorial-step {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.7fr) minmax(520px, 1.3fr);
+  align-items: center;
+  gap: clamp(32px, 6vw, 100px);
+  padding: 58px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.tutorial-copy {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 20px;
+}
+
+.tutorial-copy > span {
+  color: var(--signal);
+  font: 900 46px/1 Impact, Arial Black, sans-serif;
+}
+
+.tutorial-copy h3 {
+  margin: 0 0 10px;
+  font-size: 30px;
+  text-transform: uppercase;
+}
+
+.tutorial-copy p {
+  color: #5a544e;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.tutorial-step a {
+  display: block;
+  transition: transform 0.16s ease;
+}
+
+.tutorial-step a:hover { transform: translateY(-3px); }
+.tutorial-step img {
+  display: block;
+  width: 100%;
+  border: 1px solid #34313a;
+}
+
+.print-notice {
+  margin-top: 62px;
+  padding: 34px;
+  border-left: 6px solid var(--signal);
+  background: var(--bone);
+}
+
+.print-notice h3 { margin: 0 0 12px; font-size: 24px; }
+.print-notice p { color: #5a544e; max-width: 980px; margin: 0; font-size: 17px; line-height: 1.6; }
+
+html[lang="pt"] .print-settings-hero h2,
+html[lang="de"] .print-settings-hero h2,
+html[lang="fr"] .print-settings-hero h2,
+html[lang="es"] .print-settings-hero h2,
+html[lang="it"] .print-settings-hero h2 {
+  font-size: clamp(48px, 6vw, 92px);
+}
+
+html[lang="ja"] .print-settings-hero h2,
+html[lang="ja"] .tutorial-heading h2 {
+  font-family: Arial Black, Arial, sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+@media (max-width: 1100px) {
+  .profile-grid { grid-template-columns: repeat(2, 1fr); }
+  .profile-card:last-child { grid-column: span 2; }
+}
+
+@media (max-width: 900px) {
+  .print-settings-hero,
+  .tutorial-step { grid-template-columns: 1fr; }
+  .print-settings-hero img { order: -1; box-shadow: 10px 10px 0 var(--bone); }
+  .tutorial-step { gap: 28px; }
+}
+
+@media (max-width: 560px) {
+  .profile-grid { grid-template-columns: 1fr; }
+  .profile-card:last-child { grid-column: auto; }
+  .profile-card { min-height: 250px; }
+  .tutorial-copy { grid-template-columns: 52px 1fr; }
+  .tutorial-copy > span { font-size: 34px; }
+  .download-button { width: 100%; }
+}
