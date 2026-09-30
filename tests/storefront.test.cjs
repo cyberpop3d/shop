@@ -29,7 +29,7 @@ test('provider discovery distinguishes disabled Google from network failures',as
   const {context}=siteContext(async()=>{throw new Error('offline')});
   assert.equal(await context.googleProviderReady(),null);
 });
-test('hero falls back to current collection artwork and respects admin artwork',()=>{
+test('hero keeps the studio logo until admin explicitly selects artwork',()=>{
   let mediaCount=0,markup='';
   const nodes={
     '#heroFeature':{classList:{toggle(){}},querySelector:()=>mediaCount?{remove(){mediaCount--}}:null,insertAdjacentHTML(_,html){mediaCount++;markup=html}},
@@ -40,7 +40,8 @@ test('hero falls back to current collection artwork and respects admin artwork',
   vm.runInContext(fs.readFileSync('home.js','utf8').replace(/^import .*$/gm,'').split('loadHome().catch')[0],context);
   const rows=[{slug:'2026-10',starts_on:'2026-10-01',display_name:'October'},{slug:'2026-09',starts_on:'2026-09-01',display_name:'September',product_count:16}];
   context.renderShowcase(rows,[],{}, {'2026-09':[{imageUrl:'https://art.test/september.png'}]});
-  assert.match(markup,/september.png/);
+  assert.equal(mediaCount,0);
+  assert.equal(markup,'');
   assert.equal(nodes['#heroCollectionLink'].href,'/collection?slug=2026-09');
   assert.match(nodes['#heroCollectionLabel'].textContent,/16 models/);
   context.renderShowcase(rows,[],{home_hero:{asset_url:'https://art.test/admin.png'}},{});

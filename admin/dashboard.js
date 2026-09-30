@@ -18,9 +18,10 @@ function toast(msg,type='success'){const el=$('#adminToast');el.textContent=msg;
 async function ensureAdmin(){
   const auth=await supabase.auth.getSession();session=auth.data.session;
   if(!session){$('#dashboardLoginPanel').hidden=false;$('#dashboardApp').hidden=true;return false}
+  $('#dashboardSignOut').hidden=false;
   const check=await supabase.from('sales_admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle();
   if(check.error||!check.data){$('#dashboardLoginPanel').hidden=false;$('#dashboardApp').hidden=true;$('#dashboardLoginStatus').textContent='This account is not authorized for admin.';return false}
-  $('#dashboardLoginPanel').hidden=true;$('#dashboardApp').hidden=false;return true;
+  $('#dashboardLoginPanel').hidden=true;$('#dashboardApp').hidden=false;$('#dashboardSignOut').hidden=false;return true;
 }
 
 async function checkGoogle(){
@@ -93,10 +94,39 @@ async function load(){
   $('#dashboardSync').textContent='Synced';
 }
 $('#dashboardLoginForm').addEventListener('submit',async e=>{
-  e.preventDefault();$('#dashboardLoginStatus').textContent='Sending sign-in link…';
-  const r=await supabase.auth.signInWithOtp({email:$('#dashboardLoginEmail').value.trim(),options:{emailRedirectTo:location.origin+'/admin/'}});
-  $('#dashboardLoginStatus').textContent=r.error?r.error.message:'Check your email for the admin sign-in link.';
+  e.preventDefault();const button=$('#dashboardLoginSubmit');button.disabled=true;
+  $('#dashboardLoginStatus').textContent='Signing in…';
+  try{
+    const r=await supabase.auth.signInWithPassword({email:$('#dashboardLoginEmail').value.trim(),password:$('#dashboardLoginPassword').value});
+    $('#dashboardLoginPassword').value='';
+    $('#dashboardLoginStatus').textContent=r.error?'Email or password could not be verified. You can use the email sign-in link.':'';
+    if(!r.error)await init();
+  }catch(_){$('#dashboardLoginStatus').textContent='Connection interrupted. Please try again.'}
+  finally{button.disabled=false}
 });
+$('#dashboardMagicLink').onclick=async()=>{
+  const input=$('#dashboardLoginEmail');if(!input.reportValidity())return;
+  const button=$('#dashboardMagicLink');button.disabled=true;
+  try{
+    const r=await supabase.auth.signInWithOtp({email:input.value.trim(),options:{shouldCreateUser:false,emailRedirectTo:location.origin+'/admin/'}});
+    $('#dashboardLoginStatus').textContent=r.error?'Could not send the sign-in link. Please try again.':'Check your email for the admin sign-in link.';
+  }catch(_){$('#dashboardLoginStatus').textContent='Connection interrupted. Please try again.'}
+  finally{button.disabled=false}
+};
+$('#adminPasswordForm').onsubmit=async e=>{
+  e.preventDefault();const status=$('#adminPasswordStatus');
+  if(!await ensureAdmin()){status.textContent='Sign in as an admin first.';return}
+  const password=$('#adminNewPassword').value;
+  if(password!==$('#adminConfirmPassword').value){status.textContent='Passwords do not match.';return}
+  const button=e.target.querySelector('button');button.disabled=true;
+  try{
+    const {error}=await supabase.auth.updateUser({password});
+    status.textContent=error?'Password could not be updated. Sign in again and retry.':'Password saved. You can now sign in with email and password.';
+    if(!error)e.target.reset();
+  }catch(_){status.textContent='Connection interrupted. Please try again.'}
+  finally{button.disabled=false}
+};
+$('#dashboardSignOut').onclick=async()=>{await supabase.auth.signOut();location.reload()};
 $('#dashboardRefresh').onclick=()=>load().catch(e=>{console.error(e);$('#dashboardSync').textContent='Error';toast('Dashboard refresh failed.','error')});
 supabase.auth.onAuthStateChange(()=>setTimeout(init,0));
 async function init(){if(await ensureAdmin())load().catch(e=>{console.error(e);$('#dashboardSync').textContent='Error';toast('Dashboard could not load.','error')})}

@@ -43,7 +43,7 @@ function renderShowcase(collections,models,slots,snapshot={}){
   const feature=visible[0];
   const settings=slots.home_hero?.content_json||{};
   const featureItems=snapshot[feature?.slug]||[];
-  const featureArt=slots.home_hero?.asset_url||featureItems.find(p=>p.imageUrl&&!/\.(mp4|webm|mov)(?:$|[?#])/i.test(p.imageUrl))?.imageUrl||collectionImage(feature||{},models)||'/images/cults/2026-09.webp';
+  const featureArt=slots.home_hero?.asset_url||'';
   const featurePanel=document.querySelector('#heroFeature');
   featurePanel.classList.toggle('has-artwork',!!featureArt);
   featurePanel.querySelector('.showcase-feature-media')?.remove();

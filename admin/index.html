@@ -19,23 +19,27 @@
       <a href="/admin/library">Library & Content</a>
       <a href="/admin/media">Media Manager</a>
       <a href="/admin/rights">Rights & Legal</a>
-      <a href="/admin/memberships">Legacy Billing</a>
+      <a href="/admin/memberships">Subscriptions & Renewals</a>
       <a href="/">Customer site ↗</a>
     </nav>
-    <div class="admin-sidebar-foot">Internal control surface<br>Yontuk Studio / CyberPop</div>
+    <div class="admin-sidebar-foot">Internal control surface<br>CyberPop Studio</div>
   </aside>
 
   <main class="admin-content">
     <header class="admin-top">
       <div><span class="eyebrow">OPERATIONS</span><h1>Control center.</h1></div>
-      <div class="admin-actions"><span id="dashboardSync" class="sync-state">Ready</span><button id="dashboardRefresh" class="secondary">Refresh</button><a class="admin-btn secondary" href="/">Customer view ↗</a></div>
+      <div class="admin-actions"><button id="dashboardSignOut" class="secondary" hidden>Sign out</button><span id="dashboardSync" class="sync-state">Ready</span><button id="dashboardRefresh" class="secondary">Refresh</button><a class="admin-btn secondary" href="/">Customer view ↗</a></div>
     </header>
 
     <section class="panel" id="dashboardLoginPanel">
       <span class="eyebrow">ADMIN AUTH</span>
       <h2>Sign in to continue.</h2>
       <p class="small">The admin overview is protected by the same authorization table as catalog, media and legal operations.</p>
-      <form id="dashboardLoginForm" class="inline-form"><input id="dashboardLoginEmail" type="email" required placeholder="admin email"><button>Send sign-in link</button></form>
+      <form id="dashboardLoginForm" class="form-grid">
+        <label>Email<input id="dashboardLoginEmail" type="email" autocomplete="username" required placeholder="Admin email"></label>
+        <label>Password<input id="dashboardLoginPassword" type="password" autocomplete="current-password" required placeholder="Password"></label>
+        <div class="actions"><button id="dashboardLoginSubmit">Sign in</button><button id="dashboardMagicLink" type="button" class="secondary">Email me a sign-in link</button></div>
+      </form>
       <p id="dashboardLoginStatus" class="status-line"></p>
     </section>
 
@@ -45,6 +49,12 @@
         <span class="badge on">ADMIN-GATED</span>
       </div>
 
+      <section class="panel">
+        <span class="eyebrow">DAILY OPERATIONS</span><h2>Members, payments & collection codes</h2>
+        <p class="small">1. Review a request and attach its Payoneer payment link. 2. Verify payment and grant access. 3. Save the monthly Cults code and collection link; only entitled members can see them.</p>
+        <div class="actions"><a class="admin-btn" href="/admin/requests">Payment requests</a><a class="admin-btn" href="/admin/access">Members & access</a><a class="admin-btn" href="/admin/library#collections">Monthly Cults codes & links</a><a class="admin-btn secondary" href="/admin/memberships">Subscriptions & renewals</a></div>
+      </section>
+      <details class="panel"><summary>Admin password settings</summary><p class="small">After signing in with your email link, set your password here. It is stored by the authentication service, never in the website code.</p><form id="adminPasswordForm" class="form-grid"><label>New password<input id="adminNewPassword" type="password" autocomplete="new-password" minlength="12" required></label><label>Confirm password<input id="adminConfirmPassword" type="password" autocomplete="new-password" minlength="12" required></label><div class="actions"><button>Save password</button></div></form><p id="adminPasswordStatus" class="status-line" role="status"></p></details>
       <div class="section-label">Live snapshot</div>
       <section id="dashboardStats" class="stats">
         <div class="admin-skeleton"></div><div class="admin-skeleton"></div><div class="admin-skeleton"></div><div class="admin-skeleton"></div>
@@ -63,7 +73,7 @@
         <a class="control-card" href="/admin/library"><div><span class="eyebrow">CATALOG</span><h2>Library & Content</h2><p>Collections, models, Cults sync and private deliveries.</p></div><span class="control-arrow">↗</span></a>
         <a class="control-card" href="/admin/media"><div><span class="eyebrow">VISUALS</span><h2>Media Manager</h2><p>Hero, banner, collection, thumbnail and gallery assets with fixed target ratios.</p></div><span class="control-arrow">↗</span></a>
         <a class="control-card" href="/admin/rights"><div><span class="eyebrow">COMPLIANCE</span><h2>Rights & Legal</h2><p>Legal versions, takedowns, IP blocklist, reports and Seller Licenses.</p></div><span class="control-arrow">↗</span></a>
-        <a class="control-card" href="/admin/memberships"><div><span class="eyebrow">FALLBACK</span><h2>Legacy Billing</h2><p>Manual billing prototype kept available until the real provider is connected.</p></div><span class="control-arrow">↗</span></a>
+        <a class="control-card" href="/admin/memberships"><div><span class="eyebrow">MEMBERSHIPS</span><h2>Subscriptions & renewals</h2><p>Membership periods, renewal requests, cancellations and delivery records.</p></div><span class="control-arrow">↗</span></a>
       </section>
 
       <div class="section-label">Operational health</div>
