@@ -21,28 +21,6 @@
       "permanent": false
     }
   ],
-  "rewrites": [
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "landing.cyberpopstudio.com"
-        }
-      ],
-      "destination": "/landing/index.html"
-    },
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "landing.cyberpopstudio.com"
-        }
-      ],
-      "destination": "/landing/:path*"
-    }
-  ],
   "git": {
     "deploymentEnabled": {
       "**": false,
@@ -66,6 +44,28 @@
           "value": "DENY"
         }
       ]
+    }
+  ],
+  "routes": [
+    {
+      "src": "^/$",
+      "has": [
+        {
+          "type": "host",
+          "value": "landing.cyberpopstudio.com"
+        }
+      ],
+      "dest": "/landing/index.html"
+    },
+    {
+      "src": "^/(.*)$",
+      "has": [
+        {
+          "type": "host",
+          "value": "landing.cyberpopstudio.com"
+        }
+      ],
+      "dest": "/landing/$1"
     }
   ]
 }
