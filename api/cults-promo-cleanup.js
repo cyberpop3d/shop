@@ -74,6 +74,9 @@ async function scanAll(apiKey) {
             name(locale: EN)
             description(locale: EN)
             url(locale: EN)
+            downloadPrice
+            currency
+            openPriced
           }
         }
       }
@@ -254,7 +257,7 @@ module.exports = async function handler(req, res) {
         matched: matches.length,
         imageLineMatches: before.items.filter(x => String(x.description || '').includes(IMAGE_LINE)).length,
         patreonLineMatches: before.items.filter(x => String(x.description || '').includes(PATREON_LINE)).length,
-        examples: matches.slice(0, 12).map(x => ({ name: x.name, url: x.url })),
+        examples: matches.slice(0, 12).map(x => ({ name: x.name, url: x.url, downloadPrice: x.downloadPrice, currency: x.currency, openPriced: x.openPriced })),
         rateLimit: before.rateLimit
       });
       return;
