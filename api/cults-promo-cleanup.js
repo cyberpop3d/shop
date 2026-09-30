@@ -131,24 +131,29 @@ function buildMatches(items) {
 async function introspect(apiKey) {
   const query = `
     query MutationInfo {
-      __type(name: "Mutation") {
-        fields {
+      __schema {
+        mutationType {
           name
-          args {
+          fields {
             name
-            type { kind name ofType { kind name ofType { kind name } } }
+            args {
+              name
+              type { kind name ofType { kind name ofType { kind name } } }
+            }
+            type { kind name ofType { kind name } }
           }
-          type { kind name ofType { kind name } }
         }
       }
     }
   `;
   const result = await gql(apiKey, query);
-  const fields = result.body?.data?.__type?.fields || [];
+  const mutationType = result.body?.data?.__schema?.mutationType || null;
+  const fields = mutationType?.fields || [];
   return {
     ok: result.ok,
     status: result.status,
-    mutationNames: fields.map(field => field.name),
+    mutationTypeName: mutationType?.name || null,
+    mutationFields: fields,
     errors: result.body?.errors || null,
     rateLimit: result.rateLimit
   };
@@ -227,7 +232,8 @@ module.exports = async function handler(req, res) {
         ok: info.ok,
         mode,
         credentialSlot: picked.slot,
-        mutationNames: info.mutationNames,
+        mutationTypeName: info.mutationTypeName,
+        mutationFields: info.mutationFields,
         errors: info.errors,
         rateLimit: info.rateLimit
       });
