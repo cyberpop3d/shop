@@ -1,27 +1,43 @@
-const crypto = require('crypto');
-
-const USERNAME = 'CyberPOP';
+const USERNAME = process.env.CULTS_USERNAME || 'CyberPOP';
 const GRAPHQL_URL = 'https://cults3d.com/graphql';
-const AES_KEY = Buffer.from('MTdmm1olTM8hJ7Z+Rgt6MMQHVELP6Ex/OO9fkbs8O50=', 'base64');
-const TOKEN_HASH = '3280314b93c3d5152ecb22edf80a13f9744c0ee02aa1745656230add1831e81b';
+const API_KEY = process.env.CULTS_API_KEY_ROTATED || process.env.CULTS_API_KEY || '';
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://wdtbanucnxnwbruwcgmv.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_pKtNNmvdA3__Eh0KZnb2FA_3saYRIp1';
 
-function sha256(value) {
-  return crypto.createHash('sha256').update(String(value || '')).digest('hex');
-}
+async function requireAdmin(req) {
+  const authHeader = String(req.headers.authorization || '');
+  const accessToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+  if (!accessToken) return { ok: false, status: 401, error: 'Admin sign-in required.' };
 
-function decryptCredential(blob) {
-  if (!blob) return null;
-  const normalized = blob.replace(/-/g, '+').replace(/_/g, '/');
-  const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4);
-  const data = Buffer.from(padded, 'base64');
-  if (data.length < 12 + 16) return null;
-  const iv = data.subarray(0, 12);
-  const encryptedAndTag = data.subarray(12);
-  const ciphertext = encryptedAndTag.subarray(0, encryptedAndTag.length - 16);
-  const tag = encryptedAndTag.subarray(encryptedAndTag.length - 16);
-  const decipher = crypto.createDecipheriv('aes-256-gcm', AES_KEY, iv);
-  decipher.setAuthTag(tag);
-  return Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString('utf8');
+  try {
+    const userResponse = await fetch(SUPABASE_URL + '/auth/v1/user', {
+      headers: {
+        Authorization: 'Bearer ' + accessToken,
+        apikey: SUPABASE_PUBLISHABLE_KEY
+      }
+    });
+    const user = await userResponse.json().catch(() => null);
+    if (!userResponse.ok || !user?.id) {
+      return { ok: false, status: 401, error: 'Invalid admin session.' };
+    }
+
+    const adminResponse = await fetch(
+      SUPABASE_URL + '/rest/v1/sales_admin_users?select=user_id&user_id=eq.' + encodeURIComponent(user.id),
+      {
+        headers: {
+          Authorization: 'Bearer ' + accessToken,
+          apikey: SUPABASE_PUBLISHABLE_KEY
+        }
+      }
+    );
+    const rows = await adminResponse.json().catch(() => []);
+    if (!adminResponse.ok || !Array.isArray(rows) || rows.length === 0) {
+      return { ok: false, status: 403, error: 'Admin authorization required.' };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, status: 401, error: 'Could not validate admin session.' };
+  }
 }
 
 async function gql(apiKey, query, variables = {}) {
@@ -227,38 +243,30 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const token = String(req.query.token || '');
-  if (sha256(token) !== TOKEN_HASH) {
-    res.status(401).json({ ok: false, error: 'Unauthorized.' });
+  const admin = await requireAdmin(req);
+  if (!admin.ok) {
+    res.status(admin.status).json({ ok: false, error: admin.error });
     return;
   }
 
-  let candidates;
-  try {
-    candidates = [
-      decryptCredential(String(req.query.c1 || '')),
-      decryptCredential(String(req.query.c2 || ''))
-    ];
-  } catch {
-    res.status(400).json({ ok: false, error: 'Credential decryption failed.' });
+  if (!API_KEY) {
+    res.status(503).json({
+      ok: false,
+      configured: false,
+      error: 'The rotated Cults API credential is not configured.'
+    });
     return;
   }
 
   try {
-    const picked = await pickCredential(candidates);
-    if (!picked) {
-      res.status(502).json({ ok: false, stage: 'auth', error: 'No supplied credential authenticated.' });
-      return;
-    }
-
     const mode = String(req.query.mode || 'scan');
 
     if (mode === 'introspect') {
-      const info = await introspect(picked.key);
+      const info = await introspect(API_KEY);
       res.status(info.ok ? 200 : 502).json({
         ok: info.ok,
         mode,
-        credentialSlot: picked.slot,
+        credentialSource: 'server-env',
         mutationTypeName: info.mutationTypeName,
         mutationFields: info.mutationFields,
         creationPricingFields: info.creationPricingFields,
@@ -270,14 +278,14 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    const before = await scanAll(picked.key);
+    const before = await scanAll(API_KEY);
     const matches = buildMatches(before.items);
 
     if (mode !== 'apply') {
       res.status(200).json({
         ok: true,
         mode: 'scan',
-        credentialSlot: picked.slot,
+        credentialSource: 'server-env',
         totalDesigns: before.total,
         scanned: before.items.length,
         matched: matches.length,
@@ -289,14 +297,14 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    const outcomes = await applyMatches(picked.key, matches);
-    const after = await scanAll(picked.key);
+    const outcomes = await applyMatches(API_KEY, matches);
+    const after = await scanAll(API_KEY);
     const remaining = buildMatches(after.items);
 
     res.status(outcomes.every(x => x.ok) && remaining.length === 0 ? 200 : 502).json({
       ok: outcomes.every(x => x.ok) && remaining.length === 0,
       mode: 'apply',
-      credentialSlot: picked.slot,
+      credentialSource: 'server-env',
       beforeMatched: matches.length,
       attemptedUpdates: outcomes.reduce((sum, x) => sum + (x.ok ? x.count : 0), 0),
       batches: outcomes,
