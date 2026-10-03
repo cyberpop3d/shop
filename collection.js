@@ -41,7 +41,7 @@ async function load(){
   ]);
   if(pRes.error)throw pRes.error;
   products=pRes.data||[];
-  const publishedCollections=publishedCollectionsRes.error?[collection]:publishedCollectionsRes.data||[collection];
+  const publishedCollections=publishedCollectionsRes.error||!publishedCollectionsRes.data?.length?[collection]:publishedCollectionsRes.data;
   const mergedSnapshot=mergeLiveCults(snapshot?.collections||{},liveItems,publishedCollections);
   const snapshotProducts=mergedSnapshot[collection.slug]||[];
 
