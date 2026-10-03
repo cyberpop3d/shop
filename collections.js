@@ -1,5 +1,6 @@
 import { supabase,initChrome,monthLabel,stateMarkup,esc } from '/site.js';
 import {mosaicMedia} from '/collection-mosaic.js';
+import {fetchLiveCultsCatalog,mergeLiveCults} from '/cults-live.js';
 
 let rows=[],snapshotCollections={};
 const snapshotPromise=fetch('/data/cults-collections.json',{cache:'force-cache'})
@@ -29,16 +30,28 @@ async function load(){
   rows=snapshotRows(snapshot);
   if(rows[0])rows[0].is_latest_collection=true;
   render();
+
   await initChrome();
-  const [collectionsResult,overviewResult]=await Promise.all([
+  const [collectionsResult,overviewResult,liveItems]=await Promise.all([
     supabase.from('membership_collections').select('*').eq('is_published',true).order('starts_on',{ascending:false}),
-    supabase.from('membership_collection_overview').select('*')
+    supabase.from('membership_collection_overview').select('*'),
+    fetchLiveCultsCatalog()
   ]);
-  if(collectionsResult.error||!collectionsResult.data?.length)return;
+
+  const published=!collectionsResult.error&&collectionsResult.data?.length?collectionsResult.data:[];
+  snapshotCollections=mergeLiveCults(snapshotCollections,liveItems,published.length?published:rows);
+
+  if(!published.length){
+    rows=snapshotRows({collections:snapshotCollections});
+    if(rows[0])rows[0].is_latest_collection=true;
+    render();
+    return;
+  }
+
   const overview=overviewResult.error?[]:overviewResult.data||[];
-  rows=collectionsResult.data.map(c=>({
+  rows=published.map(c=>({
     ...c,...(overview.find(x=>x.id===c.id)||{}),
-    product_count:Number(c.product_count||0)||snapshotCollections[c.slug]?.length||0
+    product_count:Math.max(Number(c.product_count||0),snapshotCollections[c.slug]?.length||0)
   }));
   if(rows[0])rows[0].is_latest_collection=true;
   render();
