@@ -26,8 +26,8 @@ function decodeHtml(value) {
 
 function metaContent(html, key, attr = 'property') {
   const escaped = key.replace(/[.*+?^$()|[\]\\]/g, '\\$&');
-  const first = new RegExp('<meta[^>]+(?:' + attr + ')=["\\\']' + escaped + '["\\\'][^>]+content=["\\\']([^"\\\']+)["\\\']', 'i');
-  const second = new RegExp('<meta[^>]+content=["\\\']([^"\\\']+)["\\\'][^>]+(?:' + attr + ')=["\\\']' + escaped + '["\\\']', 'i');
+  const first = new RegExp("<meta[^>]+" + attr + "=[\"']" + escaped + "[\"'][^>]+content=[\"']([^\"']+)[\"']", "i");
+  const second = new RegExp("<meta[^>]+content=[\"']([^\"']+)[\"'][^>]+" + attr + "=[\"']" + escaped + "[\"']", "i");
   return decodeHtml(html.match(first)?.[1] || html.match(second)?.[1] || '');
 }
 
