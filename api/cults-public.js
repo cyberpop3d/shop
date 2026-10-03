@@ -9,7 +9,7 @@ function originalMediaUrl(url) {
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=600');
+  res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
   res.setHeader('X-Robots-Tag', 'noindex');
 
   if (req.method !== 'GET') {
