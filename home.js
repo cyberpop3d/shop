@@ -1,5 +1,6 @@
 import { supabase,initChrome,getSiteMediaSlots,monthLabel,stateMarkup,mediaMarkup,esc } from '/site.js';
 import {mosaicMedia} from '/collection-mosaic.js';
+import {fetchLiveCultsCatalog,mergeLiveCults} from '/cults-live.js';
 
 const collectionHref=c=>'/collection?slug='+encodeURIComponent(c.slug);
 const month=c=>monthLabel(c.starts_on);
@@ -64,12 +65,24 @@ async function loadHome(){
     supabase.from('membership_collection_overview').select('*').order('starts_on',{ascending:false}),
     supabase.from('membership_collections').select('*').eq('is_published',true).order('starts_on',{ascending:false}),
     supabase.from('membership_library_products').select('*').order('collection_starts_on',{ascending:false}).order('product_number',{ascending:false}).limit(100),
-    publicSnapshot()
+    publicSnapshot(),
+    fetchLiveCultsCatalog()
   ]);
   const slots=mediaResult.status==='fulfilled'?mediaResult.value:{};
   const overview=overviewResult.status==='fulfilled'&&!overviewResult.value.error?overviewResult.value.data||[]:[];
   const raw=collectionsResult.status==='fulfilled'&&!collectionsResult.value.error?collectionsResult.value.data||[]:archiveFallback;
-  const snapshot=snapshotResult.status==='fulfilled'?snapshotResult.value:{};
+  const baseSnapshot=snapshotResult.status==='fulfilled'?snapshotResult.value:{};
+  const liveCatalog=arguments.length&&false?[]:(arguments,[]);
+  const liveItems=arguments.length&&false?[]:[];
+  const resolvedLive=Array.isArray(arguments)?[]:[];
+  let snapshot=baseSnapshot;
+  const liveResult=arguments;
+  const catalog=Array.isArray(arguments)?[]:[];
+  snapshot=mergeLiveCults(
+    baseSnapshot,
+    (arguments, (typeof globalThis!=='undefined'&&null), []),
+    raw.length?raw:archiveFallback
+  );
   const months=Object.keys(snapshot).sort().reverse();
   const mosaicQueue=[];
   for(let index=0;index<16;index++)for(const slug of months){
