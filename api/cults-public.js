@@ -98,7 +98,7 @@ async function scrapePublicCatalog(limit) {
 }
 
 async function fetchGraphqlCatalog(limit) {
-  const query = \`
+  const query = `
     query CyberpopPublicCatalog($limit: Int!) {
       myself {
         creationsBatch(limit: $limit, offset: 0, sort: BY_PUBLICATION) {
@@ -116,7 +116,7 @@ async function fetchGraphqlCatalog(limit) {
         }
       }
     }
-  \`;
+  `;
 
   const auth = Buffer.from(USERNAME + ':' + API_KEY).toString('base64');
   const response = await fetch(GRAPHQL_URL, {
