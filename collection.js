@@ -1,4 +1,5 @@
 import { supabase,initChrome,setMediaImage,mediaMarkup,stateMarkup,loadingMarkup,friendlyError,esc } from '/site.js';
+import {fetchLiveCultsCatalog,mergeLiveCults} from '/cults-live.js';
 const slug=new URLSearchParams(location.search).get('slug');let session=null,collection=null,products=[],filter='all',sort='newest';
 const curatedHero=/^2026-(04|05|06|07|08|09|10)$/.test(slug||'')?'/images/cults/'+slug+'.webp':'';
 if(curatedHero)setMediaImage(document.querySelector('.collection-detail-art'),curatedHero,'COLLECTION ARTWORK');
@@ -32,17 +33,40 @@ async function load(){
   document.querySelector('#collectionTitle').textContent=collection.display_name.toUpperCase();
   document.querySelector('#collectionDescription').textContent=collection.description||'';
   document.querySelector('#collectionMeta').innerHTML=(Number(collection.product_count||0)?'<span>'+Number(collection.product_count)+' MODELS</span>':'')+'<span>'+(collection.has_access?'ACCESS ACTIVE':'ARCHIVE')+'</span>';
-  const pRes=await supabase.from('membership_library_products').select('*').eq('collection_id',collection.id).order('product_number');
-  if(pRes.error)throw pRes.error;products=pRes.data||[];
+  const [pRes,snapshot,liveItems,publishedCollectionsRes]=await Promise.all([
+    supabase.from('membership_library_products').select('*').eq('collection_id',collection.id).order('product_number'),
+    fetch('/data/cults-collections.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null),
+    fetchLiveCultsCatalog(),
+    supabase.from('membership_collections').select('slug,starts_on,is_published').eq('is_published',true).order('starts_on',{ascending:false})
+  ]);
+  if(pRes.error)throw pRes.error;
+  products=pRes.data||[];
+  const publishedCollections=publishedCollectionsRes.error?[collection]:publishedCollectionsRes.data||[collection];
+  const mergedSnapshot=mergeLiveCults(snapshot?.collections||{},liveItems,publishedCollections);
+  const snapshotProducts=mergedSnapshot[collection.slug]||[];
+
   if(!products.length){
-    const snapshot=await fetch('/data/cults-collections.json').then(r=>r.ok?r.json():null).catch(()=>null);
-    const snapshotProducts=snapshot?.collections?.[collection.slug]||[];
     products=snapshotProducts.map((item,index)=>({
       public_title:String(item.title||'').replace(/\s+Multipart\b.*$/i,'').trim(),
       thumbnail_url:item.imageUrl,collection_name:collection.display_name,product_number:snapshotProducts.length-index,
-      public_preview_url:item.url,has_access:false
+      public_preview_url:item.url,has_access:collection.has_access===true
     }));
     document.querySelector('#collectionFilters').hidden=true;
+  }else{
+    const normalize=value=>String(value||'').replace(/\s+Multipart\b.*$/i,'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'');
+    const knownImages=new Set(products.map(item=>item.thumbnail_url).filter(Boolean));
+    const knownTitles=new Set(products.map(item=>normalize(item.public_title)).filter(Boolean));
+    const extras=snapshotProducts.filter(item=>item.live&&
+      (!item.imageUrl||!knownImages.has(item.imageUrl))&&
+      (!normalize(item.title)||!knownTitles.has(normalize(item.title))));
+    const maxNumber=Math.max(0,...products.map(item=>Number(item.product_number)||0));
+    products.push(...extras.map((item,index)=>({
+      public_title:String(item.title||'').replace(/\s+Multipart\b.*$/i,'').trim(),
+      thumbnail_url:item.imageUrl,collection_name:collection.display_name,
+      product_number:maxNumber+extras.length-index,
+      public_preview_url:item.url,has_access:collection.has_access===true,
+      live_catalog:true
+    })));
   }
   document.querySelector('#collectionMeta').innerHTML='<span>'+products.length+' MODELS</span><span>'+(collection.has_access?'ACCESS ACTIVE':'ARCHIVE')+'</span>';
   document.querySelector('#collectionFilters').hidden=!collection.has_access;
