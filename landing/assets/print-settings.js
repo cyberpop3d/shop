@@ -208,6 +208,18 @@ const printSettingsTranslations = {
   },
 };
 
+const cyberpopDefaultLabels = {
+  en: {eyebrow:"START HERE · RECOMMENDED",title:"DEFAULT SETTINGS",description:"The Cyberpop starting profile for 0.20 mm PLA prints. Organic tree supports, 35° threshold and easy-to-remove interfaces.",alternatives:"ALTERNATIVE QUALITY PROFILES · BAMBU STUDIO",download:"DOWNLOAD PROFILE",hint:"Choose a compatible Bambu Lab 0.4 mm nozzle printer. Import with File → Import → Import Configs."},
+  tr: {eyebrow:"BURADAN BAŞLA · ÖNERİLEN",title:"DEFAULT SETTINGS",description:"0,20 mm PLA baskılar için Cyberpop başlangıç profili. Organic tree support, 35° threshold ve kolay sökülebilen ara yüzeyler.",alternatives:"ALTERNATİF KALİTE PROFİLLERİ · BAMBU STUDIO",download:"PROFİLİ İNDİR",hint:"0,4 mm nozullu uyumlu Bambu Lab yazıcısı seç. File → Import → Import Configs ile içe aktar."},
+  pt: {eyebrow:"COMECE AQUI · RECOMENDADO",title:"DEFAULT SETTINGS",description:"Perfil Cyberpop para PLA em 0,20 mm, com suportes orgânicos em árvore e ângulo de 35°.",alternatives:"PERFIS ALTERNATIVOS · BAMBU STUDIO",download:"BAIXAR PERFIL",hint:"Selecione uma impressora Bambu Lab com bico de 0,4 mm. Importe em File → Import → Import Configs."},
+  es: {eyebrow:"EMPIEZA AQUÍ · RECOMENDADO",title:"DEFAULT SETTINGS",description:"Perfil Cyberpop para PLA de 0,20 mm, con soportes orgánicos en árbol y un umbral de 35°.",alternatives:"PERFILES ALTERNATIVOS · BAMBU STUDIO",download:"DESCARGAR PERFIL",hint:"Selecciona una impresora Bambu Lab compatible con boquilla de 0,4 mm. Importa en File → Import → Import Configs."},
+  de: {eyebrow:"HIER STARTEN · EMPFOHLEN",title:"DEFAULT SETTINGS",description:"Cyberpop-Startprofil für PLA-Drucke mit 0,20 mm. Organische Baumstützen und 35° Schwelle.",alternatives:"ALTERNATIVE QUALITÄTSPROFILE · BAMBU STUDIO",download:"PROFIL LADEN",hint:"Wähle einen Bambu-Lab-Drucker mit 0,4-mm-Düse. Import über File → Import → Import Configs."},
+  fr: {eyebrow:"COMMENCEZ ICI · RECOMMANDÉ",title:"DEFAULT SETTINGS",description:"Profil Cyberpop pour PLA en 0,20 mm, avec supports arborescents organiques et seuil de 35°.",alternatives:"AUTRES PROFILS DE QUALITÉ · BAMBU STUDIO",download:"TÉLÉCHARGER",hint:"Choisissez une imprimante Bambu Lab avec une buse de 0,4 mm. Importez via File → Import → Import Configs."},
+  it: {eyebrow:"INIZIA QUI · CONSIGLIATO",title:"DEFAULT SETTINGS",description:"Profilo Cyberpop per PLA da 0,20 mm, con supporti organici ad albero e soglia di 35°.",alternatives:"PROFILI ALTERNATIVI · BAMBU STUDIO",download:"SCARICA PROFILO",hint:"Seleziona una stampante Bambu Lab con ugello da 0,4 mm. Importa da File → Import → Import Configs."},
+  pl: {eyebrow:"ZACZNIJ TUTAJ · POLECANE",title:"DEFAULT SETTINGS",description:"Profil Cyberpop do druku PLA 0,20 mm. Organiczne podpory drzewiaste i próg 35°.",alternatives:"ALTERNATYWNE PROFILE JAKOŚCI · BAMBU STUDIO",download:"POBIERZ PROFIL",hint:"Wybierz drukarkę Bambu Lab z dyszą 0,4 mm. Importuj przez File → Import → Import Configs."},
+  ja: {eyebrow:"まずはこちら · 推奨",title:"DEFAULT SETTINGS",description:"0.20 mm PLA向けCyberpop基本プロファイル。オーガニック・ツリーサポート、35°しきい値。",alternatives:"代替品質プロファイル · BAMBU STUDIO",download:"プロファイルを取得",hint:"Bambu Labの0.4 mmノズル機を選び、File → Import → Import Configsから読み込んでください。"}
+};
+
 const layers = ["0.08", "0.12", "0.16", "0.24", "0.28"];
 const imagePaths = [
   "/tutorial/01-download-the-zip.png",
@@ -225,6 +237,7 @@ const currentLanguage = () => {
 
 function createPrintSettingsSection(language = currentLanguage()) {
   const t = printSettingsTranslations[language] || printSettingsTranslations.en;
+  const d = cyberpopDefaultLabels[language] || cyberpopDefaultLabels.en;
   const section = document.createElement("section");
   section.id = "print-settings";
   section.className = "print-settings section";
@@ -243,6 +256,21 @@ function createPrintSettingsSection(language = currentLanguage()) {
       <img src="${embeddedAsset("/tutorial/thumbnail-print-settings.png")}" alt="CYBERPOP Bambu Studio print settings" loading="lazy" />
     </div>
 
+
+    <div class="cyberpop-default" aria-label="Cyberpop Default Settings">
+      <div class="cyberpop-default-heading">
+        <p class="eyebrow">${d.eyebrow}</p>
+        <h3>${d.title}</h3>
+        <p>${d.description}</p>
+        <div class="cyberpop-default-specs"><span>0.20 MM LAYER</span><span>TREE ORGANIC</span><span>35° SUPPORT</span><span>0.24 MM TOP Z</span></div>
+      </div>
+      <div class="cyberpop-default-downloads">
+        <a class="cyberpop-default-link" href="/downloads/Cyberpop_Default_Settings_Bambu.json" download="Cyberpop_Default_Settings_Bambu.json"><strong>BAMBU STUDIO</strong><span>${d.download} ↓</span></a>
+        <a class="cyberpop-default-link" href="/downloads/Cyberpop_Default_Settings_Orca.json" download="Cyberpop_Default_Settings_Orca.json"><strong>ORCASLICER</strong><span>${d.download} ↓</span></a>
+        <p class="cyberpop-default-hint">${d.hint}</p>
+      </div>
+    </div>
+    <div class="cyberpop-alternative-heading"><span>${d.alternatives}</span></div>
     <div class="profile-grid" aria-label="CYBERPOP print profiles">
       ${t.profiles.map(([name, description], index) => `
         <article class="profile-card ${index === 2 ? "recommended" : ""}">
