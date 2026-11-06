@@ -115,17 +115,21 @@ const cyberpopBambuOverrides = {
   "support_interface_spacing": "0.2"
 };
 
-function downloadCyberpopBambuProfile(profileId) {
+function downloadCyberpopBambuProfile(profileId, slicer = 'Bambu') {
   const selected = cyberpopBambuProfiles.find(profile => profile.id === profileId);
   if (!selected) return;
+  if (slicer === 'Orca' && selected.id === 'H3C') {
+    window.alert('An H3C process preset is not included in the checked OrcaSlicer profile registry. Please choose Bambu Studio or check for an OrcaSlicer update.');
+    return;
+  }
   const name = 'CyberPOP Default Settings - ' + selected.id.replaceAll('_', ' ');
-  const data = { ...cyberpopBambuOverrides, inherits: selected.parent, name, print_settings_id: name, compatible_printers: selected.printers };
+  const data = { ...cyberpopBambuOverrides, version: slicer === 'Orca' ? '2.3.0.0' : cyberpopBambuOverrides.version, inherits: selected.parent, name, print_settings_id: name, compatible_printers: selected.printers };
   const content = JSON.stringify(data, null, 2) + '\n';
   const blob = new Blob([content], { type: 'application/json;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'CyberPOP_Default_Settings_' + selected.id + '_0.4mm.json';
+  link.download = 'CyberPOP_Default_Settings_' + (slicer === 'Orca' ? 'Orca_' : '') + selected.id + '_0.4mm.json';
   document.body.appendChild(link);
   link.click();
   link.remove();
@@ -133,8 +137,10 @@ function downloadCyberpopBambuProfile(profileId) {
 }
 
 document.addEventListener('click', event => {
-  if (!event.target.closest?.('[data-cyberpop-bambu-download]')) return;
-  downloadCyberpopBambuProfile(document.getElementById('cyberpop-bambu-printer')?.value || 'X1C_X1_X1E_P1S');
+  const bambuButton = event.target.closest?.('[data-cyberpop-bambu-download]');
+  const orcaButton = event.target.closest?.('[data-cyberpop-orca-download]');
+  if (!bambuButton && !orcaButton) return;
+  downloadCyberpopBambuProfile(document.getElementById('cyberpop-bambu-printer')?.value || 'X1C_X1_X1E_P1S', orcaButton ? 'Orca' : 'Bambu');
 });
 const cyberpopDefaultLabels = {
   en: {eyebrow:"START HERE · RECOMMENDED",title:"CyberPOP Default Print Settings",description:"The Cyberpop starting profile for 0.20 mm PLA prints. Organic tree supports, 35° threshold and easy-to-remove interfaces.",download:"DOWNLOAD PROFILE",hint:"Choose a compatible Bambu Lab 0.4 mm nozzle printer. Import with File → Import → Import Configs."},
@@ -183,9 +189,9 @@ function createPrintSettingsSection(language = currentLanguage()) {
       <div class="cyberpop-default-downloads" aria-label="CyberPOP default profile downloads">
         <span class="download-note">0.20 MM · PLA · 0.4 MM NOZZLE</span>
         <label for="cyberpop-bambu-printer" class="download-note" style="margin-top:8px">BAMBU LAB PRINTER · 0.4 MM NOZZLE</label>
-        <select id="cyberpop-bambu-printer" style="width:100%;padding:14px 16px;border:1px solid var(--line);background:var(--paper);color:var(--carbon);font:700 14px inherit;cursor:pointer" aria-label="Choose Bambu printer">${bambuOptionsHtml}</select>
+        <select id="cyberpop-bambu-printer" style="width:100%;padding:14px 16px;border:1px solid var(--line);background:var(--paper);color:var(--carbon);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer" aria-label="Choose Bambu printer">${bambuOptionsHtml}</select>
         <button type="button" data-cyberpop-bambu-download="true" class="cyberpop-default-link" style="width:100%;border:0;text-align:left;font-family:inherit;cursor:pointer"><strong>BAMBU STUDIO</strong><span>${d.download} ↓</span></button>
-        <a class="cyberpop-default-link" href="/downloads/Cyberpop_Default_Settings_Orca.json" download="Cyberpop_Default_Settings_Orca.json"><strong>ORCASLICER</strong><span>${d.download} ↓</span></a>
+        <button type="button" data-cyberpop-orca-download="true" class="cyberpop-default-link" style="width:100%;border:0;text-align:left;font-family:inherit;cursor:pointer"><strong>ORCASLICER</strong><span>${d.download} ↓</span></button>
       </div>
     </div>
     <div class="cyberpop-default">
