@@ -1,3 +1,141 @@
+// CyberPOP print parameters stay constant; machine-specific parameters are inherited
+// from the matching official Bambu Studio 0.20mm Standard system preset.
+const cyberpopBambuProfiles = [
+  {
+    "id": "X1C_X1_X1E_P1S",
+    "label": "X1C / X1 / X1E / P1S",
+    "parent": "0.20mm Standard @BBL X1C",
+    "printers": [
+      "Bambu Lab X1 Carbon 0.4 nozzle",
+      "Bambu Lab X1 0.4 nozzle",
+      "Bambu Lab P1S 0.4 nozzle",
+      "Bambu Lab X1E 0.4 nozzle"
+    ]
+  },
+  {
+    "id": "P1P",
+    "label": "P1P",
+    "parent": "0.20mm Standard @BBL P1P",
+    "printers": [
+      "Bambu Lab P1P 0.4 nozzle"
+    ]
+  },
+  {
+    "id": "A1",
+    "label": "A1",
+    "parent": "0.20mm Standard @BBL A1",
+    "printers": [
+      "Bambu Lab A1 0.4 nozzle"
+    ]
+  },
+  {
+    "id": "A1_mini",
+    "label": "A1 mini",
+    "parent": "0.20mm Standard @BBL A1M",
+    "printers": [
+      "Bambu Lab A1 mini 0.4 nozzle"
+    ]
+  },
+  {
+    "id": "P2S",
+    "label": "P2S",
+    "parent": "0.20mm Standard @BBL P2S",
+    "printers": [
+      "Bambu Lab P2S 0.4 nozzle"
+    ]
+  },
+  {
+    "id": "H2S",
+    "label": "H2S",
+    "parent": "0.20mm Standard @BBL H2S",
+    "printers": [
+      "Bambu Lab H2S 0.4 nozzle"
+    ]
+  },
+  {
+    "id": "H2D",
+    "label": "H2D",
+    "parent": "0.20mm Standard @BBL H2D",
+    "printers": [
+      "Bambu Lab H2D 0.4 nozzle"
+    ]
+  },
+  {
+    "id": "H2D_Pro",
+    "label": "H2D Pro",
+    "parent": "0.20mm Standard @BBL H2DP",
+    "printers": [
+      "Bambu Lab H2D Pro 0.4 nozzle"
+    ]
+  },
+  {
+    "id": "H2C",
+    "label": "H2C",
+    "parent": "0.20mm Standard @BBL H2C",
+    "printers": [
+      "Bambu Lab H2C 0.4 nozzle"
+    ]
+  },
+  {
+    "id": "X2D",
+    "label": "X2D",
+    "parent": "0.20mm Standard @BBL X2D",
+    "printers": [
+      "Bambu Lab X2D 0.4 nozzle"
+    ]
+  },
+  {
+    "id": "A2L",
+    "label": "A2L",
+    "parent": "0.20mm Standard @BBL A2L",
+    "printers": [
+      "Bambu Lab A2L 0.4 nozzle"
+    ]
+  },
+  {
+    "id": "H3C",
+    "label": "H3C",
+    "parent": "0.20mm Standard @BBL H3C",
+    "printers": [
+      "Bambu Lab H3C 0.4 nozzle"
+    ]
+  }
+];
+const cyberpopBambuOverrides = {
+  "from": "User",
+  "version": "2.7.0.8",
+  "layer_height": "0.2",
+  "enable_support": "1",
+  "support_type": "tree(auto)",
+  "support_style": "tree_organic",
+  "support_threshold_angle": "35",
+  "support_top_z_distance": "0.24",
+  "support_base_pattern_spacing": "3",
+  "support_interface_top_layers": "4",
+  "support_interface_spacing": "0.2"
+};
+
+function downloadCyberpopBambuProfile(profileId) {
+  const selected = cyberpopBambuProfiles.find(profile => profile.id === profileId);
+  if (!selected) return;
+  const name = 'CyberPOP Default Settings - ' + selected.id.replaceAll('_', ' ');
+  const data = { ...cyberpopBambuOverrides, inherits: selected.parent, name, print_settings_id: name, compatible_printers: selected.printers };
+  const content = JSON.stringify(data, null, 2) + '\n';
+  const blob = new Blob([content], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'CyberPOP_Default_Settings_' + selected.id + '_0.4mm.json';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+document.addEventListener('click', event => {
+  if (!event.target.closest?.('[data-cyberpop-bambu-download]')) return;
+  downloadCyberpopBambuProfile(document.getElementById('cyberpop-bambu-printer')?.value || 'X1C_X1_X1E_P1S');
+});
 const cyberpopDefaultLabels = {
   en: {eyebrow:"START HERE · RECOMMENDED",title:"CyberPOP Default Print Settings",description:"The Cyberpop starting profile for 0.20 mm PLA prints. Organic tree supports, 35° threshold and easy-to-remove interfaces.",download:"DOWNLOAD PROFILE",hint:"Choose a compatible Bambu Lab 0.4 mm nozzle printer. Import with File → Import → Import Configs."},
   tr: {eyebrow:"BURADAN BAŞLA · ÖNERİLEN",title:"CyberPOP Default Print Settings",description:"0,20 mm PLA baskılar için Cyberpop başlangıç profili. Organic tree support, 35° threshold ve kolay sökülebilen ara yüzeyler.",download:"PROFİLİ İNDİR",hint:"0,4 mm nozullu uyumlu Bambu Lab yazıcısı seç. File → Import → Import Configs ile içe aktar."},
@@ -30,6 +168,7 @@ function createPrintSettingsSection(language = currentLanguage()) {
     pl: "Pobierz plik JSON dla swojego slicera i zaimportuj przez File → Import → Import Configs. Wybierz drukarkę Bambu Lab z dyszą 0,4 mm i profil CyberPOP Default Settings w Process.",
     ja: "使用するスライサー向けのJSONをダウンロードし、File → Import → Import Configsから読み込みます。0.4 mmノズルの対応Bambu Labプリンターを選択し、ProcessでCyberPOP Default Settingsを選びます。"
   };
+  const bambuOptionsHtml = cyberpopBambuProfiles.map(profile => `<option value="${profile.id}">${profile.label}</option>`).join("");
   const section = document.createElement("section");
   section.id = "print-settings";
   section.className = "print-settings section";
@@ -39,18 +178,20 @@ function createPrintSettingsSection(language = currentLanguage()) {
       <div class="print-settings-intro">
         <p class="eyebrow">CYBERPOP / BAMBU STUDIO + ORCASLICER</p>
         <h2>CYBERPOP DEFAULT<br>PRINT SETTINGS.</h2>
-        <p class="print-settings-lede">${d.description} One streamlined profile, available for both slicers. Use the matching JSON below.</p>
+        <p class="print-settings-lede">${d.description} The same support settings, adapted to each Bambu printer. Choose your printer below before downloading.</p>
       </div>
       <div class="cyberpop-default-downloads" aria-label="CyberPOP default profile downloads">
         <span class="download-note">0.20 MM · PLA · 0.4 MM NOZZLE</span>
-        <a class="cyberpop-default-link" href="/downloads/Cyberpop_Default_Settings_Bambu.json" download="Cyberpop_Default_Settings_Bambu.json"><strong>BAMBU STUDIO</strong><span>${d.download} ↓</span></a>
+        <label for="cyberpop-bambu-printer" class="download-note" style="margin-top:8px">BAMBU LAB PRINTER · 0.4 MM NOZZLE</label>
+        <select id="cyberpop-bambu-printer" style="width:100%;padding:14px 16px;border:1px solid var(--line);background:var(--paper);color:var(--carbon);font:700 14px inherit;cursor:pointer" aria-label="Choose Bambu printer">${bambuOptionsHtml}</select>
+        <button type="button" data-cyberpop-bambu-download="true" class="cyberpop-default-link" style="width:100%;border:0;text-align:left;font-family:inherit;cursor:pointer"><strong>BAMBU STUDIO</strong><span>${d.download} ↓</span></button>
         <a class="cyberpop-default-link" href="/downloads/Cyberpop_Default_Settings_Orca.json" download="Cyberpop_Default_Settings_Orca.json"><strong>ORCASLICER</strong><span>${d.download} ↓</span></a>
       </div>
     </div>
     <div class="cyberpop-default">
       <div class="cyberpop-default-heading">
         <p class="eyebrow">${d.eyebrow}</p>
-        <h3>ONE PROFILE. TWO SLICERS.</h3>
+        <h3>ONE STANDARD. MULTIPLE PRINTERS.</h3>
         <p>${installNote[language] || installNote.en}</p>
       </div>
       <div class="cyberpop-default-specs">
@@ -78,7 +219,11 @@ function syncPrintSettingsLanguage(language = currentLanguage()) {
     link.textContent = "PRINT SETTINGS ↓";
   }
   const section = document.getElementById("print-settings");
-  if (section && section.dataset.language !== language) section.replaceWith(createPrintSettingsSection(language));
+  if (section && section.dataset.language !== language) {
+    const printer = document.getElementById("cyberpop-bambu-printer")?.value;
+    section.replaceWith(createPrintSettingsSection(language));
+    if (printer && document.getElementById("cyberpop-bambu-printer")) document.getElementById("cyberpop-bambu-printer").value = printer;
+  }
 }
 
 function installPrintSettings() {
