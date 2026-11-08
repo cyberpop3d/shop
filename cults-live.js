@@ -20,6 +20,13 @@ function targetCollectionSlug(item,collections,snapshot){
   const date=item?.publishedAt?new Date(item.publishedAt):null;
   const rows=publishedCollectionRows(collections);
   if(date&&!Number.isNaN(date.getTime())){
+    // October 2026 ends with Loki (#16); every release after Loki belongs to November.
+    // This exception prevents the general 7-day early window from moving Loki,
+    // Zombie Thanos, or Venom into the November collection.
+    if(date>=new Date('2026-10-25T00:00:00Z')&&date<new Date('2026-11-01T00:00:00Z')){
+      const boundarySlug=date<=new Date('2026-10-30T21:15:34Z')?'2026-10':'2026-11';
+      if(rows.some(collection=>collection.slug===boundarySlug))return boundarySlug;
+    }
     for(const collection of rows){
       const start=new Date(String(collection.starts_on)+'T00:00:00Z');
       if(Number.isNaN(start.getTime()))continue;
