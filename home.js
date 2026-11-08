@@ -9,8 +9,8 @@ async function publicSnapshot(){
   const response=await fetch('/data/cults-collections.json',{cache:'no-store'});
   return response.ok?(await response.json()).collections||{}:{};
 }
-const archiveFallback=Array.from({length:7},(_,i)=>{
-  const number=10-i;
+const archiveFallback=Array.from({length:8},(_,i)=>{
+  const number=11-i;
   const slug='2026-'+String(number).padStart(2,'0');
   return {id:slug,slug,starts_on:slug+'-01',display_name:monthLabel(slug+'-01'),product_count:0};
 });
