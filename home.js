@@ -21,7 +21,7 @@ function collectionImage(c,models){
 }
 function productCard(p,index){
   const collectionName=p.collection_name||'CyberPop Collection';
-  const label=p.display_label||collectionName+' #'+String(index+1);
+  const label=p.display_label||p.public_title||'CyberPop collectible';
   const href=p.collection_slug?collectionHref({slug:p.collection_slug}):'/collections';
   return '<a class="selected-work-card '+(index===0?'selected-work-feature':'')+'" href="'+esc(href)+'"><div class="selected-work-media">'+
     image(p.thumbnail_url,label)+(p.has_access?'<span class="work-access">IN YOUR LIBRARY</span>':'')+
@@ -44,16 +44,16 @@ function renderShowcase(collections,models,slots,snapshot={}){
   const feature=visible[0];
   const settings=slots.home_hero?.content_json||{};
   const featureItems=snapshot[feature?.slug]||[];
-  const featureArt=slots.home_hero?.asset_url||'';
+  const featureArt=slots.home_hero?.asset_url||featureItems.find(item=>item.imageUrl)?.imageUrl||'';
   const featurePanel=document.querySelector('#heroFeature');
   featurePanel.classList.toggle('has-artwork',!!featureArt);
   featurePanel.querySelector('.showcase-feature-media')?.remove();
   if(featureArt){
     featurePanel.insertAdjacentHTML('afterbegin','<div class="showcase-feature-media">'+image(featureArt,feature?.display_name||'CyberPop collection',true)+'</div>');
   }
-  document.querySelector('#heroStudioCaption').textContent=settings.studio_caption||'CYBERPOP STUDIO';
+  document.querySelector('#heroStudioCaption').textContent=(settings.studio_caption&&settings.studio_caption!=='CYBERPOP STUDIO')?settings.studio_caption:'MADE TO PRINT. BUILT TO COLLECT.';
   const label=document.querySelector('#heroCollectionLabel');
-  if(label)label.textContent=feature?month(feature)+' / '+Number(feature.product_count||featureItems.length||0)+' models':'MULTIPART / NO AMS';
+  if(label)label.textContent=feature?month(feature)+' / '+(featureItems.filter(item=>item.imageUrl).length||Number(feature.product_count||0))+' RELEASED':'MULTIPART / NO AMS';
   const link=document.querySelector('#heroCollectionLink');
   if(link)link.href=feature?collectionHref(feature):'/collections';
 }
@@ -80,7 +80,7 @@ async function loadHome(){
     const item=snapshot[slug]?.[index];
     if(item?.imageUrl&&!/\.(mp4|webm|mov)(?:$|[?#])/i.test(item.imageUrl))mosaicQueue.push(item.imageUrl);
   }
-  document.querySelector('#monthlyDropMosaic').innerHTML=mosaicQueue.slice(0,48).map(url=>'<img src="'+esc(url)+'" alt="" loading="lazy">').join('');
+  document.querySelector('#monthlyDropMosaic').innerHTML=mosaicQueue.slice(0,16).map(url=>'<img src="'+esc(url)+'" alt="" loading="lazy" decoding="async">').join('');
   const collections=(raw.length?raw:archiveFallback).map(c=>{
     const row={...c,...(overview.find(x=>x.id===c.id)||{})};
     if(!Number(row.product_count||0))row.product_count=(snapshot[c.slug]||[]).length;
@@ -91,14 +91,33 @@ async function loadHome(){
   if(current)current.is_latest_collection=true;
   renderShowcase(collections,models,slots,snapshot);
 
-  const selectedPool=Object.entries(snapshot).flatMap(([collectionSlug,items])=>{
-    const collection=collections.find(c=>c.slug===collectionSlug);
-    const collectionName=collection?.display_name||monthLabel(collectionSlug+'-01');
-    return (items||[]).map((item,index)=>({thumbnail_url:item.imageUrl,collection_slug:collectionSlug,collection_name:collectionName,display_label:collectionName+' #'+String(index+1)}));
-  }).filter(x=>x.thumbnail_url);
-  selectedPool.sort((a,b)=>b.collection_slug.localeCompare(a.collection_slug));
-  const dbSelected=models.map((p,index)=>({...p,collection_slug:collections.find(c=>c.id===p.collection_id)?.slug,display_label:(p.collection_name||'CyberPop Collection')+' #'+String(index+1)}));
-  const selected=(selectedPool.length?selectedPool:dbSelected).slice(0,5);
+  // All model artwork and titles come from the published CyberPop/Cults catalog.
+  const displayTitle=value=>String(value||'').replace(/\s+Multipart\s+No[- ]?AMS\b/ig,'').replace(/\s+Multipart\b/ig,'').replace(/\s+No[- ]?AMS\b/ig,'').trim();
+  const publishedSlugs=new Set(collections.map(c=>c.slug));
+  const selectedPool=Object.entries(snapshot).filter(([collectionSlug])=>publishedSlugs.has(collectionSlug)).flatMap(([collectionSlug,items])=>{
+    return (items||[]).filter(item=>item.imageUrl).map((item,index)=>({
+      thumbnail_url:item.imageUrl,collection_slug:collectionSlug,
+      display_label:displayTitle(item.title)||'CyberPop collectible',
+      published_at:item.publishedAt||collectionSlug+'-01',position:index
+    }));
+  });
+  selectedPool.sort((a,b)=>String(b.published_at).localeCompare(String(a.published_at)));
+  const dbSelected=models.map(p=>({
+    ...p,collection_slug:collections.find(c=>c.id===p.collection_id)?.slug,
+    display_label:displayTitle(p.public_title)||'CyberPop collectible'
+  }));
+  // Prioritize the current collection; fill remaining slots with selected real releases.
+  const curatedNames=['dr doom','magneto','bojack','loki','venom','dante','vergil','frieren','sentinel'];
+  const currentPool=selectedPool.filter(p=>p.collection_slug===current?.slug).slice(0,4);
+  const archivedPool=curatedNames.flatMap(name=>selectedPool.filter(p=>p.collection_slug!==current?.slug&&p.display_label.toLowerCase().includes(name)).slice(0,1));
+  const selected=[];
+  const seen=new Set();
+  for(const item of [...currentPool,...archivedPool,...selectedPool,...dbSelected]){
+    const key=item.thumbnail_url||item.display_label;
+    if(seen.has(key))continue;
+    seen.add(key);selected.push(item);
+    if(selected.length===8)break;
+  }
   document.querySelector('#newReleases').hidden=!selected.length;
   document.querySelector('#newReleaseGrid').innerHTML=selected.map(productCard).join('');
   document.querySelector('#homeCollections').innerHTML=collections.length?

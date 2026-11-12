@@ -49,6 +49,20 @@ document.querySelector('#requestForm').addEventListener('submit',async e=>{
   if(code==='TR'){status.textContent='We do not currently provide services in Türkiye.';return}
   if(!document.querySelector('#requestConsent').checked){status.textContent='Please confirm the required acknowledgement.';return}
 
+  const reference=document.querySelector('#referenceUrl').value.trim();
+  if(reference){
+    try{const url=new URL(reference);if(!['https:','http:'].includes(url.protocol))throw new Error('Invalid protocol')}
+    catch(_){status.textContent='Enter a valid HTTP(S) link to your references.';return}
+  }
+  const details=[
+    reference&&'Reference link: '+reference,
+    document.querySelector('#requestSize').value.trim()&&'Target print size: '+document.querySelector('#requestSize').value.trim(),
+    document.querySelector('#requestPrinter').value.trim()&&'Printer / material: '+document.querySelector('#requestPrinter').value.trim(),
+    document.querySelector('#requestDeadline').value&&'Requested deadline: '+document.querySelector('#requestDeadline').value
+  ].filter(Boolean);
+  const brief=[document.querySelector('#requestBrief').value.trim(),...details].join('\n');
+  if(brief.length>5000){status.textContent='Please shorten your project brief or reference link.';return}
+
   setButtonBusy(button,true,'Submitting…');
   status.textContent='Creating your request…';
   success.hidden=true;
@@ -60,7 +74,7 @@ document.querySelector('#requestForm').addEventListener('submit',async e=>{
     p_country_code:code,
     p_request_type:document.querySelector('#requestType').value,
     p_subject:document.querySelector('#requestSubject').value.trim()||null,
-    p_brief:document.querySelector('#requestBrief').value.trim()
+    p_brief:brief
   });
 
   setButtonBusy(button,false);
