@@ -33,26 +33,29 @@
     <div class="purchase-panel">
       <div class="purchase-panel-head"><span>COLLECTION PACKAGES</span><span>USD</span></div>
       <div class="purchase-plans">
-          <a class="purchase-plan" data-package="monthly-drop" href="https://ig.me/m/cyberpop3d" target="_blank" rel="noopener noreferrer"><span class="purchase-plan-dot" aria-hidden="true"></span><span><span class="purchase-plan-label">Monthly Drop</span><small>Current monthly collection</small></span><strong>$20</strong><span class="purchase-plan-currency">USD</span></a>
-          <a class="purchase-plan" data-package="past-collections" href="https://ig.me/m/cyberpop3d" target="_blank" rel="noopener noreferrer"><span class="purchase-plan-dot" aria-hidden="true"></span><span><span class="purchase-plan-label">Past Collection</span><small>Per completed archive month</small></span><strong>$30</strong><span class="purchase-plan-currency">USD</span></a>
-          <a class="purchase-plan" data-package="six-month" href="https://ig.me/m/cyberpop3d" target="_blank" rel="noopener noreferrer"><span class="purchase-plan-dot" aria-hidden="true"></span><span><span class="purchase-plan-label">6 Month Access</span><small>Six upcoming monthly collections</small></span><strong>$100</strong><span class="purchase-plan-currency">USD</span></a>
-          <a class="purchase-plan" data-package="annual-plus-3" href="https://ig.me/m/cyberpop3d" target="_blank" rel="noopener noreferrer"><span class="purchase-plan-dot" aria-hidden="true"></span><span><span class="purchase-plan-label">Annual Access</span><small>Twelve upcoming months plus three selected past months</small></span><strong>$200</strong><span class="purchase-plan-currency">USD</span></a>
+          <button type="button" class="purchase-plan" data-package="monthly-drop" aria-pressed="false"><span class="purchase-plan-dot" aria-hidden="true"></span><span><span class="purchase-plan-label">Monthly Drop</span><small>Current monthly collection</small></span><strong>$20</strong><span class="purchase-plan-currency">USD</span></button>
+          <button type="button" class="purchase-plan" data-package="past-collections" aria-pressed="false"><span class="purchase-plan-dot" aria-hidden="true"></span><span><span class="purchase-plan-label">Past Collection</span><small>Per completed archive month</small></span><strong>$30</strong><span class="purchase-plan-currency">USD</span></button>
+          <button type="button" class="purchase-plan" data-package="six-month" aria-pressed="false"><span class="purchase-plan-dot" aria-hidden="true"></span><span><span class="purchase-plan-label">6 Month Access</span><small>Six upcoming monthly collections</small></span><strong>$100</strong><span class="purchase-plan-currency">USD</span></button>
+          <button type="button" class="purchase-plan" data-package="annual-plus-3" aria-pressed="false"><span class="purchase-plan-dot" aria-hidden="true"></span><span><span class="purchase-plan-label">Annual Access</span><small>Twelve upcoming months plus three selected past months</small></span><strong>$200</strong><span class="purchase-plan-currency">USD</span></button>
       </div>
+      <section class="dm-message-preview" aria-labelledby="dmPreviewHeading">
+        <div class="purchase-details-head"><span id="dmPreviewHeading">MESSAGE PREVIEW</span><span>EDIT BEFORE SENDING</span></div>
+        <p class="dm-selected-package">Selected package: <strong id="dmSelectedPackage">Monthly Drop — $20</strong></p>
+        <label for="dmMessagePreview" class="dm-preview-label">Your message to @cyberpop3D</label>
+        <textarea class="field dm-message-textarea" id="dmMessagePreview" rows="5" maxlength="1000" aria-describedby="dmPasteNote" spellcheck="true"></textarea>
+        <p class="dm-paste-note" id="dmPasteNote">Instagram cannot pre-fill a direct message. We'll copy your message so you can paste it into Instagram and press Send yourself.</p>
+        <button type="button" class="dm-copy-only" id="copyDmOnly">COPY MESSAGE</button>
+      </section>
       <div class="purchase-submit manual-dm-checkout">
-        <div><span>HOW TO PURCHASE</span><p>Send a direct message to <a href="https://ig.me/m/cyberpop3d" target="_blank" rel="noopener noreferrer">@cyberpop3D</a> on Instagram and tell us which collection you would like.</p></div>
-        <a class="btn btn-light" href="https://ig.me/m/cyberpop3d" target="_blank" rel="noopener noreferrer">MESSAGE ON INSTAGRAM ↗</a>
+        <div><span>HOW TO PURCHASE</span><p>Select a package, review your message, then open Instagram. You decide whether to send it.</p></div>
+        <button type="button" class="btn btn-light" id="copyOpenInstagram">COPY &amp; OPEN INSTAGRAM ↗</button>
       </div>
+      <p id="dmCopyStatus" class="dm-copy-status" role="status" aria-live="polite"></p>
+      <a class="dm-manual-link" href="https://ig.me/m/cyberpop3d" target="_blank" rel="noopener noreferrer">Open Instagram DM without copying ↗</a>
       <p class="manual-checkout-note">We are accepting manual payments until our website checkout is ready. No account creation is needed to contact us.</p>
     </div>
   </div>
 </main>
-<script type="module">
-  import {initChrome} from '/site.js';
-  initChrome().catch(console.error);
-  const selected = new URLSearchParams(location.search).get('package');
-  document.querySelectorAll('[data-package]').forEach(card => {
-    if(card.dataset.package === selected) card.classList.add('selected');
-  });
-</script>
+<script type="module" src="/access-dm.js"></script>
 </body>
 </html>
