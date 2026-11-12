@@ -5,12 +5,8 @@
     window.location.replace("/landing/index.html");
   }
 })();
-</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090b0c"><title>CyberPop Studio — Collectible 3D Printable Designs</title><meta name="description" content="Explore CyberPop Studio’s monthly collections of bold, multipart 3D printable figures. Discover the archive and request collection access or a custom design."><link rel="canonical" href="https://cyberpopstudio.com/"><meta property="og:title" content="CyberPop Studio — Collectible 3D Printable Designs"><meta property="og:description" content="Bold forms. Made to print. Explore our monthly collections and custom designs."><meta property="og:image" content="https://cyberpopstudio.com/images/cults/2026-09.webp"><meta property="og:type" content="website"><link rel="stylesheet" href="/site.css"></head>
+</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090b0c"><title>CyberPop Studio — Multipart 3D Printable Collectibles</title><meta name="description" content="Explore CyberPop Studio’s monthly collections of multipart, color-separated 3D printable characters. No AMS required. Browse collections and custom design services."><link rel="canonical" href="https://cyberpopstudio.com/"><meta property="og:title" content="CyberPop Studio — Collectible 3D Printable Designs"><meta property="og:description" content="Bold forms. Made to print. Explore our monthly collections and custom designs."><meta property="og:image" content="https://cyberpopstudio.com/images/cults/2026-09.webp"><meta property="og:type" content="website"><link rel="preconnect" href="https://fbi.cults3d.com" crossorigin><link rel="stylesheet" href="/site.css"></head>
 <body>
-<div class="development-notice" role="status" aria-label="Website development notice">
-  <strong>CyberPop Studio is currently in development. Thanks for visiting — some features may still be changing.</strong>
-  <span>Automated payments are not available right now. Please reach out to me directly for pricing, collection activations, and special orders.</span>
-</div>
 <header class="site-header">
   <a class="brand-lockup" href="/">CYBERPOP</a>
   <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
@@ -34,21 +30,62 @@
     <div id="heroPreviews" class="showcase-previews studio-action-grid" aria-label="Explore CyberPop Studio">
       <a class="studio-action monthly-action" href="/access?package=monthly-drop"><span id="monthlyDropMosaic" class="monthly-drop-mosaic" aria-hidden="true"></span><span class="studio-action-index">01 / COLLECTIONS</span><span class="studio-action-bottom"><strong>MONTHLY<br>DROP</strong><i aria-hidden="true">↗</i></span></a>
       <a class="studio-action custom-action" href="/request"><span class="studio-action-index">02 / DESIGN</span><span class="studio-action-bottom"><strong>CUSTOM<br>DESIGN</strong><i aria-hidden="true">↗</i></span></a>
-      <a class="studio-action contact-action" href="/request?type=general"><span class="studio-action-index">03 / STUDIO</span><span class="studio-action-bottom"><strong>CONTACT<br>US</strong><i aria-hidden="true">↗</i></span></a>
+      <a class="studio-action contact-action" href="https://landing.cyberpopstudio.com/"><span class="studio-action-index">03 / RESOURCES</span><span class="studio-action-bottom"><strong>PRINT<br>GUIDE</strong><i aria-hidden="true">↗</i></span></a>
     </div>
+  </section>
+
+  <section class="site-shell section portfolio-section" id="newReleases" hidden>
+    <div class="section-head">
+      <div><span class="eyebrow">SELECTED MODELS</span><h2 class="section-title">Selected Works</h2></div>
+      <a class="text-link" href="/collections">Explore Archive →</a>
+    </div>
+    <div id="newReleaseGrid" class="selected-work-grid"></div>
   </section>
 
   <section class="drop-access-section" aria-labelledby="dropAccessTitle">
     <div class="site-shell drop-access-inner">
-      <div class="drop-access-heading"><span class="eyebrow">COLLECTION ACCESS</span><h2 id="dropAccessTitle">Join Monthly Drop</h2></div>
-      <details class="drop-access-collapse">
-        <summary><span>Collection packages</span><b>View options</b></summary>
-        <div class="drop-access-options">
-          <article class="drop-access-card monthly" tabindex="0"><span>MONTHLY DROP</span><h3>Current Collection</h3><div class="drop-access-reveal"><strong>$20</strong><small>Purchase the current month and access every model released—or still to come—this month. Cults code included; download here too.</small><a href="/access?package=monthly-drop">JOIN MONTHLY →</a></div></article>
-          <article class="drop-access-card archive" tabindex="0"><span>PAST COLLECTIONS</span><h3>Archive Collection</h3><div class="drop-access-reveal"><strong>$30</strong><small>Choose any completed monthly collection. One collection per selection.</small><a href="/access?package=past-collections">SELECT COLLECTIONS →</a></div></article>
-          <article class="drop-access-card featured" tabindex="0"><span>LONG-TERM ACCESS</span><h3>Annual Access</h3><div class="drop-access-reveal"><strong>$200</strong><small>12 months of upcoming monthly collections plus 3 selected past collections.</small><a href="/access?package=annual-plus-3">CHOOSE ANNUAL →</a><a class="six-month-option" href="/access?package=six-month"><span>6 MONTHS</span><b>$100</b><small>Upcoming months only · no past collections</small></a></div></article>
+      <div class="drop-access-heading">
+        <span class="eyebrow">COLLECTION ACCESS</span>
+        <h2 id="dropAccessTitle">Choose your collection.</h2>
+        <p>Get the current release, select an archive month or choose longer-term access.</p>
+      </div>
+      <div class="drop-access-panel">
+        <div class="drop-access-options visible-plans">
+          <article class="drop-access-card">
+            <span>01 / CURRENT MONTH</span><h3>Monthly Drop</h3><strong class="plan-price">$20</strong>
+            <p>The current month's models, including upcoming releases in that month.</p>
+            <a href="/access?package=monthly-drop">GET MONTHLY ACCESS ↗</a>
+          </article>
+          <article class="drop-access-card">
+            <span>02 / ARCHIVE</span><h3>Past Collection</h3><strong class="plan-price">$30 <small>/ month</small></strong>
+            <p>Choose any completed collection. Each archive month is purchased separately.</p>
+            <a href="/access?package=past-collections">CHOOSE ARCHIVE ↗</a>
+          </article>
+          <article class="drop-access-card">
+            <span>03 / SIX MONTHS</span><h3>6 Month Access</h3><strong class="plan-price">$100</strong>
+            <p>Six upcoming monthly collections. Archive months are not included.</p>
+            <a href="/access?package=six-month">GET 6 MONTHS ↗</a>
+          </article>
+          <article class="drop-access-card featured">
+            <span>04 / LONG-TERM ACCESS</span><h3>Annual Access</h3><strong class="plan-price">$200</strong>
+            <p>Twelve upcoming monthly collections plus three selected past collections.</p>
+            <a href="/access?package=annual-plus-3">GET ANNUAL ACCESS ↗</a>
+          </article>
         </div>
-      </details>
+        <p class="manual-checkout-note">Requests are reviewed manually. Your payment link is provided in your account after review; no payment is taken on this page.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="site-shell section production-section" aria-labelledby="productionTitle">
+    <div class="section-head">
+      <div><span class="eyebrow">DESIGNED FOR FDM PRINTING</span><h2 id="productionTitle" class="section-title">Color-separated. No AMS required.</h2></div>
+      <a class="text-link" href="https://landing.cyberpopstudio.com/">PRINT SETTINGS ↗</a>
+    </div>
+    <div class="production-grid">
+      <div><span>01 / DESIGN</span><h3>Multipart models</h3><p>Characters are divided into individual components to support multicolor printing.</p></div>
+      <div><span>02 / PRINT</span><h3>Separate colors</h3><p>Print color-separated parts individually without relying on an automatic material changer.</p></div>
+      <div><span>03 / SETTINGS</span><h3>Studio print profiles</h3><p>Access the CyberPop print guide and recommended slicer profiles.</p><a href="https://landing.cyberpopstudio.com/">OPEN PRINT GUIDE ↗</a></div>
     </div>
   </section>
 
@@ -60,13 +97,12 @@
     <div id="homeCollections" class="collection-grid" aria-live="polite"><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div></div>
   </section>
 
-  <section class="site-shell section portfolio-section" id="newReleases" hidden>
-    <div class="section-head">
-      <div><span class="eyebrow">SELECTED MODELS</span><h2 class="section-title">Selected Works</h2></div>
-      <a class="text-link" href="/collections">Explore Archive →</a>
-    </div>
-    <div id="newReleaseGrid" class="selected-work-grid"></div>
+  <section class="site-shell section faq-section" aria-labelledby="faqTitle">
+    <div class="section-head"><div><span class="eyebrow">ABOUT THE COLLECTIONS</span><h2 id="faqTitle" class="section-title">Frequently asked questions</h2></div></div>
+    <details><summary>Do I need an AMS to print these models?</summary><p>No. The multipart designs separate colors into printable components, so you can print them without an automatic material changer.</p></details>
+    <details><summary>How does collection access work?</summary><p>Choose a package and submit an access request. After review, the payment link appears in your CyberPop account. Access is granted after payment confirmation.</p></details>
+    <details><summary>Where can I find recommended print settings?</summary><p>CyberPop Studio's print guide and slicer profiles are available at <a href="https://landing.cyberpopstudio.com/">landing.cyberpopstudio.com</a>.</p></details>
   </section>
 </main>
-<footer class="footer"><div class="site-shell footer-grid"><div><strong>CYBERPOP</strong></div><div><div class="footer-label">Explore</div><div class="footer-links"><a href="/collections">Collections</a><a href="/request">Custom Design</a><a href="/library">Library</a></div></div><div><div class="footer-label">Account</div><div class="footer-links"><a href="/account">Profile</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></div></div></div></footer>
+<footer class="footer"><div class="site-shell footer-grid"><div><strong>CYBERPOP</strong></div><div><div class="footer-label">Explore</div><div class="footer-links"><a href="/collections">Collections</a><a href="/request">Custom Design</a><a href="https://landing.cyberpopstudio.com/">Print Guide</a><a href="/library">Library</a></div></div><div><div class="footer-label">Account</div><div class="footer-links"><a href="/account">Profile</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></div></div></div></footer>
 <script type="module" src="/home.js"></script></body></html>
