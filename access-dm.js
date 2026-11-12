@@ -56,6 +56,7 @@ function choosePackage(slug) {
   summary.textContent = plan.name + ' — ' + plan.price;
   preview.value = plan.message;
   status.textContent = '';
+  copyOnly.textContent = 'COPY MESSAGE';
 
   // Keep the selected package if the customer returns from Instagram.
   const url = new URL(window.location.href);
@@ -99,6 +100,7 @@ async function copyMessage() {
 }
 
 optionButtons.forEach(button => button.addEventListener('click', () => choosePackage(button.dataset.package)));
+preview.addEventListener('input', () => { status.textContent = ''; copyOnly.textContent = 'COPY MESSAGE'; });
 copyOnly.addEventListener('click', async () => {
   if (await copyMessage()) copyOnly.textContent = 'COPIED';
 });
