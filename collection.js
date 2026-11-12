@@ -4,10 +4,13 @@ const slug=new URLSearchParams(location.search).get('slug');let session=null,col
 const curatedHero=/^2026-(04|05|06|07|08|09|10)$/.test(slug||'')?'/images/cults/'+slug+'.webp':'';
 if(curatedHero)setMediaImage(document.querySelector('.collection-detail-art'),curatedHero,'COLLECTION ARTWORK');
 function card(p,index){
-  const label=(collection?.display_name||'CyberPop Collection')+' #'+String(index+1);
+  const label=String(p.public_title||'').trim()||(collection?.display_name||'CyberPop Collection')+' #'+String(p.product_number||index+1);
   const media=p.thumbnail_url?mediaMarkup(p.thumbnail_url,label):'<div class="media-placeholder"><span>CYBERPOP</span></div>';
   const badge=p.has_access?'<span class="store-product-badge owned-badge">IN YOUR LIBRARY</span>':'';
-  return '<article class="store-product-card"><div class="store-product-media">'+media+badge+'</div><div class="store-product-body"><h3>'+esc(label)+'</h3></div></article>';
+  const listing=String(p.public_preview_url||'');
+  const cultsUrl=/^https:\/\/cults3d\.com\//i.test(listing)?listing:'';
+  const link=cultsUrl?'<a class="model-listing-link" href="'+esc(cultsUrl)+'" target="_blank" rel="noopener noreferrer">VIEW ON CULTS ↗</a>':'';
+  return '<article class="store-product-card"><div class="store-product-media">'+media+badge+'</div><div class="store-product-body"><h3>'+esc(label)+'</h3>'+link+'</div></article>';
 }
 function render(){
   let rows=[...products];
