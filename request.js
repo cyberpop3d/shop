@@ -60,7 +60,7 @@ document.querySelector('#requestForm').addEventListener('submit',async e=>{
     document.querySelector('#requestPrinter').value.trim()&&'Printer / material: '+document.querySelector('#requestPrinter').value.trim(),
     document.querySelector('#requestDeadline').value&&'Requested deadline: '+document.querySelector('#requestDeadline').value
   ].filter(Boolean);
-  const brief=[document.querySelector('#requestBrief').value.trim(),...details].join('\\n');
+  const brief=[document.querySelector('#requestBrief').value.trim(),...details].join('\n');
   if(brief.length>5000){status.textContent='Please shorten your project brief or reference link.';return}
 
   setButtonBusy(button,true,'Submitting…');
