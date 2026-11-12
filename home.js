@@ -92,7 +92,7 @@ async function loadHome(){
   renderShowcase(collections,models,slots,snapshot);
 
   // All model artwork and titles come from the published CyberPop/Cults catalog.
-  const displayTitle=value=>String(value||'').replace(/\\s+Multipart\\s+No[- ]?AMS\\b/ig,'').replace(/\\s+Multipart\\b/ig,'').replace(/\\s+No[- ]?AMS\\b/ig,'').trim();
+  const displayTitle=value=>String(value||'').replace(/\s+Multipart\s+No[- ]?AMS\b/ig,'').replace(/\s+Multipart\b/ig,'').replace(/\s+No[- ]?AMS\b/ig,'').trim();
   const publishedSlugs=new Set(collections.map(c=>c.slug));
   const selectedPool=Object.entries(snapshot).filter(([collectionSlug])=>publishedSlugs.has(collectionSlug)).flatMap(([collectionSlug,items])=>{
     return (items||[]).filter(item=>item.imageUrl).map((item,index)=>({
