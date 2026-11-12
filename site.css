@@ -616,3 +616,17 @@ a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,s
   .visible-plans .drop-access-card p{margin:8px 0 12px}
   .visible-plans .drop-access-card .plan-price{margin:6px 0}
 }
+
+
+.collection-index-heading{padding:clamp(46px,5vw,72px) 0 clamp(28px,3vw,45px);border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:30px}
+.collection-index-heading h1{font-size:clamp(43px,5.6vw,74px);line-height:.95;font-weight:700;letter-spacing:-.065em;margin:13px 0 15px}
+.collection-index-heading p{font-size:14px;line-height:1.6;color:#aeb5c3;margin:0}
+#productGrid .store-product-body h3{font-size:14px;line-height:1.3;white-space:normal;overflow:visible;text-overflow:clip;min-height:36px;margin-bottom:10px}
+#productGrid .model-listing-link{font-size:10px;font-weight:800;letter-spacing:.06em;display:inline-flex;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.32);line-height:1.35}
+#productGrid .model-listing-link:hover{border-color:#fff}
+@media(max-width:760px){
+  .collection-index-heading{padding:38px 0 26px;margin-bottom:22px}
+  .collection-index-heading h1{font-size:clamp(40px,10vw,56px)}
+  #productGrid .store-product-body h3{font-size:12px;min-height:32px}
+  #productGrid .model-listing-link{font-size:9px}
+}
