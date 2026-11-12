@@ -656,3 +656,6 @@ a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,s
   .menu-toggle{order:3}
   .site-nav{order:4}
 }
+
+/* Keep the unfinished account/library checkout flows out of public navigation. */
+.footer a[href="/account"],.footer a[href="/library"]{display:none!important}
