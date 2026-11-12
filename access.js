@@ -9,32 +9,8 @@ const packages=[
 ];
 
 const displayedPrice=p=>p.slug==='past-collections'?p.price*Math.max(1,selectedCollections.size):p.price;
-function updatePurchaseSummary(){
-  const target=document.querySelector('#purchaseSummary');
-  if(!target)return;
-  const plan=packages.find(p=>p.slug===selectedPackage)||packages[0];
-  const count=selectedCollections.size;
-  const archive=selectedPackage==='past-collections';
-  const annual=selectedPackage==='annual-plus-3';
-  const total=archive?count*30:plan.price;
-  const description=archive?(count?count+' archive collection(s) selected':'Choose your archive months'):annual?(count===3?'Three archive collections included':'Select three archive collections'):plan.description;
-  target.replaceChildren();
-  const left=document.createElement('div');
-  const caption=document.createElement('span');
-  caption.textContent='REQUEST SUMMARY / BEFORE DISCOUNTS';
-  const heading=document.createElement('strong');
-  heading.textContent=plan.label;
-  const detail=document.createElement('span');
-  detail.textContent=description;
-  left.append(caption,heading,detail);
-  const price=document.createElement('strong');
-  price.className='purchase-summary-price';
-  price.textContent='$'+total.toFixed(0)+' USD';
-  target.append(left,price);
-}
 function renderPlans(){
   const target=document.querySelector('#accessPlans');
-  updatePurchaseSummary();
   target.innerHTML=packages.map(p=>
     '<button type="button" class="purchase-plan '+(selectedPackage===p.slug?'selected':'')+'" data-plan="'+p.slug+'" aria-pressed="'+(selectedPackage===p.slug)+'">'+
       '<span class="purchase-plan-dot" aria-hidden="true"></span><span><span class="purchase-plan-label">'+esc(p.label)+'</span><small>'+esc(p.description)+'</small></span><strong>$'+displayedPrice(p).toFixed(0)+'</strong><span class="purchase-plan-currency">'+p.suffix+'</span>'+
@@ -55,7 +31,6 @@ function renderCollectionChooser(){
   const annual=selectedPackage==='annual-plus-3';
   document.querySelector('#pastCollectionTitle').textContent=annual?'Choose 3 included past collections':'Choose past collections · $30 each';
   document.querySelector('#pastCollectionCount').textContent=annual?selectedCollections.size+' / 3 selected':selectedCollections.size+' selected · $'+(selectedCollections.size*30);
-  updatePurchaseSummary();
   document.querySelector('#pastCollectionOptions').innerHTML=pastCollections.map(c=>{
     const checked=selectedCollections.has(c.slug);
     const disabled=annual&&!checked&&selectedCollections.size>=3;
