@@ -85,3 +85,28 @@
 .purchase-submit.manual-dm-checkout .btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
 .purchase-panel .manual-checkout-note{margin-top:20px;max-width:520px}
 @media(max-width:560px){.purchase-submit.manual-dm-checkout{align-items:stretch}.purchase-submit.manual-dm-checkout .btn{width:100%}}
+
+
+/* Select package first, edit a DM draft, then copy and open Instagram. */
+.purchase-panel .purchase-plan{color:inherit;font:inherit;font-family:inherit}
+.purchase-panel .purchase-plan:focus-visible{outline:2px solid #f4f3ff;outline-offset:2px}
+.dm-message-preview{margin-top:24px;padding-top:4px}
+.dm-message-preview .purchase-details-head{padding-top:18px;padding-bottom:15px}
+.dm-selected-package{margin:17px 0 17px;color:#afb4c1;font-size:12px;line-height:1.5}
+.dm-selected-package strong{color:#fff;font-size:13px;font-weight:700}
+.dm-preview-label{display:block;margin-bottom:10px;font-size:11px;font-weight:650;color:#eceef2}
+.dm-message-textarea{display:block;width:100%;box-sizing:border-box;min-height:116px;border-radius:6px;border:1px solid rgba(255,255,255,.22);background:#141821;color:#f4f5f8;padding:15px 16px;resize:vertical;line-height:1.65;font-family:inherit;font-size:13px;letter-spacing:0}
+.dm-message-textarea:focus-visible{outline:2px solid #baa9e8;outline-offset:2px}
+.dm-paste-note{font-size:11px;color:#aab1bf;line-height:1.55;margin:12px 0 8px}
+.dm-copy-only{display:inline-flex;align-items:center;justify-content:center;padding:10px 0 5px;margin:3px 0 0;border:0;border-bottom:1px solid rgba(255,255,255,.4);border-radius:0;background:transparent;color:#f4f3f7;font-family:inherit;font-size:10px;letter-spacing:.08em;font-weight:750;cursor:pointer}
+.dm-copy-only:hover,.dm-copy-only:focus-visible{border-color:#fff}
+.purchase-submit.manual-dm-checkout{margin-top:20px}
+.dm-copy-status{min-height:19px;margin:13px 0 0;color:#c9d1d8;font-size:11px;line-height:1.55}
+.dm-manual-link{display:inline-block;margin:5px 0 0;color:#b7bdc9;font-size:10px;text-decoration:underline;text-underline-offset:3px}
+.dm-manual-link:hover{color:#fff}
+@media(max-width:560px){
+  .dm-message-preview{margin-top:17px}
+  .dm-message-textarea{min-height:132px;font-size:13px;padding:12px}
+  .purchase-submit.manual-dm-checkout{margin-top:18px}
+  .purchase-submit.manual-dm-checkout .btn{min-height:48px}
+}
