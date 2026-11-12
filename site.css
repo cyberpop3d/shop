@@ -630,3 +630,11 @@ a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,s
   #productGrid .store-product-body h3{font-size:12px;min-height:32px}
   #productGrid .model-listing-link{font-size:9px}
 }
+
+
+.faq-section{padding-top:clamp(38px,4vw,62px);padding-bottom:clamp(55px,5vw,80px)}
+.faq-section details{border-top:1px solid rgba(255,255,255,.16);padding:0 4px}
+.faq-section details:last-child{border-bottom:1px solid rgba(255,255,255,.16)}
+.faq-section summary{display:list-item;list-style-position:inside;cursor:pointer;padding:22px 0;font-size:15px;font-weight:650}
+.faq-section details p{margin:0 0 25px;max-width:740px;font-size:13px;color:#b2bac6;line-height:1.7}
+.faq-section details p a{color:#fff;text-decoration:underline;text-underline-offset:3px}
