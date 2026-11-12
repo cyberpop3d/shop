@@ -10,9 +10,10 @@
 <body>
 <header class="site-header">
   <a class="brand-lockup" href="/">CYBERPOP</a>
-  <button class="menu-toggle" aria-label="Menu">☰</button>
+  <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
   <nav class="site-nav">
     <a href="/collections">Collections</a>
+    <a href="/access">Get Access</a>
     <a href="/request" class="active">Custom Design</a>
     <a href="/library">Library</a>
     <a class="account-chip" href="/account"><span data-account-label>Account</span></a>
@@ -53,7 +54,12 @@
           </select>
         </label>
         <label class="profile-wide">Subject<input class="field" id="requestSubject" maxlength="200" placeholder="e.g. School mascot head for sports figures"></label>
-        <label class="profile-wide">Brief<textarea class="field profile-textarea" id="requestBrief" maxlength="5000" required placeholder="Describe what you need, intended use, references you have, and any deadline or technical requirement."></textarea></label>
+        <label class="profile-wide">Reference link (optional)<input class="field" id="referenceUrl" type="url" maxlength="1800" placeholder="Link to reference images or a shared folder"></label>
+        <p class="request-help profile-wide">Use a direct image link or a shared folder with viewing access. Files are not uploaded through this form.</p>
+        <label>Target print size (optional)<input class="field" id="requestSize" maxlength="80" placeholder="e.g. 250 mm tall"></label>
+        <label>Printer / material (optional)<input class="field" id="requestPrinter" maxlength="120" placeholder="e.g. Bambu X1C, PLA"></label>
+        <label class="profile-wide">Deadline (optional)<input class="field" id="requestDeadline" type="date"></label>
+        <label class="profile-wide">Project brief<textarea class="field profile-textarea" id="requestBrief" maxlength="4000" required placeholder="Describe the character or part, intended use, and design requirements."></textarea></label>
         <label class="profile-wide legal-check"><input id="requestConsent" type="checkbox" required><span>I confirm these details are correct and I have read the <a href="/privacy" target="_blank">Privacy Policy</a> and <a href="/terms" target="_blank">Terms</a>.</span></label>
         <div class="profile-wide profile-actions">
           <button class="btn btn-light" id="requestSubmit" type="submit">Submit request →</button>
