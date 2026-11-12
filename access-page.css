@@ -75,3 +75,13 @@
 .purchase-fields .field:focus{border-color:#baa9e8}
 @media(max-width:900px){.purchase-intro{min-height:0}.purchase-intro-foot{margin-top:24px}.purchase-panel{min-height:0}.purchase-layout{padding-top:42px}}
 @media(max-width:560px){.purchase-shell{padding-bottom:52px}.purchase-intro h1{font-size:clamp(50px,13vw,70px)}.purchase-layout{padding-top:32px;gap:28px}.purchase-panel{padding:0 16px 22px}}
+
+
+/* Manual DM purchase flow — no account or payment form required. */
+.purchase-plan{cursor:pointer;text-decoration:none}
+.purchase-plan .purchase-plan-label{display:block}
+.purchase-submit.manual-dm-checkout p{max-width:310px}
+.purchase-submit.manual-dm-checkout p a{text-decoration:underline;text-underline-offset:3px;color:#eef0ed}
+.purchase-submit.manual-dm-checkout .btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.purchase-panel .manual-checkout-note{margin-top:20px;max-width:520px}
+@media(max-width:560px){.purchase-submit.manual-dm-checkout{align-items:stretch}.purchase-submit.manual-dm-checkout .btn{width:100%}}

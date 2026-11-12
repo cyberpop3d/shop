@@ -638,3 +638,24 @@ a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,s
 .faq-section summary{display:list-item;list-style-position:inside;cursor:pointer;padding:22px 0;font-size:15px;font-weight:650}
 .faq-section details p{margin:0 0 25px;max-width:740px;font-size:13px;color:#b2bac6;line-height:1.7}
 .faq-section details p a{color:#fff;text-decoration:underline;text-underline-offset:3px}
+
+
+/* Temporary storefront: direct Instagram checkout and a compact language selector. */
+.site-nav{margin-left:auto}
+.site-language-picker{display:flex;align-items:center;flex:none;margin-left:8px}
+.site-language-picker select{color:#e9e9ec;background:#10131a;border:1px solid rgba(255,255,255,.23);border-radius:5px;padding:8px 8px;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.05em;min-height:34px;cursor:pointer}
+.site-language-picker select:hover,.site-language-picker select:focus-visible{border-color:rgba(255,255,255,.64)}
+.site-nav .account-chip,.site-nav a[href="/library"]{display:none!important}
+.footer-links a[href="/account"],.footer-links a[href="/library"]{display:none!important}
+.auth-mode[data-auth-mode="signup"]{display:none!important}
+.manual-checkout-note{margin:16px 0 0;font-size:12px;line-height:1.6;color:#aeb5c3}
+.manual-checkout-note a,.collection-payment-note a{color:#f1f1f5;text-decoration:underline;text-underline-offset:3px}
+.collection-payment-note{font-size:11px!important;line-height:1.6;color:#aeb5c3;margin:16px 0 0;max-width:485px}
+@media(max-width:760px){
+  .site-language-picker{order:2;margin-left:auto;margin-right:8px}
+  .menu-toggle{order:3}
+  .site-nav{order:4}
+}
+
+/* Keep the unfinished account/library checkout flows out of public navigation. */
+.footer a[href="/account"],.footer a[href="/library"]{display:none!important}
